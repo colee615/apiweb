@@ -133,6 +133,14 @@ class AdminPageController extends Controller
                 ]),
                 'items' => $this->sectionItems($page, 'services'),
             ],
+            'status' => [
+                'settings' => $this->sectionSettings($page, 'status', [
+                    'title' => 'Estado de tu Envio',
+                    'subtitle' => 'Ingresa tu numero de seguimiento para conocer el estado de tu paquete',
+                    'placeholder' => 'Ej: PE123456789',
+                    'button_label' => 'Rastrear',
+                ]),
+            ],
             'tools' => [
                 'settings' => $this->sectionSettings($page, 'tools', []),
             ],
@@ -206,7 +214,14 @@ class AdminPageController extends Controller
                 ];
             })),
 
-            $this->makeSectionPayload($page, 'tools', 'Herramientas', 'tools', 4, [
+            $this->makeSectionPayload($page, 'status', 'Estado de envio', 'tracking_form', 4, [
+                'title' => $request->input('status.title', data_get($this->buildEditorData($page), 'status.settings.title')),
+                'subtitle' => $request->input('status.subtitle', data_get($this->buildEditorData($page), 'status.settings.subtitle')),
+                'placeholder' => $request->input('status.placeholder', data_get($this->buildEditorData($page), 'status.settings.placeholder')),
+                'button_label' => $request->input('status.button_label', data_get($this->buildEditorData($page), 'status.settings.button_label')),
+            ]),
+
+            $this->makeSectionPayload($page, 'tools', 'Herramientas', 'tools', 5, [
                 'map_title' => $request->input('tools.map_title'),
                 'map_text' => $request->input('tools.map_text'),
                 'map_button_label' => $request->input('tools.map_button_label'),
@@ -221,7 +236,7 @@ class AdminPageController extends Controller
                 'calculate_button_label' => $request->input('tools.calculate_button_label'),
             ]),
 
-            $this->makeSectionPayload($page, 'app_banner', 'Banner App', 'app_banner', 5, [
+            $this->makeSectionPayload($page, 'app_banner', 'Banner App', 'app_banner', 6, [
                 'title' => $request->input('app_banner.title'),
                 'text' => $request->input('app_banner.text'),
                 'app_store_label' => $request->input('app_banner.app_store_label'),
@@ -231,7 +246,7 @@ class AdminPageController extends Controller
                 'background_image' => $this->storeUploadedImage($request, 'app_banner.background_file', $request->input('app_banner.background_image'), 'cms/app-banner'),
             ]),
 
-            $this->makeSectionPayload($page, 'market', 'Market', 'product_grid', 6, [
+            $this->makeSectionPayload($page, 'market', 'Market', 'product_grid', 7, [
                 'title' => $request->input('market.title'),
                 'subtitle' => $request->input('market.subtitle'),
                 'view_all_label' => $request->input('market.view_all_label'),
@@ -247,7 +262,7 @@ class AdminPageController extends Controller
                 ];
             })),
 
-            $this->makeSectionPayload($page, 'footer', 'Pie de pagina', 'footer', 7, [
+            $this->makeSectionPayload($page, 'footer', 'Pie de pagina', 'footer', 8, [
                 'help_title' => $request->input('footer.help_title'),
                 'company_title' => $request->input('footer.company_title'),
                 'contact_title' => $request->input('footer.contact_title'),
