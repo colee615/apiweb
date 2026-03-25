@@ -165,6 +165,7 @@ class AdminPageController extends Controller
     protected function buildSectionsPayload(Request $request, SitePage $page): array
     {
         $form = $request->all();
+        $statusSettings = data_get($this->buildEditorData($page), 'status.settings', []);
 
         return [
             $this->makeSectionPayload($page, 'announcement_modal', 'Popup de inicio', 'announcement_modal', 0, [
@@ -215,10 +216,10 @@ class AdminPageController extends Controller
             })),
 
             $this->makeSectionPayload($page, 'status', 'Estado de envio', 'tracking_form', 4, [
-                'title' => $request->input('status.title', data_get($this->buildEditorData($page), 'status.settings.title')),
-                'subtitle' => $request->input('status.subtitle', data_get($this->buildEditorData($page), 'status.settings.subtitle')),
-                'placeholder' => $request->input('status.placeholder', data_get($this->buildEditorData($page), 'status.settings.placeholder')),
-                'button_label' => $request->input('status.button_label', data_get($this->buildEditorData($page), 'status.settings.button_label')),
+                'title' => $request->input('status.title', $statusSettings['title'] ?? 'Estado de tu Envio'),
+                'subtitle' => $request->input('status.subtitle', $statusSettings['subtitle'] ?? 'Ingresa tu numero de seguimiento para conocer el estado de tu paquete'),
+                'placeholder' => $request->input('status.placeholder', $statusSettings['placeholder'] ?? 'Ej: PE123456789'),
+                'button_label' => $request->input('status.button_label', $statusSettings['button_label'] ?? 'Rastrear'),
             ]),
 
             $this->makeSectionPayload($page, 'tools', 'Herramientas', 'tools', 5, [
