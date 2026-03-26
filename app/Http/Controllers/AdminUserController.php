@@ -23,6 +23,7 @@ class AdminUserController extends Controller
         return view('admin.users.form', [
             'user' => new User(),
             'mode' => 'create',
+            'roles' => User::availableRoles(),
         ]);
     }
 
@@ -31,7 +32,7 @@ class AdminUserController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:160'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'job_title' => ['nullable', 'string', 'max:160'],
+            'job_title' => ['required', 'string', Rule::in(User::availableRoles())],
             'password' => ['required', 'string', 'min:8'],
             'is_active' => ['nullable', 'boolean'],
         ]);
@@ -39,7 +40,7 @@ class AdminUserController extends Controller
         User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'job_title' => $data['job_title'] ?? null,
+            'job_title' => $data['job_title'],
             'password' => Hash::make($data['password']),
             'is_active' => $request->boolean('is_active', true),
         ]);
@@ -54,6 +55,7 @@ class AdminUserController extends Controller
         return view('admin.users.form', [
             'user' => $user,
             'mode' => 'edit',
+            'roles' => User::availableRoles(),
         ]);
     }
 
@@ -62,7 +64,7 @@ class AdminUserController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:160'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'job_title' => ['nullable', 'string', 'max:160'],
+            'job_title' => ['required', 'string', Rule::in(User::availableRoles())],
             'password' => ['nullable', 'string', 'min:8'],
             'is_active' => ['nullable', 'boolean'],
         ]);
@@ -70,7 +72,7 @@ class AdminUserController extends Controller
         $user->fill([
             'name' => $data['name'],
             'email' => $data['email'],
-            'job_title' => $data['job_title'] ?? null,
+            'job_title' => $data['job_title'],
             'is_active' => $request->boolean('is_active'),
         ]);
 

@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @php
     $announcement = $editorData['announcement_modal'];
@@ -10,26 +10,249 @@
     $appBanner = $editorData['app_banner'];
     $market = $editorData['market'];
     $footer = $editorData['footer'];
+    $historySections = $historyData['history_sections'];
     $address = explode('|', $footer['settings']['address'] ?? '|');
     $phone = explode('|', $footer['settings']['phone'] ?? '|');
+    $currentVersionNumber = $page->latest_version ?? optional($versions->first())->version_number;
+    $historySectionLabels = collect($historySections)->pluck('label', 'key')->all();
+    $historySectionLabels['general'] = 'General';
+    $historyActionLabels = [
+        'created' => 'Creacion',
+        'updated' => 'Actualizacion',
+        'deleted' => 'Eliminacion',
+        'restored' => 'Restauracion',
+    ];
+    $historyFieldLabels = [
+        'slug' => 'Slug',
+        'name' => 'Nombre',
+        'title' => 'Titulo',
+        'subtitle' => 'Subtitulo',
+        'text' => 'Texto',
+        'description' => 'Descripcion',
+        'label' => 'Etiqueta',
+        'placeholder' => 'Placeholder',
+        'button_label' => 'Texto del boton',
+        'tracking_title' => 'Titulo de rastreo',
+        'tracking_text' => 'Texto de rastreo',
+        'tracking_label' => 'Etiqueta de rastreo',
+        'tracking_placeholder' => 'Placeholder de rastreo',
+        'tracking_button' => 'Boton de rastreo',
+        'view_all_label' => 'Texto de ver todo',
+        'view_all_url' => 'Enlace de ver todo',
+        'app_store_label' => 'Texto App Store',
+        'play_store_label' => 'Texto Google Play',
+        'app_store_url' => 'Enlace App Store',
+        'play_store_url' => 'Enlace Google Play',
+        'map_title' => 'Titulo del mapa',
+        'map_text' => 'Texto del mapa',
+        'map_button_label' => 'Boton del mapa',
+        'calculator_title' => 'Titulo de calculadora',
+        'calculator_text' => 'Texto de calculadora',
+        'origin_label' => 'Etiqueta de origen',
+        'origin_placeholder' => 'Placeholder de origen',
+        'destination_label' => 'Etiqueta de destino',
+        'destination_placeholder' => 'Placeholder de destino',
+        'weight_label' => 'Etiqueta de peso',
+        'weight_placeholder' => 'Placeholder de peso',
+        'calculate_button_label' => 'Boton de calcular',
+        'help_label' => 'Ayuda / contacto',
+        'login_label' => 'Inicio de sesion',
+        'search_placeholder' => 'Placeholder de busqueda',
+        'language_primary' => 'Idioma principal',
+        'language_secondary' => 'Idioma secundario',
+        'accessibility_label' => 'Etiqueta de accesibilidad',
+        'url' => 'Enlace',
+        'src' => 'Imagen o archivo',
+        'poster' => 'Portada',
+        'poster_image' => 'Imagen principal',
+        'poster_title' => 'Titulo del popup',
+        'poster_caption' => 'Pie del popup',
+        'icon' => 'Icono',
+        'iconImage' => 'Imagen del icono',
+        'image' => 'Imagen',
+        'background_image' => 'Imagen de fondo',
+        'price' => 'Precio',
+        'year' => 'Ano',
+        'series' => 'Serie',
+        'group' => 'Grupo',
+        'media_type' => 'Tipo de medio',
+        'phone' => 'Telefono',
+        'email' => 'Correo',
+        'address' => 'Direccion',
+        'copyright' => 'Copyright',
+        'legal_text' => 'Texto legal',
+        'help_title' => 'Titulo de ayuda',
+        'company_title' => 'Titulo de empresa',
+        'contact_title' => 'Titulo de contacto',
+        'social_title' => 'Titulo de redes',
+        'social_text' => 'Texto de redes',
+        'logo_url' => 'Logo',
+        'primary_color' => 'Color principal',
+        'secondary_color' => 'Color secundario',
+        'accent_color' => 'Color de acento',
+        'enabled' => 'Visibilidad',
+        'show_once' => 'Mostrar solo una vez',
+        'storage_key' => 'Clave de control',
+        'settings' => 'Configuracion',
+        'data' => 'Contenido',
+        'theme' => 'Identidad visual',
+        'page_meta' => 'Configuracion general',
+        'is_active' => 'Estado',
+        'sort_order' => 'Orden',
+        'type' => 'Tipo',
+        'key' => 'Clave',
+    ];
+    $historyIgnoredKeys = ['id', 'page_id', 'section_id', 'item_id', 'created_at', 'updated_at'];
+    $historyAssetFields = ['src', 'poster', 'poster_image', 'iconImage', 'image', 'background_image', 'logo_url'];
+    $isAssocHistoryArray = function (array $value): bool {
+        return array_keys($value) !== range(0, count($value) - 1);
+    };
+    $formatHistoryPath = function (array $segments) use ($historyFieldLabels) {
+        $labels = collect($segments)
+            ->filter(fn ($segment) => filled($segment))
+            ->map(function ($segment) use ($historyFieldLabels) {
+                if (is_int($segment)) {
+                    return 'Elemento ' . ($segment + 1);
+                }
+
+                if (is_string($segment) && str_starts_with($segment, '#')) {
+                    return 'Elemento ' . substr($segment, 1);
+                }
+
+                return $historyFieldLabels[$segment] ?? ucfirst(str_replace('_', ' ', (string) $segment));
+            })
+            ->values()
+            ->all();
+
+        return implode(' > ', $labels);
+    };
+    $describeHistoryValue = function ($value, array $segments = []) use ($historyAssetFields) {
+        $field = end($segments) ?: null;
+
+        if ($value === null || $value === '') {
+            return 'Sin valor';
+        }
+
+        if (is_bool($value)) {
+            return $value ? 'Activo' : 'Inactivo';
+        }
+
+        if (is_array($value)) {
+            return count($value) . ' elemento(s)';
+        }
+
+        $text = trim((string) $value);
+
+        if (in_array($field, $historyAssetFields, true) || filter_var($text, FILTER_VALIDATE_URL)) {
+            $path = parse_url($text, PHP_URL_PATH) ?: $text;
+            $filename = basename($path);
+            return $filename ? 'Archivo: ' . $filename : 'Archivo o recurso vinculado';
+        }
+
+        return \Illuminate\Support\Str::limit($text, 160);
+    };
+    $buildHistoryDiff = function ($before, $after, array $segments = []) use (&$buildHistoryDiff, $historyIgnoredKeys, $isAssocHistoryArray, $formatHistoryPath, $describeHistoryValue, $historyAssetFields) {
+        $changes = [];
+
+        if (is_array($before) || is_array($after)) {
+            $beforeArray = is_array($before) ? $before : [];
+            $afterArray = is_array($after) ? $after : [];
+
+            if ($isAssocHistoryArray($beforeArray ?: $afterArray)) {
+                $keys = collect(array_keys($beforeArray))
+                    ->merge(array_keys($afterArray))
+                    ->unique()
+                    ->reject(fn ($key) => in_array($key, $historyIgnoredKeys, true))
+                    ->values();
+
+                foreach ($keys as $key) {
+                    $changes = array_merge(
+                        $changes,
+                        $buildHistoryDiff($beforeArray[$key] ?? null, $afterArray[$key] ?? null, [...$segments, $key])
+                    );
+                }
+
+                return $changes;
+            }
+
+            $max = max(count($beforeArray), count($afterArray));
+
+            for ($index = 0; $index < $max; $index++) {
+                $changes = array_merge(
+                    $changes,
+                    $buildHistoryDiff($beforeArray[$index] ?? null, $afterArray[$index] ?? null, [...$segments, $index])
+                );
+            }
+
+            return $changes;
+        }
+
+        if ($before === $after) {
+            return [];
+        }
+
+        $field = end($segments) ?: null;
+        $isAsset = in_array($field, $historyAssetFields, true);
+        $changeType = 'Actualizado';
+
+        if (($before === null || $before === '') && ($after !== null && $after !== '')) {
+            $changeType = 'Agregado';
+        } elseif (($after === null || $after === '') && ($before !== null && $before !== '')) {
+            $changeType = 'Eliminado';
+        } elseif ($isAsset) {
+            $changeType = 'Imagen o archivo reemplazado';
+        } elseif (is_string($before) || is_string($after)) {
+            $changeType = 'Texto actualizado';
+        }
+
+        return [[
+            'label' => $formatHistoryPath($segments),
+            'type' => $changeType,
+            'before' => $describeHistoryValue($before, $segments),
+            'after' => $describeHistoryValue($after, $segments),
+        ]];
+    };
 @endphp
 
 @section('content')
 <div
     class="admin-shell stack"
     x-data="{
-        tab: 'design_text',
-        previewDevice: 'mobile',
+        tab: @js(request('tab', 'design_text')),
         go(section) {
             this.tab = section;
+            if (window.history && window.history.replaceState) {
+                const url = new URL(window.location.href);
+                url.searchParams.set('tab', section);
+                if (section.startsWith('history')) {
+                    url.hash = 'history-root';
+                } else {
+                    url.hash = '';
+                }
+                window.history.replaceState({}, '', url.toString());
+            }
+
+            if (section.startsWith('history')) {
+                this.$nextTick(() => {
+                    const target = document.getElementById('history-root');
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+                return;
+            }
+
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+        isHistoryTab() {
+            return this.tab.startsWith('history');
         }
     }"
 >
     <div class="admin-topbar">
         <div class="admin-brand">
             <h2>Editor Studio de {{ $page->name }}</h2>
-            <p>Una experiencia pensada para diseo, contenido e imagenes sin tocar codigo.</p>
+            <p>Una experiencia visual mÃ¡s clara para diseÃ±o, contenido, medios e historial sin tocar cÃ³digo.</p>
         </div>
         <div class="actions">
             <a href="{{ route('admin.dashboard') }}" class="button button-secondary">Volver al panel</a>
@@ -41,8 +264,8 @@
         <div class="split-header">
             <div style="max-width: 760px;">
                 <div class="section-eyebrow">Creative workspace</div>
-                <h1 style="margin:14px 0 10px; font-size:40px; line-height:1;">Control visual total del sitio</h1>
-                <p class="section-copy">Edita encabezado, portada, servicios, productos, pie de pagina y estilos desde una interfaz mas clara, elegante y preparada para un administrador no tecnico.</p>
+                <h1 style="margin:14px 0 10px; font-size:40px; line-height:1;">Control visual total de la pÃ¡gina</h1>
+                <p class="section-copy">Edita encabezado, portada, servicios, productos, pie de pÃ¡gina y estilos desde una mesa de trabajo mÃ¡s ordenada, elegante y preparada para gestiÃ³n editorial real.</p>
             </div>
             <div class="section-metrics">
                 <span class="pill {{ $page->is_active ? 'pill-ok' : 'pill-off' }}">{{ $page->is_active ? 'Publicada' : 'Oculta' }}</span>
@@ -50,6 +273,24 @@
                 <span class="pill pill-off">{{ count($services['items']) }} servicios</span>
                 <span class="pill pill-off">{{ count($market['items']) }} productos</span>
             </div>
+        </div>
+    </div>
+
+    <div class="card-grid">
+        <div class="spot-card">
+            <span>Enlaces</span>
+            <strong>{{ count($header['links']) }}</strong>
+            <p>NavegaciÃ³n principal configurada para esta pÃ¡gina.</p>
+        </div>
+        <div class="spot-card">
+            <span>Servicios</span>
+            <strong>{{ count($services['items']) }}</strong>
+            <p>Bloques de servicios listos para ediciÃ³n visual.</p>
+        </div>
+        <div class="spot-card">
+            <span>Historial</span>
+            <strong>{{ $historyData['total_changes'] }}</strong>
+            <p>Cambios acumulados con trazabilidad y restauraciÃ³n.</p>
         </div>
     </div>
 
@@ -62,9 +303,9 @@
 
         <div class="editor-layout">
             <aside class="editor-sidebar">
-                <div class="editor-nav">
-                    <h3>Secciones del diseo</h3>
-                    <p>Muevete por bloques como si editaras una mesa de trabajo.</p>
+                <div class="editor-nav" x-show="!isHistoryTab()">
+                    <h3>Secciones de diseno</h3>
+                    <p>En este modo solo ves herramientas de edicion. El historial queda separado en su propio submenu.</p>
 
                     <div class="editor-nav-list">
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'announcement' }" @click="go('announcement')"><strong>Popup de inicio</strong><span>Imagen institucional al abrir</span></button>
@@ -74,6 +315,72 @@
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'banner' }" @click="go('banner')"><strong>Banner</strong><span>Imagen directa del bloque app</span></button>
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'market' }" @click="go('market')"><strong>Filatelia</strong><span>Productos y colecciones</span></button>
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'footer' }" @click="go('footer')"><strong>Footer</strong><span>Textos, urls y logo</span></button>
+                    </div>
+                </div>
+
+                <div class="editor-nav" style="margin-top:18px;" x-show="isHistoryTab()">
+                    <h3>Historial</h3>
+                    <p>Cada guardado genera una version con usuario, fecha y resumen del cambio.</p>
+
+                    <div class="stack" style="gap:12px;">
+                        @forelse ($versions as $version)
+                            @php($isCurrentVersion = (int) $version->version_number === (int) $currentVersionNumber)
+                            <div class="repeater-card" style="padding:14px;">
+                                <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
+                                    <div>
+                                        <strong>Version {{ $version->version_number }}</strong>
+                                        <div style="font-size:12px; color:#6b7280; margin-top:4px;">
+                                            {{ $historyActionLabels[$version->action] ?? ucfirst($version->action) }} · {{ optional($version->created_at)->format('d/m/Y H:i') }}
+                                        </div>
+                                    </div>
+                                    <span class="pill {{ $version->action === 'restored' ? 'pill-ok' : 'pill-off' }}">
+                                        {{ $historyActionLabels[$version->action] ?? ucfirst($version->action) }}
+                                    </span>
+                                </div>
+                                @if ($isCurrentVersion)
+                                    <div style="margin-top:10px;">
+                                        <span class="pill pill-ok">Version actual</span>
+                                    </div>
+                                @endif
+
+                                <div style="margin-top:10px; font-size:13px; color:#4b5563;">
+                                    <div><strong>Responsable:</strong> {{ $version->created_by_name ?: 'Sistema' }}</div>
+                                    @if ($version->change_summary)
+                                        <div style="margin-top:6px;"><strong>Resumen editorial:</strong> {{ $version->change_summary }}</div>
+                                    @endif
+                                    <div style="margin-top:6px;"><strong>Cambios incluidos:</strong> {{ $version->changeLogs->count() }}</div>
+                                </div>
+
+                                @if ($isCurrentVersion)
+                                    <div class="button button-secondary" style="width:100%; margin-top:12px; opacity:.78; cursor:default;">Version actual publicada</div>
+                                @else
+                                    <form method="POST" action="{{ route('admin.pages.restore', [$page, $version]) }}" style="margin-top:12px;">
+                                        @csrf
+                                        <input type="hidden" name="change_summary" value="Restauracion desde version {{ $version->version_number }}">
+                                        <button type="submit" class="button button-secondary" style="width:100%;">Volver a esta version</button>
+                                    </form>
+                                @endif
+                            </div>
+                        @empty
+                            <div class="empty-note">Todavia no hay versiones registradas.</div>
+                        @endforelse
+                    </div>
+                </div>
+                <div class="editor-nav" style="margin-top:18px;" x-show="isHistoryTab()">
+                    <h3>Historial por seccion</h3>
+                    <p>Submenus separados para navegar el historial completo de cada parte del sitio.</p>
+
+                    <div class="editor-nav-list">
+                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'history_overview' }" @click="go('history_overview')">
+                            <strong>Resumen general</strong>
+                            <span>{{ $historyData['total_changes'] }} cambios registrados</span>
+                        </button>
+                        @foreach ($historySections as $historySection)
+                            <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'history_{{ $historySection['key'] }}' }" @click="go('history_{{ $historySection['key'] }}')">
+                                <strong>{{ $historySection['label'] }}</strong>
+                                <span>{{ $historySection['count'] }} eventos</span>
+                            </button>
+                        @endforeach
                     </div>
                 </div>
             </aside>
@@ -151,7 +458,7 @@
                         <div>
                             <div class="section-eyebrow">Base de marca</div>
                             <h3 class="section-title">Configuracion general</h3>
-                            <p class="section-copy">Gestiona identidad visual, SEO y estado de publicacion.</p>
+                            <p class="section-copy">Gestiona identidad visual, SEO y estado de publicaciÃ³n con criterios mÃ¡s claros para ediciÃ³n ejecutiva.</p>
                         </div>
                         <div class="section-metrics">
                             <span class="pill pill-off">Logo</span>
@@ -160,25 +467,57 @@
                         </div>
                     </div>
 
+                    <div class="spec-grid" style="margin-bottom:16px;">
+                        <div class="spec-card">
+                            <strong>Titulo interno</strong>
+                            <span>Recomendado: hasta 60 caracteres. Debe ser corto, reconocible y operativo para el equipo.</span>
+                        </div>
+                        <div class="spec-card">
+                            <strong>SEO</strong>
+                            <span>Titulo sugerido hasta 60 caracteres. Descripcion sugerida entre 120 y 160 caracteres para buscadores.</span>
+                        </div>
+                        <div class="spec-card">
+                            <strong>Logo e identidad</strong>
+                            <span>Usa logo horizontal legible y colores institucionales en formato hexadecimal, por ejemplo <code>#20539A</code>.</span>
+                        </div>
+                    </div>
+
                     <div class="design-grid">
                         <div class="subpanel span-8">
                             <h4>Informacion principal</h4>
-                            <p>Estos datos organizan la pagina dentro del panel y mejoran como se presenta en buscadores.</p>
+                            <p>Estos datos organizan la pÃ¡gina dentro del panel y mejoran su presentaciÃ³n pÃºblica.</p>
                             <div class="grid grid-2">
-                                <div class="field"><label>Nombre interno</label><input type="text" name="name" value="{{ old('name', $page->name) }}" required></div>
-                                <div class="field"><label>Slug</label><input type="text" name="slug" value="{{ old('slug', $page->slug) }}" required></div>
-                                <div class="field"><label>Titulo SEO</label><input type="text" name="meta_title" value="{{ old('meta_title', $page->meta_title) }}"></div>
-                                <div class="field"><label>Descripcion SEO</label><input type="text" name="meta_description" value="{{ old('meta_description', $page->meta_description) }}"></div>
+                                <div class="field">
+                                    <label>Nombre interno</label>
+                                    <input type="text" name="name" value="{{ old('name', $page->name) }}" maxlength="160" required>
+                                    <div class="field-help"><strong>Limite:</strong> 160 caracteres. Usa un nombre claro para gestiÃ³n interna.</div>
+                                </div>
+                                <div class="field">
+                                    <label>Slug</label>
+                                    <input type="text" name="slug" value="{{ old('slug', $page->slug) }}" maxlength="120" required>
+                                    <div class="field-help"><strong>Limite:</strong> 120 caracteres. Solo identificador corto y estable.</div>
+                                </div>
+                                <div class="field">
+                                    <label>Titulo SEO</label>
+                                    <input type="text" name="meta_title" value="{{ old('meta_title', $page->meta_title) }}" maxlength="255">
+                                    <div class="field-help"><strong>Recomendado:</strong> 50 a 60 caracteres para mejor lectura en buscadores.</div>
+                                </div>
+                                <div class="field">
+                                    <label>Descripcion SEO</label>
+                                    <input type="text" name="meta_description" value="{{ old('meta_description', $page->meta_description) }}" maxlength="255">
+                                    <div class="field-help"><strong>Recomendado:</strong> entre 120 y 160 caracteres con enfoque informativo.</div>
+                                </div>
                             </div>
                         </div>
 
                         <div class="subpanel span-4">
                             <h4>Estado del sitio</h4>
-                            <p>Decide si esta vista se muestra publicamente.</p>
+                            <p>Control ejecutivo de publicaciÃ³n para esta vista.</p>
                             <label style="display:flex; gap:10px; align-items:center; font-weight:700;">
                                 <input type="checkbox" name="is_active" value="1" {{ $page->is_active ? 'checked' : '' }}>
                                 Pagina activa
                             </label>
+                            <div class="field-help"><strong>Uso:</strong> si estÃ¡ inactiva, la vista no se mostrarÃ¡ pÃºblicamente.</div>
                         </div>
 
                         <div
@@ -190,12 +529,13 @@
                             }"
                         >
                             <h4>Paleta</h4>
-                            <p>Colores base para mantener una identidad consistente.</p>
+                            <p>Colores base para una identidad consistente y controlada.</p>
                             <div class="palette-grid">
                                 <div class="color-token">
                                     <div class="field">
                                         <label>Color principal</label>
-                                        <input type="text" name="theme[primary_color]" x-model="primaryColor">
+                                        <input type="text" name="theme[primary_color]" x-model="primaryColor" maxlength="7">
+                                        <div class="field-help"><strong>Formato:</strong> hexadecimal. Ejemplo: <code>#20539A</code>.</div>
                                     </div>
                                     <div class="color-swatch-card">
                                         <div class="color-swatch" :style="{ backgroundColor: primaryColor || '#20539a' }"></div>
@@ -205,7 +545,8 @@
                                 <div class="color-token">
                                     <div class="field">
                                         <label>Color secundario</label>
-                                        <input type="text" name="theme[secondary_color]" x-model="secondaryColor">
+                                        <input type="text" name="theme[secondary_color]" x-model="secondaryColor" maxlength="7">
+                                        <div class="field-help"><strong>Formato:</strong> hexadecimal. MantÃ©n buen contraste visual.</div>
                                     </div>
                                     <div class="color-swatch-card">
                                         <div class="color-swatch" :style="{ backgroundColor: secondaryColor || '#102542' }"></div>
@@ -215,7 +556,8 @@
                                 <div class="color-token">
                                     <div class="field">
                                         <label>Color acento</label>
-                                        <input type="text" name="theme[accent_color]" x-model="accentColor">
+                                        <input type="text" name="theme[accent_color]" x-model="accentColor" maxlength="7">
+                                        <div class="field-help"><strong>Formato:</strong> hexadecimal. Ideal para llamados visuales o resaltados.</div>
                                     </div>
                                     <div class="color-swatch-card">
                                         <div class="color-swatch" :style="{ backgroundColor: accentColor || '#f3b53f' }"></div>
@@ -227,13 +569,21 @@
 
                         <div class="subpanel span-6">
                             <h4>Logo</h4>
-                            <p>Sube un archivo o deja una URL directa si ya lo tienes en otro servidor.</p>
+                            <p>Sube un archivo o usa una URL directa si el recurso ya estÃ¡ alojado.</p>
                             <div class="image-frame">
                                 @if ($editorData['theme']['logo_url'])
                                     <img src="{{ $editorData['theme']['logo_url'] }}" alt="Logo actual" class="thumb" style="max-width: 280px;">
                                 @endif
-                                <div class="field"><label>URL del logo</label><input type="text" name="theme[logo_url]" value="{{ old('theme.logo_url', $editorData['theme']['logo_url']) }}"></div>
-                                <div class="field"><label>Subir nuevo logo</label><input type="file" name="theme[logo_file]" accept="image/*"></div>
+                                <div class="field">
+                                    <label>URL del logo</label>
+                                    <input type="text" name="theme[logo_url]" value="{{ old('theme.logo_url', $editorData['theme']['logo_url']) }}">
+                                    <div class="field-help"><strong>Recomendado:</strong> logo horizontal en PNG o SVG con fondo limpio.</div>
+                                </div>
+                                <div class="field">
+                                    <label>Subir nuevo logo</label>
+                                    <input type="file" name="theme[logo_file]" accept="image/*">
+                                    <div class="field-help"><strong>Sugerido:</strong> ancho mÃ­nimo 240 px y peso optimizado para web.</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -252,13 +602,14 @@
                     <div class="design-grid">
                         <div class="subpanel span-12">
                             <h4>Textos del header</h4>
+                            <div class="field-help" style="margin-bottom:14px;"><strong>GuÃ­a:</strong> mantÃ©n textos breves. Cada etiqueta deberÃ­a quedar idealmente entre 12 y 30 caracteres para no saturar el encabezado.</div>
                             <div class="grid grid-3">
-                                <div class="field"><label>Idioma principal</label><input type="text" name="header[language_primary]" value="{{ old('header.language_primary', $header['settings']['language_primary']) }}"></div>
-                                <div class="field"><label>Idioma secundario</label><input type="text" name="header[language_secondary]" value="{{ old('header.language_secondary', $header['settings']['language_secondary']) }}"></div>
-                                <div class="field"><label>Accesibilidad</label><input type="text" name="header[accessibility_label]" value="{{ old('header.accessibility_label', $header['settings']['accessibility_label']) }}"></div>
-                                <div class="field"><label>Ayuda / contacto</label><input type="text" name="header[help_label]" value="{{ old('header.help_label', $header['settings']['help_label']) }}"></div>
-                                <div class="field"><label>Boton login</label><input type="text" name="header[login_label]" value="{{ old('header.login_label', $header['settings']['login_label']) }}"></div>
-                                <div class="field"><label>Texto buscador</label><input type="text" name="header[search_placeholder]" value="{{ old('header.search_placeholder', $header['settings']['search_placeholder']) }}"></div>
+                                <div class="field"><label>Idioma principal</label><input type="text" name="header[language_primary]" value="{{ old('header.language_primary', $header['settings']['language_primary']) }}" maxlength="30"><div class="field-help">MÃ¡ximo 30 caracteres.</div></div>
+                                <div class="field"><label>Idioma secundario</label><input type="text" name="header[language_secondary]" value="{{ old('header.language_secondary', $header['settings']['language_secondary']) }}" maxlength="30"><div class="field-help">MÃ¡ximo 30 caracteres.</div></div>
+                                <div class="field"><label>Accesibilidad</label><input type="text" name="header[accessibility_label]" value="{{ old('header.accessibility_label', $header['settings']['accessibility_label']) }}" maxlength="40"><div class="field-help">MÃ¡ximo 40 caracteres.</div></div>
+                                <div class="field"><label>Ayuda / contacto</label><input type="text" name="header[help_label]" value="{{ old('header.help_label', $header['settings']['help_label']) }}" maxlength="40"><div class="field-help">MÃ¡ximo 40 caracteres.</div></div>
+                                <div class="field"><label>Boton login</label><input type="text" name="header[login_label]" value="{{ old('header.login_label', $header['settings']['login_label']) }}" maxlength="40"><div class="field-help">MÃ¡ximo 40 caracteres.</div></div>
+                                <div class="field"><label>Texto buscador</label><input type="text" name="header[search_placeholder]" value="{{ old('header.search_placeholder', $header['settings']['search_placeholder']) }}" maxlength="60"><div class="field-help">MÃ¡ximo 60 caracteres.</div></div>
                             </div>
                         </div>
 
@@ -653,10 +1004,205 @@
                     </div>
                 </section>
 
+                <section id="history-root" class="section-card" x-show="tab === 'history_overview'">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-eyebrow">Timeline</div>
+                            <h3 class="section-title">Historial general de la pagina</h3>
+                            <p class="section-copy">Resumen editorial de cambios y restauraciones aplicadas en esta pagina.</p>
+                        </div>
+                        <div class="section-metrics">
+                            <span class="pill pill-off">{{ $historyData['total_changes'] }} cambios</span>
+                            <span class="pill pill-off">{{ $versions->count() }} versiones recientes</span>
+                        </div>
+                    </div>
+
+                    <div class="design-grid">
+                        <div class="subpanel span-6">
+                            <h4>Versiones recientes</h4>
+                            <p>Cada guardado crea una version completa que puedes restaurar.</p>
+                            <div class="stack" style="gap:12px;">
+                                @forelse ($versions as $version)
+                                    @php($isCurrentVersion = (int) $version->version_number === (int) $currentVersionNumber)
+                                    <div class="repeater-card" style="padding:14px;">
+                                        <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
+                                            <div>
+                                                <strong>Version {{ $version->version_number }}</strong>
+                                                <div style="font-size:12px; color:#6b7280; margin-top:4px;">
+                                                    {{ $historyActionLabels[$version->action] ?? ucfirst($version->action) }} · {{ optional($version->created_at)->format('d/m/Y H:i') }}
+                                                </div>
+                                            </div>
+                                            <span class="pill {{ $version->action === 'restored' ? 'pill-ok' : 'pill-off' }}">{{ $historyActionLabels[$version->action] ?? ucfirst($version->action) }}</span>
+                                        </div>
+                                        @if ($isCurrentVersion)
+                                            <div style="margin-top:10px;">
+                                                <span class="pill pill-ok">Version actual</span>
+                                            </div>
+                                        @endif
+                                        <div style="margin-top:10px; font-size:13px; color:#4b5563;">
+                                            <div><strong>Responsable:</strong> {{ $version->created_by_name ?: 'Sistema' }}</div>
+                                            @if ($version->change_summary)
+                                                <div style="margin-top:6px;"><strong>Resumen editorial:</strong> {{ $version->change_summary }}</div>
+                                            @endif
+                                            <div style="margin-top:6px;"><strong>Cambios incluidos:</strong> {{ $version->changeLogs->count() }}</div>
+                                        </div>
+                                        @if ($isCurrentVersion)
+                                            <div class="button button-secondary" style="width:100%; margin-top:12px; opacity:.78; cursor:default;">Version actual publicada</div>
+                                        @else
+                                            <form method="POST" action="{{ route('admin.pages.restore', [$page, $version]) }}" style="margin-top:12px;">
+                                                @csrf
+                                                <input type="hidden" name="change_summary" value="Restauracion desde version {{ $version->version_number }}">
+                                                <button type="submit" class="button button-secondary" style="width:100%;">Volver a esta version</button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                @empty
+                                    <div class="empty-note">Todavia no hay versiones registradas.</div>
+                                @endforelse
+                            </div>
+                        </div>
+
+                        <div class="subpanel span-6">
+                            <h4>Cambios recientes</h4>
+                            <p>Lectura simple de las ultimas acciones realizadas en contenido y estructura.</p>
+                            <div class="stack" style="gap:12px;">
+                                @forelse ($historyData['latest_changes'] as $log)
+                                    <div class="repeater-card" style="padding:14px;">
+                                        <strong>{{ $log->summary ?: 'Cambio registrado' }}</strong>
+                                        <div style="font-size:12px; color:#6b7280; margin-top:4px;">
+                                            {{ optional($log->created_at)->format('d/m/Y H:i') }}
+                                        </div>
+                                        <div style="margin-top:10px; font-size:13px; color:#4b5563;">
+                                            <div><strong>Seccion:</strong> {{ $historySectionLabels[$log->section_key ?: 'general'] ?? ucfirst($log->section_key ?: 'general') }}</div>
+                                            <div style="margin-top:6px;"><strong>Usuario:</strong> {{ $log->created_by_name ?: 'Sistema' }}</div>
+                                            <div style="margin-top:6px;"><strong>Version:</strong> {{ $log->version?->version_number ?: 'N/D' }}</div>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="empty-note">Todavia no hay cambios registrados.</div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                @foreach ($historySections as $historySection)
+                    <section class="section-card" x-show="tab === 'history_{{ $historySection['key'] }}'">
+                        <div class="section-header">
+                            <div>
+                                <div class="section-eyebrow">Section history</div>
+                                <h3 class="section-title">Historial de {{ $historySection['label'] }}</h3>
+                                <p class="section-copy">Revision editorial clara de cambios, responsables y restauraciones de esta seccion.</p>
+                            </div>
+                            <div class="section-metrics">
+                                <span class="pill pill-off">{{ $historySection['count'] }} eventos</span>
+                                <span class="pill pill-off">{{ $historySection['versions']->count() }} versiones</span>
+                            </div>
+                        </div>
+
+                        <div class="design-grid">
+                            <div class="subpanel span-3">
+                                <h4>Versiones relacionadas</h4>
+                                <p>Guardados donde esta seccion recibio algun cambio.</p>
+                                <div class="stack" style="gap:12px;">
+                                    @forelse ($historySection['versions'] as $version)
+                                        @php($isCurrentVersion = (int) $version->version_number === (int) $currentVersionNumber)
+                                        <div class="repeater-card" style="padding:14px;">
+                                            <strong>Version {{ $version->version_number }}</strong>
+                                            <div style="font-size:12px; color:#6b7280; margin-top:4px;">
+                                                {{ $historyActionLabels[$version->action] ?? ucfirst($version->action) }} · {{ optional($version->created_at)->format('d/m/Y H:i') }}
+                                            </div>
+                                            @if ($isCurrentVersion)
+                                                <div style="margin-top:10px;">
+                                                    <span class="pill pill-ok">Version actual</span>
+                                                </div>
+                                            @endif
+                                            <div style="margin-top:8px; font-size:13px; color:#4b5563;">
+                                                <div><strong>Responsable:</strong> {{ $version->created_by_name ?: 'Sistema' }}</div>
+                                                @if ($version->change_summary)
+                                                    <div style="margin-top:6px;"><strong>Resumen editorial:</strong> {{ $version->change_summary }}</div>
+                                                @endif
+                                            </div>
+                                            @if ($isCurrentVersion)
+                                                <div class="button button-secondary" style="width:100%; margin-top:12px; opacity:.78; cursor:default;">Version actual publicada</div>
+                                            @else
+                                                <form method="POST" action="{{ route('admin.pages.restore', [$page, $version]) }}" style="margin-top:12px;">
+                                                    @csrf
+                                                    <input type="hidden" name="change_summary" value="Restauracion desde version {{ $version->version_number }} para {{ $historySection['label'] }}">
+                                                    <button type="submit" class="button button-secondary" style="width:100%;">Volver a esta version</button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                    @empty
+                                        <div class="empty-note">Esta seccion aun no tiene versiones relacionadas.</div>
+                                    @endforelse
+                                </div>
+                            </div>
+
+                            <div class="subpanel span-9">
+                                <h4>Linea de tiempo de la seccion</h4>
+                                <p>Lectura ejecutiva de lo que se modifico, quien lo hizo y como quedo el contenido.</p>
+                                <div class="stack" style="gap:12px;">
+                                    @forelse ($historySection['logs'] as $log)
+                                        <div class="repeater-card" style="padding:14px;">
+                                            <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
+                                                <div>
+                                                    <strong>{{ $log->summary ?: 'Cambio registrado' }}</strong>
+                                                    <div style="font-size:12px; color:#6b7280; margin-top:4px;">
+                                                        {{ optional($log->created_at)->format('d/m/Y H:i') }}
+                                                    </div>
+                                                </div>
+                                                <span class="pill {{ $log->action === 'restored' ? 'pill-ok' : 'pill-off' }}">{{ $historyActionLabels[$log->action] ?? ucfirst($log->action) }}</span>
+                                            </div>
+                                            <div class="grid grid-3" style="margin-top:12px;">
+                                                <div><strong>Usuario:</strong><br>{{ $log->created_by_name ?: 'Sistema' }}</div>
+                                                <div><strong>Version:</strong><br>{{ $log->version?->version_number ?: 'N/D' }}</div>
+                                                <div><strong>Elemento:</strong><br>{{ $log->item_name ?: ($historyFieldLabels[$log->field_name] ?? ($log->field_name ?: 'Seccion completa')) }}</div>
+                                            </div>
+                                            @php($changeDetails = $buildHistoryDiff($log->before_state, $log->after_state))
+                                            @if (!empty($changeDetails))
+                                                <div class="image-frame" style="margin-top:12px;">
+                                                    <strong>Cambios detectados</strong>
+                                                    <div class="stack" style="gap:10px; margin-top:12px;">
+                                                        @foreach ($changeDetails as $change)
+                                                            <div style="padding:12px 14px; border:1px solid #dbe5f3; border-radius:16px; background:#fff;">
+                                                                <div style="display:flex; justify-content:space-between; gap:12px; align-items:flex-start;">
+                                                                    <strong style="font-size:13px; color:#123047;">{{ $change['label'] ?: 'Campo actualizado' }}</strong>
+                                                                    <span class="pill pill-off">{{ $change['type'] }}</span>
+                                                                </div>
+                                                                <div class="grid grid-2" style="margin-top:10px; gap:10px;">
+                                                                    <div>
+                                                                        <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:#667085;">Antes</div>
+                                                                        <div style="margin-top:4px; font-size:13px; color:#344054; line-height:1.55;">{{ $change['before'] }}</div>
+                                                                    </div>
+                                                                    <div>
+                                                                        <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:#667085;">Despues</div>
+                                                                        <div style="margin-top:4px; font-size:13px; color:#344054; line-height:1.55;">{{ $change['after'] }}</div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @empty
+                                        <div class="empty-note">Todavia no hay cambios registrados para esta seccion.</div>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                @endforeach
+
                 <div class="save-dock">
-                    <div>
+                    <div style="flex:1;">
                         <strong style="display:block; margin-bottom:4px;">Todo listo para guardar</strong>
                         <p>El frontend publico no cambia de estructura, solo actualiza lo que el administrador controla aqui.</p>
+                        <div class="field" style="margin-top:12px;">
+                            <label>Resumen del cambio</label>
+                            <input type="text" name="change_summary" value="{{ old('change_summary') }}" placeholder="Ej: Actualice hero, servicios y footer">
+                        </div>
                     </div>
                     <button type="submit" class="button button-primary">Guardar cambios del diseno</button>
                 </div>

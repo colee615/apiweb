@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\SitePage;
+use App\Models\SitePageChangeLog;
+use App\Models\SitePageVersion;
 use App\Services\SitePageEditor;
+use Illuminate\Support\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -40,6 +43,8 @@ class AdminPageController extends Controller
         return view('admin.pages.edit', [
             'page' => $page,
             'editorData' => $this->buildEditorData($page),
+            'versions' => $page->versions()->with(['actor', 'changeLogs'])->take(12)->get(),
+            'historyData' => $this->buildHistoryData($page),
         ]);
     }
 
@@ -56,6 +61,7 @@ class AdminPageController extends Controller
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string'],
             'is_active' => ['nullable', 'boolean'],
+            'change_summary' => ['nullable', 'string', 'max:1000'],
         ]);
 
         $payload = [
@@ -73,11 +79,36 @@ class AdminPageController extends Controller
             'sections' => $this->buildSectionsPayload($request, $page),
         ];
 
-        $this->editor->updatePage($page, $payload);
+        $this->editor->updatePage(
+            $page,
+            $payload,
+            $request->attributes->get('admin_user'),
+            ['change_summary' => $data['change_summary'] ?? null]
+        );
 
         return redirect()
             ->route('admin.pages.edit', $page)
-            ->with('status', 'Diseno y contenidos actualizados correctamente.');
+            ->with('status', 'Diseño y contenidos actualizados correctamente.');
+    }
+
+    public function restore(Request $request, SitePage $page, SitePageVersion $version): RedirectResponse
+    {
+        abort_unless($version->site_page_id === $page->id, 404);
+
+        $data = $request->validate([
+            'change_summary' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $this->editor->restoreVersion(
+            $page,
+            $version,
+            $request->attributes->get('admin_user'),
+            $data['change_summary'] ?? null
+        );
+
+        return redirect()
+            ->route('admin.pages.edit', $page)
+            ->with('status', 'Se restauró la versión seleccionada correctamente.');
     }
 
     protected function buildEditorData(SitePage $page): array
@@ -104,11 +135,11 @@ class AdminPageController extends Controller
             ],
             'header' => [
                 'settings' => $this->sectionSettings($page, 'header', [
-                    'language_primary' => 'Espanol',
+                    'language_primary' => 'Español',
                     'language_secondary' => 'English',
                     'accessibility_label' => 'Accesibilidad',
                     'help_label' => 'Ayuda / Contacto',
-                    'login_label' => 'Iniciar Sesion',
+                    'login_label' => 'Iniciar sesión',
                     'search_placeholder' => 'Buscar...',
                 ]),
                 'links' => $this->sectionItems($page, 'header'),
@@ -116,10 +147,10 @@ class AdminPageController extends Controller
             'hero' => [
                 'settings' => $this->sectionSettings($page, 'hero', [
                     'title' => 'Conectando Bolivia|con el Mundo',
-                    'subtitle' => 'Servicio postal confiable, rapido y seguro',
-                    'tracking_title' => 'Rastrea tu Envio',
-                    'tracking_text' => 'Ingresa tu codigo de seguimiento para conocer el estado de tu paquete',
-                    'tracking_label' => 'Codigo de seguimiento',
+                    'subtitle' => 'Servicio postal confiable, rápido y seguro',
+                    'tracking_title' => 'Rastrea tu envío',
+                    'tracking_text' => 'Ingresa tu código de seguimiento para conocer el estado de tu paquete',
+                    'tracking_label' => 'Código de seguimiento',
                     'tracking_placeholder' => 'Ej: PE123456789',
                     'tracking_button' => 'Buscar',
                 ]),
@@ -128,15 +159,15 @@ class AdminPageController extends Controller
             'services' => [
                 'settings' => $this->sectionSettings($page, 'services', [
                     'title' => 'Servicios Destacados',
-                    'subtitle' => 'Soluciones integrales para todas tus necesidades de envio',
+                    'subtitle' => 'Soluciones integrales para todas tus necesidades de envío',
                     'kicker' => 'Servicio destacado',
                 ]),
                 'items' => $this->sectionItems($page, 'services'),
             ],
             'status' => [
                 'settings' => $this->sectionSettings($page, 'status', [
-                    'title' => 'Estado de tu Envio',
-                    'subtitle' => 'Ingresa tu numero de seguimiento para conocer el estado de tu paquete',
+                    'title' => 'Estado de tu envío',
+                    'subtitle' => 'Ingresa tu número de seguimiento para conocer el estado de tu paquete',
                     'placeholder' => 'Ej: PE123456789',
                     'button_label' => 'Rastrear',
                 ]),
@@ -215,9 +246,9 @@ class AdminPageController extends Controller
                 ];
             })),
 
-            $this->makeSectionPayload($page, 'status', 'Estado de envio', 'tracking_form', 4, [
-                'title' => $request->input('status.title', $statusSettings['title'] ?? 'Estado de tu Envio'),
-                'subtitle' => $request->input('status.subtitle', $statusSettings['subtitle'] ?? 'Ingresa tu numero de seguimiento para conocer el estado de tu paquete'),
+            $this->makeSectionPayload($page, 'status', 'Estado de envío', 'tracking_form', 4, [
+                'title' => $request->input('status.title', $statusSettings['title'] ?? 'Estado de tu envío'),
+                'subtitle' => $request->input('status.subtitle', $statusSettings['subtitle'] ?? 'Ingresa tu número de seguimiento para conocer el estado de tu paquete'),
                 'placeholder' => $request->input('status.placeholder', $statusSettings['placeholder'] ?? 'Ej: PE123456789'),
                 'button_label' => $request->input('status.button_label', $statusSettings['button_label'] ?? 'Rastrear'),
             ]),
@@ -263,7 +294,7 @@ class AdminPageController extends Controller
                 ];
             })),
 
-            $this->makeSectionPayload($page, 'footer', 'Pie de pagina', 'footer', 8, [
+            $this->makeSectionPayload($page, 'footer', 'Pie de página', 'footer', 8, [
                 'help_title' => $request->input('footer.help_title'),
                 'company_title' => $request->input('footer.company_title'),
                 'contact_title' => $request->input('footer.contact_title'),
@@ -472,5 +503,49 @@ class AdminPageController extends Controller
         }
 
         return $value;
+    }
+
+    protected function buildHistoryData(SitePage $page): array
+    {
+        $changeLogs = $page->changeLogs()
+            ->with(['actor', 'version'])
+            ->orderByDesc('created_at')
+            ->get();
+
+        $sectionLabels = collect([
+            'general' => 'General',
+            'announcement_modal' => 'Popup de inicio',
+        ])->merge(
+            $page->sections
+                ->sortBy('sort_order')
+                ->mapWithKeys(fn ($section) => [$section->key => $section->name ?: ucfirst(str_replace('_', ' ', $section->key))])
+        );
+
+        $historySections = $sectionLabels->map(function ($label, $key) use ($changeLogs) {
+            $logs = $key === 'general'
+                ? $changeLogs->filter(fn (SitePageChangeLog $log) => empty($log->section_key))
+                : $changeLogs->filter(fn (SitePageChangeLog $log) => $log->section_key === $key);
+
+            $versions = $logs
+                ->pluck('version')
+                ->filter()
+                ->unique('id')
+                ->sortByDesc('version_number')
+                ->values();
+
+            return [
+                'key' => $key,
+                'label' => $label,
+                'count' => $logs->count(),
+                'logs' => $logs->values(),
+                'versions' => $versions,
+            ];
+        })->values();
+
+        return [
+            'total_changes' => $changeLogs->count(),
+            'history_sections' => $historySections,
+            'latest_changes' => $changeLogs->take(20)->values(),
+        ];
     }
 }

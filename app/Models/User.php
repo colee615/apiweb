@@ -10,6 +10,9 @@ class User extends Authenticatable implements JWTSubject
 {
     use Notifiable;
 
+    public const ROLE_ADMINISTRADOR = 'Administrador';
+    public const ROLE_GESTOR = 'Gestor';
+
     protected $fillable = [
         'name',
         'email',
@@ -32,6 +35,40 @@ class User extends Authenticatable implements JWTSubject
         'password',
         'remember_token',
     ];
+
+    public function getRoleAttribute(): string
+    {
+        return $this->normalizeRole($this->job_title);
+    }
+
+    public static function availableRoles(): array
+    {
+        return [
+            self::ROLE_ADMINISTRADOR,
+            self::ROLE_GESTOR,
+        ];
+    }
+
+    public function isAdministrator(): bool
+    {
+        return $this->role === self::ROLE_ADMINISTRADOR;
+    }
+
+    public function isGestor(): bool
+    {
+        return $this->role === self::ROLE_GESTOR;
+    }
+
+    protected function normalizeRole(?string $value): string
+    {
+        $normalized = trim((string) $value);
+
+        if (strcasecmp($normalized, self::ROLE_GESTOR) === 0) {
+            return self::ROLE_GESTOR;
+        }
+
+        return self::ROLE_ADMINISTRADOR;
+    }
 
     public function getJWTIdentifier()
     {

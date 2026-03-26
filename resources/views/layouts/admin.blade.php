@@ -11,29 +11,29 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #f3f5fb;
+            --bg: #eef3f9;
             --panel: rgba(255,255,255,.88);
             --panel-solid: #ffffff;
             --line: #dfe6f3;
             --line-strong: #cfd8ea;
             --text: #0f172a;
             --muted: #667085;
-            --primary: #20539a;
-            --primary-dark: #163e76;
-            --accent: #102542;
-            --accent-soft: #1e365b;
+            --primary: #0f4c81;
+            --primary-dark: #0a3559;
+            --accent: #123047;
+            --accent-soft: #214d68;
             --success: #0c7a58;
-            --sidebar: #0d1423;
-            --sidebar-soft: #15233b;
-            --shadow: 0 18px 60px rgba(16, 37, 66, 0.12);
+            --sidebar: #0d1b2a;
+            --sidebar-soft: #18364d;
+            --shadow: 0 20px 60px rgba(18, 48, 71, 0.12);
         }
         * { box-sizing: border-box; }
         body {
             margin: 0;
             font-family: "Manrope", Arial, sans-serif;
             background:
-                radial-gradient(circle at top left, rgba(32, 83, 154, .08), transparent 24%),
-                radial-gradient(circle at top right, rgba(16, 37, 66, .08), transparent 22%),
+                radial-gradient(circle at top left, rgba(15, 76, 129, .10), transparent 24%),
+                radial-gradient(circle at top right, rgba(18, 48, 71, .08), transparent 22%),
                 var(--bg);
             color: var(--text);
         }
@@ -44,18 +44,18 @@
             top: 0;
             height: 100vh;
             background:
-                radial-gradient(circle at top, rgba(255,255,255,.08), transparent 28%),
-                linear-gradient(180deg, var(--sidebar), #10192b 55%, #16253f);
+                radial-gradient(circle at top, rgba(255,255,255,.10), transparent 28%),
+                linear-gradient(180deg, #0d1b2a, #123047 52%, #1d516f);
             color: #fff;
-            padding: 24px 18px;
+            padding: 28px 20px;
         }
         .brand {
-            padding: 16px;
-            border: 1px solid rgba(255,255,255,.08);
-            border-radius: 24px;
-            background: rgba(255,255,255,.04);
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,.10);
+            border-radius: 28px;
+            background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
             backdrop-filter: blur(12px);
-            margin-bottom: 18px;
+            margin-bottom: 22px;
         }
         .brand-badge {
             display: inline-flex;
@@ -70,30 +70,38 @@
         }
         .brand h1 { margin: 0; font-size: 24px; font-weight: 800; }
         .brand p { margin: 10px 0 0; color: rgba(255,255,255,.72); line-height: 1.5; font-size: 14px; }
-        .nav-group { display: grid; gap: 10px; }
+        .nav-group { display: grid; gap: 12px; }
         .nav-link {
             display: flex; align-items: center; justify-content: space-between; gap: 12px;
-            padding: 15px 16px; border-radius: 18px;
-            color: rgba(255,255,255,.82); border: 1px solid transparent;
+            padding: 16px 18px; border-radius: 20px;
+            color: rgba(255,255,255,.86); border: 1px solid transparent;
             transition: .2s ease;
         }
-        .nav-link:hover { background: rgba(255,255,255,.05); }
+        .nav-link:hover { background: rgba(255,255,255,.07); transform: translateX(2px); }
         .nav-link.active {
-            background: linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
-            border-color: rgba(255,255,255,.09);
+            background: linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.07));
+            border-color: rgba(255,255,255,.14);
             color: #fff;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 12px 24px rgba(0,0,0,.12);
         }
+        .nav-link-meta { display:grid; gap:4px; }
+        .nav-link-title { font-weight: 800; }
+        .nav-link-copy { font-size: 12px; color: rgba(255,255,255,.62); }
+        .nav-link.active .nav-link-copy { color: rgba(255,255,255,.82); }
         .nav-link span:last-child {
             width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;
             border-radius: 12px; background: rgba(255,255,255,.07); font-size: 12px; font-weight: 800;
         }
-        .sidebar-footer {
-            margin-top: 18px; padding: 16px; border-radius: 20px;
-            background: rgba(255,255,255,.06); color: rgba(255,255,255,.82); font-size: 14px;
-            border: 1px solid rgba(255,255,255,.06);
+        .role-chip {
+            display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px;
+            background: rgba(255,255,255,.10); color:#fff; font-size:12px; font-weight:800; letter-spacing:.04em;
         }
-        .content { padding: 28px; }
+        .sidebar-footer {
+            margin-top: 18px; padding: 18px; border-radius: 22px;
+            background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05)); color: rgba(255,255,255,.86); font-size: 14px;
+            border: 1px solid rgba(255,255,255,.10);
+        }
+        .content { padding: 34px 30px; }
         .admin-shell { max-width: 1380px; margin: 0 auto; }
         .admin-topbar { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 24px; }
         .admin-brand h2 { margin: 0; font-size: 34px; font-weight: 800; }
@@ -129,6 +137,16 @@
         }
         .field textarea { min-height: 120px; resize: vertical; }
         .field textarea.field-small { min-height: 90px; }
+        .field-help {
+            margin-top: 8px;
+            font-size: 12px;
+            line-height: 1.55;
+            color: var(--muted);
+        }
+        .field-help strong {
+            color: var(--accent);
+            font-weight: 800;
+        }
         .notice { padding:16px 18px; border-radius:18px; margin-bottom:16px; font-weight: 700; }
         .notice-success { background:#eaf9f2; color:var(--success); }
         .notice-error { background:#fdeaea; color:var(--primary); }
@@ -141,13 +159,135 @@
         .muted { color:var(--muted); }
         .login-wrap {
             min-height:100vh; display:grid; place-items:center; padding:24px;
-            background: radial-gradient(circle at top, #233a61, #11192b 50%, #0b1220);
+            background:
+                radial-gradient(circle at top, rgba(74, 144, 226, .22), transparent 26%),
+                linear-gradient(160deg, #10263a, #0d1b2a 48%, #173b55);
         }
         .login-card { width:min(520px,100%); }
         .toolbar { display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between; align-items:center; }
         .actions { display:flex; gap:10px; flex-wrap:wrap; }
         .section-title { margin:0 0 6px; font-size:24px; font-weight: 800; }
         .section-copy { margin:0; color:var(--muted); line-height: 1.5; }
+        .page-hero {
+            padding: 28px;
+            border-radius: 30px;
+            background:
+                radial-gradient(circle at top right, rgba(15,76,129,.16), transparent 28%),
+                linear-gradient(135deg, #ffffff, #f6f9fc);
+            border: 1px solid rgba(255,255,255,.8);
+            box-shadow: var(--shadow);
+        }
+        .page-hero-grid {
+            display:grid;
+            grid-template-columns: minmax(0, 1.3fr) minmax(320px, .7fr);
+            gap: 18px;
+            align-items: stretch;
+        }
+        .hero-card {
+            padding: 22px;
+            border-radius: 24px;
+            background: rgba(255,255,255,.78);
+            border: 1px solid rgba(255,255,255,.9);
+        }
+        .hero-kicker {
+            display:inline-flex; padding:8px 12px; border-radius:999px; background:#e8f0f8;
+            color:var(--accent); font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.06em;
+        }
+        .hero-title {
+            margin: 16px 0 12px;
+            font-size: 42px;
+            line-height: .98;
+        }
+        .hero-lead {
+            margin: 0;
+            max-width: 760px;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.65;
+        }
+        .info-list { display:grid; gap:12px; }
+        .info-item {
+            padding: 16px 18px;
+            border-radius: 18px;
+            border: 1px solid var(--line);
+            background: linear-gradient(180deg, #fff, #f8fbff);
+        }
+        .info-item strong { display:block; margin-bottom:6px; }
+        .info-item span { color: var(--muted); font-size: 14px; line-height: 1.5; }
+        .spec-grid {
+            display:grid;
+            grid-template-columns: repeat(3, minmax(0,1fr));
+            gap: 12px;
+        }
+        .spec-card {
+            padding: 16px 18px;
+            border-radius: 18px;
+            border: 1px solid var(--line);
+            background: linear-gradient(180deg, #fff, #f8fbff);
+        }
+        .spec-card strong {
+            display:block;
+            margin-bottom: 6px;
+        }
+        .spec-card span {
+            display:block;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.55;
+        }
+        .card-grid {
+            display:grid;
+            grid-template-columns: repeat(3, minmax(0,1fr));
+            gap: 16px;
+        }
+        .spot-card {
+            padding: 20px;
+            border-radius: 24px;
+            border: 1px solid var(--line);
+            background: linear-gradient(180deg, #fff, #f9fbff);
+        }
+        .spot-card strong {
+            display:block;
+            font-size: 28px;
+            margin-top: 10px;
+        }
+        .spot-card span {
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+        .spot-card p {
+            margin: 10px 0 0;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.55;
+        }
+        .table-shell {
+            overflow: hidden;
+            border-radius: 26px;
+            background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(247,249,253,.95));
+            border: 1px solid rgba(255,255,255,.9);
+            box-shadow: var(--shadow);
+        }
+        .table-toolbar {
+            display:flex;
+            justify-content:space-between;
+            align-items:flex-start;
+            gap:16px;
+            padding: 22px 24px 0;
+        }
+        .table-toolbar p { margin: 8px 0 0; color: var(--muted); }
+        .table-shell .panel-body { padding-top: 12px; }
+        .table-note {
+            display:inline-flex;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: #edf3f9;
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 800;
+        }
         .repeater-card {
             border:1px solid var(--line); border-radius:22px; padding:18px; background:#fff;
             box-shadow: 0 10px 30px rgba(16, 37, 66, .06);
@@ -166,10 +306,26 @@
         .hero-panel {
             padding: 28px;
             background:
-                radial-gradient(circle at top right, rgba(32,83,154,.16), transparent 26%),
-                radial-gradient(circle at top left, rgba(16,37,66,.12), transparent 22%),
+                radial-gradient(circle at top right, rgba(15,76,129,.16), transparent 26%),
+                radial-gradient(circle at top left, rgba(18,48,71,.12), transparent 22%),
                 linear-gradient(135deg, #ffffff, #f7f9fd);
         }
+        .admin-hero-band {
+            display:flex; justify-content:space-between; gap:18px; align-items:center;
+            padding: 18px 22px; border-radius: 24px;
+            background: linear-gradient(135deg, rgba(15,76,129,.08), rgba(255,255,255,.7));
+            border: 1px solid rgba(15,76,129,.10);
+            margin-bottom: 22px;
+        }
+        .admin-hero-band strong { display:block; margin-bottom:4px; }
+        .admin-hero-band p { margin:0; color: var(--muted); }
+        .admin-hero-metrics { display:flex; gap:12px; flex-wrap:wrap; }
+        .metric-pill {
+            padding: 12px 14px; border-radius: 18px; background:#fff; border:1px solid var(--line);
+            min-width: 140px;
+        }
+        .metric-pill strong { display:block; font-size: 20px; }
+        .metric-pill span { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
         .tab-bar {
             display:flex; gap:10px; flex-wrap:wrap; padding:12px;
             background:#fff; border:1px solid var(--line); border-radius:22px; position: sticky; top: 16px; z-index: 10;
@@ -197,7 +353,7 @@
             background: linear-gradient(135deg, rgba(16,37,66,.96), rgba(25,43,70,.78)), var(--hero-bg, #102542);
             color:#fff; display:grid; align-content:space-between;
         }
-        .editor-layout { display:grid; grid-template-columns: 280px minmax(0, 1fr) 360px; gap: 20px; align-items:start; }
+        .editor-layout { display:grid; grid-template-columns: 260px minmax(0, 1fr); gap: 24px; align-items:start; }
         .editor-sidebar, .editor-preview { position: sticky; top: 22px; }
         .editor-nav {
             padding: 18px;
@@ -236,9 +392,11 @@
         .section-header { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:18px; }
         .section-metrics { display:flex; gap:10px; flex-wrap:wrap; }
         .design-grid { display:grid; grid-template-columns: repeat(12, minmax(0,1fr)); gap: 16px; }
+        .span-3 { grid-column: span 3; }
         .span-4 { grid-column: span 4; }
         .span-6 { grid-column: span 6; }
         .span-8 { grid-column: span 8; }
+        .span-9 { grid-column: span 9; }
         .span-12 { grid-column: 1 / -1; }
         .subpanel {
             padding: 18px;
@@ -276,11 +434,11 @@
         .empty-note { padding: 18px; border-radius: 18px; border: 1px dashed var(--line); color: var(--muted); background: #fbfcfe; text-align: center; }
         .form-card { padding: 22px; border-radius: 24px; background: #fff; border: 1px solid var(--line); box-shadow: var(--shadow); }
         @media (max-width: 1320px) { .editor-layout { grid-template-columns: 1fr; } .editor-sidebar, .editor-preview { position: static; } }
-        @media (max-width: 1180px) { .preview-grid { grid-template-columns: 1fr; } .stat-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+        @media (max-width: 1180px) { .preview-grid { grid-template-columns: 1fr; } .stat-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } .page-hero-grid, .card-grid, .spec-grid { grid-template-columns: 1fr; } }
         @media (max-width: 1080px) { .admin-app { grid-template-columns:1fr; } .sidebar { position: static; height: auto; } }
         @media (max-width: 900px) {
             .grid-2, .grid-3, .grid-4, .stat-grid, .mini-service-grid, .design-grid, .palette-grid { grid-template-columns:1fr; }
-            .span-4, .span-6, .span-8, .span-12 { grid-column: auto; }
+            .span-3, .span-4, .span-6, .span-8, .span-9, .span-12 { grid-column: auto; }
             .admin-topbar, .toolbar, .actions, .split-header { align-items:flex-start; flex-direction:column; }
             .content { padding: 18px; }
         }
@@ -292,6 +450,10 @@
 @if ($isLogin)
     @yield('content')
 @else
+    @php($requestedTab = (string) request('tab', ''))
+    @php($isPageEdit = request()->routeIs('admin.pages.edit'))
+    @php($isHistoryMode = $isPageEdit && str_starts_with($requestedTab, 'history'))
+    @php($historyUrl = $isPageEdit ? (request()->url() . '?tab=history_overview#history-root') : route('admin.dashboard'))
     <div class="admin-app">
         <aside class="sidebar">
             <div class="brand">
@@ -300,25 +462,52 @@
                 <p>Panel visual para gestionar vistas, usuarios, imagenes y bloques del sitio.</p>
             </div>
 
+            <div class="role-chip" style="margin-bottom:18px;">
+                <span>Rol</span>
+                <strong>{{ $adminUser->role ?? 'Administrador' }}</strong>
+            </div>
+
             <nav class="nav-group">
-                <a class="nav-link {{ request()->routeIs('admin.dashboard') || request()->routeIs('admin.pages.*') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
+                <a class="nav-link {{ request()->routeIs('admin.dashboard') || (request()->routeIs('admin.pages.*') && !$isHistoryMode) ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
                     <span>Diseño</span>
                     <span>01</span>
                 </a>
-                <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">
-                    <span>Usuarios</span>
+                <a class="nav-link {{ $isHistoryMode ? 'active' : '' }}" href="{{ $historyUrl }}">
+                    <span>Historial</span>
                     <span>02</span>
                 </a>
+                @if (($adminUser->role ?? 'Administrador') === 'Administrador')
+                <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">
+                    <span>Usuarios</span>
+                    <span>03</span>
+                </a>
+                @endif
             </nav>
 
             <div class="sidebar-footer">
                 <strong style="display:block; margin-bottom:8px;">Sesion activa</strong>
                 <div>{{ $adminUser->name ?? 'Administrador' }}</div>
-                <div style="margin-top:4px;">{{ $adminUser->job_title ?? 'Equipo creativo' }}</div>
+                <div style="margin-top:4px;">{{ $adminUser->role ?? 'Administrador' }}</div>
             </div>
         </aside>
 
         <main class="content">
+            <div class="admin-hero-band">
+                <div>
+                    <strong>Centro de control editorial</strong>
+                    <p>Una interfaz mas clara y agradable para administrar el sitio.</p>
+                </div>
+                <div class="admin-hero-metrics">
+                    <div class="metric-pill">
+                        <span>Acceso</span>
+                        <strong>{{ $adminUser->role ?? 'Administrador' }}</strong>
+                    </div>
+                    <div class="metric-pill">
+                        <span>Estado</span>
+                        <strong>{{ ($adminUser->is_active ?? true) ? 'Activo' : 'Restringido' }}</strong>
+                    </div>
+                </div>
+            </div>
             @yield('content')
         </main>
     </div>

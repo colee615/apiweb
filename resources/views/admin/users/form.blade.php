@@ -32,7 +32,14 @@
             <div class="grid grid-2">
                 <div class="field"><label>Nombre</label><input type="text" name="name" value="{{ old('name', $user->name) }}" required></div>
                 <div class="field"><label>Correo</label><input type="email" name="email" value="{{ old('email', $user->email) }}" required></div>
-                <div class="field"><label>Cargo</label><input type="text" name="job_title" value="{{ old('job_title', $user->job_title) }}"></div>
+                <div class="field">
+                    <label>Rol</label>
+                    <select name="job_title" required>
+                        @foreach ($roles as $role)
+                            <option value="{{ $role }}" {{ old('job_title', $user->job_title ?: 'Administrador') === $role ? 'selected' : '' }}>{{ $role }}</option>
+                        @endforeach
+                    </select>
+                </div>
                 <div class="field"><label>Contrasena {{ $mode === 'edit' ? '(solo si deseas cambiarla)' : '' }}</label><input type="password" name="password" {{ $mode === 'create' ? 'required' : '' }}></div>
             </div>
 

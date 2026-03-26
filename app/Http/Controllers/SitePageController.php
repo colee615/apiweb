@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\SitePage;
+use App\Models\SitePageChangeLog;
 use App\Models\SiteSection;
 use App\Models\SiteSectionItem;
+use App\Models\SitePageVersion;
 use App\Services\SitePageEditor;
+use App\Services\SitePagePayloadBuilder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -13,7 +16,8 @@ use Illuminate\Validation\Rule;
 class SitePageController extends Controller
 {
     public function __construct(
-        protected SitePageEditor $editor
+        protected SitePageEditor $editor,
+        protected SitePagePayloadBuilder $payloadBuilder
     ) {
     }
 
@@ -35,6 +39,7 @@ class SitePageController extends Controller
             'meta_description' => ['nullable', 'string'],
             'theme' => ['nullable', 'array'],
             'is_active' => ['nullable', 'boolean'],
+            'change_summary' => ['nullable', 'string', 'max:1000'],
         ]);
 
         $page = SitePage::create([
@@ -45,6 +50,10 @@ class SitePageController extends Controller
             'theme' => $data['theme'] ?? [],
             'is_active' => $data['is_active'] ?? true,
         ]);
+
+        $actor = $this->resolveActor($request);
+
+        $this->editor->createInitialVersion($page, $actor, $data['change_summary'] ?? null);
 
         return response()->json($this->buildPagePayload($page->fresh('sections.items')), 201);
     }
@@ -97,9 +106,85 @@ class SitePageController extends Controller
             'theme' => ['nullable', 'array'],
             'is_active' => ['nullable', 'boolean'],
             'sections' => ['nullable', 'array'],
+            'change_summary' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $page = $this->editor->updatePage($page, $data);
+        $page = $this->editor->updatePage($page, $data, $this->resolveActor($request), [
+            'change_summary' => $data['change_summary'] ?? null,
+        ]);
+
+        return response()->json($this->buildPagePayload($page));
+    }
+
+    public function versions(SitePage $page): JsonResponse
+    {
+        $versions = $page->versions()
+            ->with(['actor', 'restoredFrom'])
+            ->get()
+            ->map(fn (SitePageVersion $version) => $this->buildVersionPayload($version));
+
+        return response()->json($versions);
+    }
+
+    public function showVersion(SitePage $page, SitePageVersion $version): JsonResponse
+    {
+        abort_unless($version->site_page_id === $page->id, 404);
+
+        $version->load(['actor', 'restoredFrom', 'changeLogs']);
+
+        return response()->json($this->buildVersionPayload($version, true));
+    }
+
+    public function changes(Request $request, SitePage $page): JsonResponse
+    {
+        $query = $page->changeLogs()->with(['actor', 'version']);
+
+        if ($request->filled('section_key')) {
+            $query->where('section_key', $request->string('section_key'));
+        }
+
+        if ($request->filled('entity_type')) {
+            $query->where('entity_type', $request->string('entity_type'));
+        }
+
+        $changes = $query->get()->map(function (SitePageChangeLog $change) {
+            return [
+                'id' => $change->id,
+                'section_key' => $change->section_key,
+                'item_name' => $change->item_name,
+                'entity_type' => $change->entity_type,
+                'action' => $change->action,
+                'field_name' => $change->field_name,
+                'summary' => $change->summary,
+                'before_state' => $change->before_state,
+                'after_state' => $change->after_state,
+                'version' => $change->version ? [
+                    'id' => $change->version->id,
+                    'version_number' => $change->version->version_number,
+                    'action' => $change->version->action,
+                ] : null,
+                'actor' => $this->buildActorPayload($change->actor, $change->created_by_name, $change->created_by_email),
+                'created_at' => optional($change->created_at)->toIso8601String(),
+            ];
+        });
+
+        return response()->json($changes);
+    }
+
+    public function restoreVersion(Request $request, SitePage $page, SitePageVersion $version): JsonResponse
+    {
+        abort_unless($version->site_page_id === $page->id, 404);
+
+        $data = $request->validate([
+            'change_summary' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $page = $this->editor->restoreVersion(
+            $page,
+            $version,
+            $this->resolveActor($request),
+            $data['change_summary'] ?? null
+        );
 
         return response()->json($this->buildPagePayload($page));
     }
@@ -113,73 +198,48 @@ class SitePageController extends Controller
 
     protected function buildPagePayload(SitePage $page): array
     {
-        $sections = $page->sections->map(function (SiteSection $section) {
-            return [
-                'id' => $section->id,
-                'key' => $section->key,
-                'name' => $section->name,
-                'type' => $section->type,
-                'sort_order' => $section->sort_order,
-                'is_active' => $section->is_active,
-                'settings' => $this->normalizeAssetFields($section->settings ?? []),
-                'items' => $section->items->map(function (SiteSectionItem $item) {
-                    return [
-                        'id' => $item->id,
-                        'name' => $item->name,
-                        'type' => $item->type,
-                        'sort_order' => $item->sort_order,
-                        'is_active' => $item->is_active,
-                        'data' => $this->normalizeAssetFields($item->data ?? []),
-                    ];
-                })->values(),
-            ];
-        })->values();
+        return $this->payloadBuilder->build($page);
+    }
 
+    protected function buildVersionPayload(SitePageVersion $version, bool $includeChanges = false): array
+    {
         return [
-            'id' => $page->id,
-            'slug' => $page->slug,
-            'name' => $page->name,
-            'meta_title' => $page->meta_title,
-            'meta_description' => $page->meta_description,
-            'theme' => $this->normalizeAssetFields($page->theme ?? []),
-            'is_active' => $page->is_active,
-            'sections' => $sections,
-            'section_map' => $sections->keyBy('key'),
+            'id' => $version->id,
+            'version_number' => $version->version_number,
+            'action' => $version->action,
+            'change_summary' => $version->change_summary,
+            'restored_from_version_id' => $version->restored_from_version_id,
+            'actor' => $this->buildActorPayload($version->actor, $version->created_by_name, $version->created_by_email),
+            'created_at' => optional($version->created_at)->toIso8601String(),
+            'snapshot' => $version->snapshot,
+            'changes' => $includeChanges
+                ? $version->changeLogs->map(fn (SitePageChangeLog $change) => [
+                    'id' => $change->id,
+                    'section_key' => $change->section_key,
+                    'item_name' => $change->item_name,
+                    'entity_type' => $change->entity_type,
+                    'action' => $change->action,
+                    'field_name' => $change->field_name,
+                    'summary' => $change->summary,
+                    'before_state' => $change->before_state,
+                    'after_state' => $change->after_state,
+                    'created_at' => optional($change->created_at)->toIso8601String(),
+                ])->values()
+                : [],
         ];
     }
 
-    protected function normalizeAssetFields(array $data): array
+    protected function buildActorPayload($actor, ?string $fallbackName, ?string $fallbackEmail): array
     {
-        $assetKeys = ['logo_url', 'background_image', 'iconImage', 'image', 'src', 'poster'];
-
-        foreach ($data as $key => $value) {
-            if (is_array($value)) {
-                $data[$key] = $this->normalizeAssetFields($value);
-                continue;
-            }
-
-            if (in_array($key, $assetKeys, true)) {
-                $data[$key] = $this->normalizeAssetUrl($value);
-            }
-        }
-
-        return $data;
+        return [
+            'id' => $actor?->id,
+            'name' => $actor?->name ?? $fallbackName,
+            'email' => $actor?->email ?? $fallbackEmail,
+        ];
     }
 
-    protected function normalizeAssetUrl(?string $value): ?string
+    protected function resolveActor(Request $request)
     {
-        if (! $value) {
-            return $value;
-        }
-
-        if (preg_match('/^https?:\/\//i', $value)) {
-            return $value;
-        }
-
-        if (str_starts_with($value, '/storage/') || str_starts_with($value, 'storage/')) {
-            return url(ltrim($value, '/'));
-        }
-
-        return $value;
+        return $request->user('api_users') ?: $request->attributes->get('admin_user');
     }
 }

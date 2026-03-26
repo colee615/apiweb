@@ -3,15 +3,25 @@
 namespace App\Services;
 
 use App\Models\SitePage;
+use App\Models\SitePageVersion;
 use App\Models\SiteSection;
 use App\Models\SiteSectionItem;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class SitePageEditor
 {
-    public function updatePage(SitePage $page, array $data): SitePage
+    public function __construct(
+        protected SitePageVersioningService $versioning
+    ) {
+    }
+
+    public function updatePage(SitePage $page, array $data, ?User $actor = null, array $options = []): SitePage
     {
-        DB::transaction(function () use ($page, $data) {
+        $beforePage = $this->loadEditablePage($page);
+        $updatedPage = null;
+
+        DB::transaction(function () use ($page, $data, $actor, $options, $beforePage, &$updatedPage) {
             $page->fill([
                 'slug' => $data['slug'] ?? $page->slug,
                 'name' => $data['name'] ?? $page->name,
@@ -25,15 +35,51 @@ class SitePageEditor
             if (array_key_exists('sections', $data)) {
                 $this->syncSections($page, $data['sections'] ?? []);
             }
+
+            $updatedPage = $this->loadEditablePage($page->fresh());
+
+            $this->versioning->recordUpdate(
+                beforePage: $beforePage,
+                afterPage: $updatedPage,
+                actor: $actor,
+                options: $options
+            );
         });
 
-        return $page->fresh([
-            'sections' => function ($query) {
-                $query->orderBy('sort_order');
-            },
-            'sections.items' => function ($query) {
-                $query->orderBy('sort_order');
-            },
+        return $updatedPage;
+    }
+
+    public function createInitialVersion(SitePage $page, ?User $actor = null, ?string $summary = null): SitePageVersion
+    {
+        return DB::transaction(function () use ($page, $actor, $summary) {
+            return $this->versioning->createInitialVersion(
+                $this->loadEditablePage($page),
+                $actor,
+                $summary
+            );
+        });
+    }
+
+    public function restoreVersion(
+        SitePage $page,
+        SitePageVersion $version,
+        ?User $actor = null,
+        ?string $summary = null
+    ): SitePage {
+        $snapshot = $version->snapshot ?? [];
+
+        return $this->updatePage($page, [
+            'slug' => $snapshot['slug'] ?? $page->slug,
+            'name' => $snapshot['name'] ?? $page->name,
+            'meta_title' => $snapshot['meta_title'] ?? null,
+            'meta_description' => $snapshot['meta_description'] ?? null,
+            'theme' => $snapshot['theme'] ?? [],
+            'is_active' => $snapshot['is_active'] ?? true,
+            'sections' => $snapshot['sections'] ?? [],
+        ], $actor, [
+            'action' => 'restored',
+            'change_summary' => $summary ?: 'Se restauró una versión anterior de la página.',
+            'restored_from_version_id' => $version->id,
         ]);
     }
 
@@ -55,7 +101,7 @@ class SitePageEditor
 
             $section->fill([
                 'key' => $sectionPayload['key'] ?? ('section_' . $sectionIndex),
-                'name' => $sectionPayload['name'] ?? ('Seccion ' . ($sectionIndex + 1)),
+                'name' => $sectionPayload['name'] ?? ('Sección ' . ($sectionIndex + 1)),
                 'type' => $sectionPayload['type'] ?? 'generic',
                 'settings' => $sectionPayload['settings'] ?? [],
                 'sort_order' => $sectionPayload['sort_order'] ?? $sectionIndex,
@@ -110,5 +156,17 @@ class SitePageEditor
         if (! empty($itemIdsToDelete)) {
             SiteSectionItem::whereIn('id', $itemIdsToDelete)->delete();
         }
+    }
+
+    protected function loadEditablePage(SitePage $page): SitePage
+    {
+        return $page->fresh([
+            'sections' => function ($query) {
+                $query->orderBy('sort_order');
+            },
+            'sections.items' => function ($query) {
+                $query->orderBy('sort_order');
+            },
+        ]);
     }
 }
