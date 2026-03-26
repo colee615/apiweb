@@ -376,6 +376,7 @@
                             <span>{{ $historyData['total_changes'] }} cambios registrados</span>
                         </button>
                         @foreach ($historySections as $historySection)
+                            @continue($historySection['key'] === 'general')
                             <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'history_{{ $historySection['key'] }}' }" @click="go('history_{{ $historySection['key'] }}')">
                                 <strong>{{ $historySection['label'] }}</strong>
                                 <span>{{ $historySection['count'] }} eventos</span>
