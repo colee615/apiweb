@@ -459,7 +459,7 @@
             <div class="brand">
                 <div class="brand-badge">Creative Control</div>
                 <h1>Studio Admin</h1>
-                <p>Panel visual para gestionar vistas, usuarios, imagenes y bloques del sitio.</p>
+                <p>Panel visual para gestionar vistas, usuarios, imágenes y bloques del sitio.</p>
             </div>
 
             <div class="role-chip" style="margin-bottom:18px;">
@@ -485,7 +485,7 @@
             </nav>
 
             <div class="sidebar-footer">
-                <strong style="display:block; margin-bottom:8px;">Sesion activa</strong>
+                <strong style="display:block; margin-bottom:8px;">Sesión activa</strong>
                 <div>{{ $adminUser->name ?? 'Administrador' }}</div>
                 <div style="margin-top:4px;">{{ $adminUser->role ?? 'Administrador' }}</div>
             </div>
@@ -495,7 +495,7 @@
             <div class="admin-hero-band">
                 <div>
                     <strong>Centro de control editorial</strong>
-                    <p>Una interfaz mas clara y agradable para administrar el sitio.</p>
+                    <p>Una interfaz más clara y agradable para administrar el sitio.</p>
                 </div>
                 <div class="admin-hero-metrics">
                     <div class="metric-pill">
@@ -540,11 +540,11 @@
                 <button type="button" class="button button-danger" data-remove-row>Eliminar</button>
             </div>
             <div class="grid grid-2" style="margin-top:12px;">
-                <div class="field"><label>Titulo</label><input type="text" data-field="title"></div>
+                <div class="field"><label>Título</label><input type="text" data-field="title"></div>
                 <div class="field"><label>Icono</label><input type="text" data-field="icon" placeholder="plane, truck, mail"></div>
                 <div class="field"><label>Imagen actual</label><input type="text" data-field="iconImage"></div>
                 <div class="field"><label>Subir imagen</label><input type="file" data-field="iconImage_file" accept="image/*" data-preview-input></div>
-                <div class="field" style="grid-column:1/-1;"><label>Descripcion</label><input type="text" data-field="text"></div>
+                <div class="field" style="grid-column:1/-1;"><label>Descripción</label><input type="text" data-field="text"></div>
             </div>
             <img class="thumb" data-preview-image style="display:none; margin-top:14px;" alt="Preview">
             <input type="hidden" data-field="id">
@@ -582,14 +582,14 @@
                 <button type="button" class="button button-danger" data-remove-row>Eliminar</button>
             </div>
             <div class="grid grid-3" style="margin-top:12px;">
-                <div class="field"><label>Titulo</label><input type="text" data-field="title"></div>
+                <div class="field"><label>Título</label><input type="text" data-field="title"></div>
                 <div class="field"><label>Precio</label><input type="text" data-field="price"></div>
-                <div class="field"><label>Anio o etiqueta</label><input type="text" data-field="year"></div>
+                <div class="field"><label>Año o etiqueta</label><input type="text" data-field="year"></div>
                 <div class="field"><label>Serie</label><input type="text" data-field="series"></div>
                 <div class="field"><label>Imagen actual</label><input type="text" data-field="image"></div>
                 <div class="field"><label>Subir imagen</label><input type="file" data-field="image_file" accept="image/*" data-preview-input></div>
             </div>
-            <div class="field" style="margin-top:12px;"><label>Descripcion</label><textarea class="field-small" data-field="description"></textarea></div>
+            <div class="field" style="margin-top:12px;"><label>Descripción</label><textarea class="field-small" data-field="description"></textarea></div>
             <img class="thumb" data-preview-image style="display:none; margin-top:14px;" alt="Preview">
             <input type="hidden" data-field="id">
         </div>

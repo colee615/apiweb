@@ -20,33 +20,33 @@
         'created' => 'Creacion',
         'updated' => 'Actualizacion',
         'deleted' => 'Eliminacion',
-        'restored' => 'Restauracion',
+        'restored' => 'Restauración',
     ];
     $historyFieldLabels = [
         'slug' => 'Slug',
         'name' => 'Nombre',
-        'title' => 'Titulo',
-        'subtitle' => 'Subtitulo',
+        'title' => 'Título',
+        'subtitle' => 'Subtítulo',
         'text' => 'Texto',
-        'description' => 'Descripcion',
+        'description' => 'Descripción',
         'label' => 'Etiqueta',
         'placeholder' => 'Placeholder',
-        'button_label' => 'Texto del boton',
-        'tracking_title' => 'Titulo de rastreo',
+        'button_label' => 'Texto del botón',
+        'tracking_title' => 'Título de rastreo',
         'tracking_text' => 'Texto de rastreo',
         'tracking_label' => 'Etiqueta de rastreo',
         'tracking_placeholder' => 'Placeholder de rastreo',
-        'tracking_button' => 'Boton de rastreo',
+        'tracking_button' => 'Botón de rastreo',
         'view_all_label' => 'Texto de ver todo',
         'view_all_url' => 'Enlace de ver todo',
         'app_store_label' => 'Texto App Store',
         'play_store_label' => 'Texto Google Play',
         'app_store_url' => 'Enlace App Store',
         'play_store_url' => 'Enlace Google Play',
-        'map_title' => 'Titulo del mapa',
+        'map_title' => 'Título del mapa',
         'map_text' => 'Texto del mapa',
-        'map_button_label' => 'Boton del mapa',
-        'calculator_title' => 'Titulo de calculadora',
+        'map_button_label' => 'Botón del mapa',
+        'calculator_title' => 'Título de calculadora',
         'calculator_text' => 'Texto de calculadora',
         'origin_label' => 'Etiqueta de origen',
         'origin_placeholder' => 'Placeholder de origen',
@@ -54,10 +54,10 @@
         'destination_placeholder' => 'Placeholder de destino',
         'weight_label' => 'Etiqueta de peso',
         'weight_placeholder' => 'Placeholder de peso',
-        'calculate_button_label' => 'Boton de calcular',
+        'calculate_button_label' => 'Botón de calcular',
         'help_label' => 'Ayuda / contacto',
-        'login_label' => 'Inicio de sesion',
-        'search_placeholder' => 'Placeholder de busqueda',
+        'login_label' => 'Inicio de sesión',
+        'search_placeholder' => 'Placeholder de búsqueda',
         'language_primary' => 'Idioma principal',
         'language_secondary' => 'Idioma secundario',
         'accessibility_label' => 'Etiqueta de accesibilidad',
@@ -65,26 +65,26 @@
         'src' => 'Imagen o archivo',
         'poster' => 'Portada',
         'poster_image' => 'Imagen principal',
-        'poster_title' => 'Titulo del popup',
+        'poster_title' => 'Título del popup',
         'poster_caption' => 'Pie del popup',
         'icon' => 'Icono',
         'iconImage' => 'Imagen del icono',
         'image' => 'Imagen',
         'background_image' => 'Imagen de fondo',
         'price' => 'Precio',
-        'year' => 'Ano',
+        'year' => 'Año',
         'series' => 'Serie',
         'group' => 'Grupo',
         'media_type' => 'Tipo de medio',
-        'phone' => 'Telefono',
+        'phone' => 'Teléfono',
         'email' => 'Correo',
-        'address' => 'Direccion',
+        'address' => 'Dirección',
         'copyright' => 'Copyright',
         'legal_text' => 'Texto legal',
-        'help_title' => 'Titulo de ayuda',
-        'company_title' => 'Titulo de empresa',
-        'contact_title' => 'Titulo de contacto',
-        'social_title' => 'Titulo de redes',
+        'help_title' => 'Título de ayuda',
+        'company_title' => 'Título de empresa',
+        'contact_title' => 'Título de contacto',
+        'social_title' => 'Título de redes',
         'social_text' => 'Texto de redes',
         'logo_url' => 'Logo',
         'primary_color' => 'Color principal',
@@ -93,10 +93,10 @@
         'enabled' => 'Visibilidad',
         'show_once' => 'Mostrar solo una vez',
         'storage_key' => 'Clave de control',
-        'settings' => 'Configuracion',
+        'settings' => 'Configuración',
         'data' => 'Contenido',
         'theme' => 'Identidad visual',
-        'page_meta' => 'Configuracion general',
+        'page_meta' => 'Configuración general',
         'is_active' => 'Estado',
         'sort_order' => 'Orden',
         'type' => 'Tipo',
@@ -252,11 +252,11 @@
     <div class="admin-topbar">
         <div class="admin-brand">
             <h2>Editor Studio de {{ $page->name }}</h2>
-            <p>Una experiencia visual mÃ¡s clara para diseÃ±o, contenido, medios e historial sin tocar cÃ³digo.</p>
+            <p>Una experiencia visual más clara para diseño, contenido, medios e historial sin tocar código.</p>
         </div>
         <div class="actions">
             <a href="{{ route('admin.dashboard') }}" class="button button-secondary">Volver al panel</a>
-            <form method="POST" action="{{ route('admin.logout') }}">@csrf<button type="submit" class="button button-ghost">Cerrar sesion</button></form>
+            <form method="POST" action="{{ route('admin.logout') }}">@csrf<button type="submit" class="button button-ghost">Cerrar sesión</button></form>
         </div>
     </div>
 
@@ -264,8 +264,8 @@
         <div class="split-header">
             <div style="max-width: 760px;">
                 <div class="section-eyebrow">Creative workspace</div>
-                <h1 style="margin:14px 0 10px; font-size:40px; line-height:1;">Control visual total de la pÃ¡gina</h1>
-                <p class="section-copy">Edita encabezado, portada, servicios, productos, pie de pÃ¡gina y estilos desde una mesa de trabajo mÃ¡s ordenada, elegante y preparada para gestiÃ³n editorial real.</p>
+                <h1 style="margin:14px 0 10px; font-size:40px; line-height:1;">Control visual total de la página</h1>
+                <p class="section-copy">Edita encabezado, portada, servicios, productos, pie de página y estilos desde una mesa de trabajo más ordenada, elegante y preparada para gestión editorial real.</p>
             </div>
             <div class="section-metrics">
                 <span class="pill {{ $page->is_active ? 'pill-ok' : 'pill-off' }}">{{ $page->is_active ? 'Publicada' : 'Oculta' }}</span>
@@ -280,17 +280,17 @@
         <div class="spot-card">
             <span>Enlaces</span>
             <strong>{{ count($header['links']) }}</strong>
-            <p>NavegaciÃ³n principal configurada para esta pÃ¡gina.</p>
+            <p>Navegación principal configurada para esta página.</p>
         </div>
         <div class="spot-card">
             <span>Servicios</span>
             <strong>{{ count($services['items']) }}</strong>
-            <p>Bloques de servicios listos para ediciÃ³n visual.</p>
+            <p>Bloques de servicios listos para edición visual.</p>
         </div>
         <div class="spot-card">
             <span>Historial</span>
             <strong>{{ $historyData['total_changes'] }}</strong>
-            <p>Cambios acumulados con trazabilidad y restauraciÃ³n.</p>
+            <p>Cambios acumulados con trazabilidad y restauración.</p>
         </div>
     </div>
 
@@ -304,23 +304,23 @@
         <div class="editor-layout">
             <aside class="editor-sidebar">
                 <div class="editor-nav" x-show="!isHistoryTab()">
-                    <h3>Secciones de diseno</h3>
-                    <p>En este modo solo ves herramientas de edicion. El historial queda separado en su propio submenu.</p>
+                    <h3>Secciones de diseño</h3>
+                    <p>En este modo solo ves herramientas de edición. El historial queda separado en su propio submenú.</p>
 
                     <div class="editor-nav-list">
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'announcement' }" @click="go('announcement')"><strong>Popup de inicio</strong><span>Imagen institucional al abrir</span></button>
-                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'design_text' }" @click="go('design_text')"><strong>Diseno</strong><span>Textos, logo y enlaces</span></button>
-                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'backgrounds' }" @click="go('backgrounds')"><strong>Fondos</strong><span>Carrusel de imagenes o videos</span></button>
+                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'design_text' }" @click="go('design_text')"><strong>Diseño</strong><span>Textos, logo y enlaces</span></button>
+                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'backgrounds' }" @click="go('backgrounds')"><strong>Fondos</strong><span>Carrusel de imágenes o videos</span></button>
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'services' }" @click="go('services')"><strong>Servicios</strong><span>Agregar, quitar y ordenar</span></button>
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'banner' }" @click="go('banner')"><strong>Banner</strong><span>Imagen directa del bloque app</span></button>
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'market' }" @click="go('market')"><strong>Filatelia</strong><span>Productos y colecciones</span></button>
-                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'footer' }" @click="go('footer')"><strong>Footer</strong><span>Textos, urls y logo</span></button>
+                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'footer' }" @click="go('footer')"><strong>Footer</strong><span>Textos, URL y logo</span></button>
                     </div>
                 </div>
 
                 <div class="editor-nav" style="margin-top:18px;" x-show="isHistoryTab()">
                     <h3>Historial</h3>
-                    <p>Cada guardado genera una version con usuario, fecha y resumen del cambio.</p>
+                    <p>Cada guardado genera una versión con usuario, fecha y resumen del cambio.</p>
 
                     <div class="stack" style="gap:12px;">
                         @forelse ($versions as $version)
@@ -328,7 +328,7 @@
                             <div class="repeater-card" style="padding:14px;">
                                 <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
                                     <div>
-                                        <strong>Version {{ $version->version_number }}</strong>
+                                        <strong>Versión {{ $version->version_number }}</strong>
                                         <div style="font-size:12px; color:#6b7280; margin-top:4px;">
                                             {{ $historyActionLabels[$version->action] ?? ucfirst($version->action) }} · {{ optional($version->created_at)->format('d/m/Y H:i') }}
                                         </div>
@@ -339,7 +339,7 @@
                                 </div>
                                 @if ($isCurrentVersion)
                                     <div style="margin-top:10px;">
-                                        <span class="pill pill-ok">Version actual</span>
+                                        <span class="pill pill-ok">Versión actual</span>
                                     </div>
                                 @endif
 
@@ -352,23 +352,23 @@
                                 </div>
 
                                 @if ($isCurrentVersion)
-                                    <div class="button button-secondary" style="width:100%; margin-top:12px; opacity:.78; cursor:default;">Version actual publicada</div>
+                                    <div class="button button-secondary" style="width:100%; margin-top:12px; opacity:.78; cursor:default;">Versión actual publicada</div>
                                 @else
                                     <form method="POST" action="{{ route('admin.pages.restore', [$page, $version]) }}" style="margin-top:12px;">
                                         @csrf
-                                        <input type="hidden" name="change_summary" value="Restauracion desde version {{ $version->version_number }}">
-                                        <button type="submit" class="button button-secondary" style="width:100%;">Volver a esta version</button>
+                                        <input type="hidden" name="change_summary" value="Restauración desde la versión {{ $version->version_number }}">
+                                        <button type="submit" class="button button-secondary" style="width:100%;">Volver a esta versión</button>
                                     </form>
                                 @endif
                             </div>
                         @empty
-                            <div class="empty-note">Todavia no hay versiones registradas.</div>
+                            <div class="empty-note">Todavía no hay versiones registradas.</div>
                         @endforelse
                     </div>
                 </div>
                 <div class="editor-nav" style="margin-top:18px;" x-show="isHistoryTab()">
-                    <h3>Historial por seccion</h3>
-                    <p>Submenus separados para navegar el historial completo de cada parte del sitio.</p>
+                    <h3>Historial por sección</h3>
+                    <p>Submenús separados para navegar el historial completo de cada parte del sitio.</p>
 
                     <div class="editor-nav-list">
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'history_overview' }" @click="go('history_overview')">
@@ -391,7 +391,7 @@
                         <div>
                             <div class="section-eyebrow">Startup announcement</div>
                             <h3 class="section-title">Popup de inicio</h3>
-                            <p class="section-copy">Sube una sola imagen institucional para que aparezca al cargar la pagina. El frontend la mostrara completa, sin barras internas de desplazamiento.</p>
+                            <p class="section-copy">Sube una sola imagen institucional para que aparezca al cargar la página. El frontend la mostrará completa, sin barras internas de desplazamiento.</p>
                         </div>
                         <div class="section-metrics">
                             <span class="pill {{ !empty($announcement['settings']['poster_image']) ? 'pill-ok' : 'pill-off' }}">{{ !empty($announcement['settings']['poster_image']) ? 'Imagen cargada' : 'Sin imagen' }}</span>
@@ -402,7 +402,7 @@
                     <div class="design-grid">
                         <div class="subpanel span-4">
                             <h4>Visibilidad</h4>
-                            <p>Activa o desactiva el popup sin tocar codigo.</p>
+                            <p>Activa o desactiva el popup sin tocar código.</p>
                             <div class="stack" style="gap: 12px;">
                                 <label style="display:flex; gap:10px; align-items:center; font-weight:700;">
                                     <input type="checkbox" name="announcement_modal[enabled]" value="1" {{ !empty($announcement['settings']['enabled']) ? 'checked' : '' }}>
@@ -440,7 +440,7 @@
                                         <input type="text" name="announcement_modal[poster_alt]" value="{{ old('announcement_modal.poster_alt', $announcement['settings']['poster_alt'] ?? 'Comunicado institucional') }}">
                                     </div>
                                     <div class="field">
-                                        <label>Titulo opcional</label>
+                                        <label>Título opcional</label>
                                         <input type="text" name="announcement_modal[poster_title]" value="{{ old('announcement_modal.poster_title', $announcement['settings']['poster_title'] ?? '') }}">
                                     </div>
                                 </div>
@@ -457,8 +457,8 @@
                     <div class="section-header">
                         <div>
                             <div class="section-eyebrow">Base de marca</div>
-                            <h3 class="section-title">Configuracion general</h3>
-                            <p class="section-copy">Gestiona identidad visual, SEO y estado de publicaciÃ³n con criterios mÃ¡s claros para ediciÃ³n ejecutiva.</p>
+                            <h3 class="section-title">Configuración general</h3>
+                            <p class="section-copy">Gestiona identidad visual, SEO y estado de publicación con criterios más claros para edición ejecutiva.</p>
                         </div>
                         <div class="section-metrics">
                             <span class="pill pill-off">Logo</span>
@@ -469,12 +469,12 @@
 
                     <div class="spec-grid" style="margin-bottom:16px;">
                         <div class="spec-card">
-                            <strong>Titulo interno</strong>
+                            <strong>Título interno</strong>
                             <span>Recomendado: hasta 60 caracteres. Debe ser corto, reconocible y operativo para el equipo.</span>
                         </div>
                         <div class="spec-card">
                             <strong>SEO</strong>
-                            <span>Titulo sugerido hasta 60 caracteres. Descripcion sugerida entre 120 y 160 caracteres para buscadores.</span>
+                            <span>Título sugerido de hasta 60 caracteres. Descripción sugerida entre 120 y 160 caracteres para buscadores.</span>
                         </div>
                         <div class="spec-card">
                             <strong>Logo e identidad</strong>
@@ -484,13 +484,13 @@
 
                     <div class="design-grid">
                         <div class="subpanel span-8">
-                            <h4>Informacion principal</h4>
-                            <p>Estos datos organizan la pÃ¡gina dentro del panel y mejoran su presentaciÃ³n pÃºblica.</p>
+                            <h4>Información principal</h4>
+                            <p>Estos datos organizan la página dentro del panel y mejoran su presentación pública.</p>
                             <div class="grid grid-2">
                                 <div class="field">
                                     <label>Nombre interno</label>
                                     <input type="text" name="name" value="{{ old('name', $page->name) }}" maxlength="160" required>
-                                    <div class="field-help"><strong>Limite:</strong> 160 caracteres. Usa un nombre claro para gestiÃ³n interna.</div>
+                                    <div class="field-help"><strong>Límite:</strong> 160 caracteres. Usa un nombre claro para gestión interna.</div>
                                 </div>
                                 <div class="field">
                                     <label>Slug</label>
@@ -498,12 +498,12 @@
                                     <div class="field-help"><strong>Limite:</strong> 120 caracteres. Solo identificador corto y estable.</div>
                                 </div>
                                 <div class="field">
-                                    <label>Titulo SEO</label>
+                                    <label>Título SEO</label>
                                     <input type="text" name="meta_title" value="{{ old('meta_title', $page->meta_title) }}" maxlength="255">
                                     <div class="field-help"><strong>Recomendado:</strong> 50 a 60 caracteres para mejor lectura en buscadores.</div>
                                 </div>
                                 <div class="field">
-                                    <label>Descripcion SEO</label>
+                                    <label>Descripción SEO</label>
                                     <input type="text" name="meta_description" value="{{ old('meta_description', $page->meta_description) }}" maxlength="255">
                                     <div class="field-help"><strong>Recomendado:</strong> entre 120 y 160 caracteres con enfoque informativo.</div>
                                 </div>
@@ -512,12 +512,12 @@
 
                         <div class="subpanel span-4">
                             <h4>Estado del sitio</h4>
-                            <p>Control ejecutivo de publicaciÃ³n para esta vista.</p>
+                            <p>Control ejecutivo de publicación para esta vista.</p>
                             <label style="display:flex; gap:10px; align-items:center; font-weight:700;">
                                 <input type="checkbox" name="is_active" value="1" {{ $page->is_active ? 'checked' : '' }}>
-                                Pagina activa
+                                Página activa
                             </label>
-                            <div class="field-help"><strong>Uso:</strong> si estÃ¡ inactiva, la vista no se mostrarÃ¡ pÃºblicamente.</div>
+                            <div class="field-help"><strong>Uso:</strong> si está inactiva, la vista no se mostrará públicamente.</div>
                         </div>
 
                         <div
@@ -546,7 +546,7 @@
                                     <div class="field">
                                         <label>Color secundario</label>
                                         <input type="text" name="theme[secondary_color]" x-model="secondaryColor" maxlength="7">
-                                        <div class="field-help"><strong>Formato:</strong> hexadecimal. MantÃ©n buen contraste visual.</div>
+                                        <div class="field-help"><strong>Formato:</strong> hexadecimal. Mantén buen contraste visual.</div>
                                     </div>
                                     <div class="color-swatch-card">
                                         <div class="color-swatch" :style="{ backgroundColor: secondaryColor || '#102542' }"></div>
@@ -569,7 +569,7 @@
 
                         <div class="subpanel span-6">
                             <h4>Logo</h4>
-                            <p>Sube un archivo o usa una URL directa si el recurso ya estÃ¡ alojado.</p>
+                            <p>Sube un archivo o usa una URL directa si el recurso ya está alojado.</p>
                             <div class="image-frame">
                                 @if ($editorData['theme']['logo_url'])
                                     <img src="{{ $editorData['theme']['logo_url'] }}" alt="Logo actual" class="thumb" style="max-width: 280px;">
@@ -582,7 +582,7 @@
                                 <div class="field">
                                     <label>Subir nuevo logo</label>
                                     <input type="file" name="theme[logo_file]" accept="image/*">
-                                    <div class="field-help"><strong>Sugerido:</strong> ancho mÃ­nimo 240 px y peso optimizado para web.</div>
+                                    <div class="field-help"><strong>Sugerido:</strong> ancho mínimo de 240 px y peso optimizado para web.</div>
                                 </div>
                             </div>
                         </div>
@@ -602,14 +602,14 @@
                     <div class="design-grid">
                         <div class="subpanel span-12">
                             <h4>Textos del header</h4>
-                            <div class="field-help" style="margin-bottom:14px;"><strong>GuÃ­a:</strong> mantÃ©n textos breves. Cada etiqueta deberÃ­a quedar idealmente entre 12 y 30 caracteres para no saturar el encabezado.</div>
+                            <div class="field-help" style="margin-bottom:14px;"><strong>Guía:</strong> mantén textos breves. Cada etiqueta debería quedar idealmente entre 12 y 30 caracteres para no saturar el encabezado.</div>
                             <div class="grid grid-3">
-                                <div class="field"><label>Idioma principal</label><input type="text" name="header[language_primary]" value="{{ old('header.language_primary', $header['settings']['language_primary']) }}" maxlength="30"><div class="field-help">MÃ¡ximo 30 caracteres.</div></div>
-                                <div class="field"><label>Idioma secundario</label><input type="text" name="header[language_secondary]" value="{{ old('header.language_secondary', $header['settings']['language_secondary']) }}" maxlength="30"><div class="field-help">MÃ¡ximo 30 caracteres.</div></div>
-                                <div class="field"><label>Accesibilidad</label><input type="text" name="header[accessibility_label]" value="{{ old('header.accessibility_label', $header['settings']['accessibility_label']) }}" maxlength="40"><div class="field-help">MÃ¡ximo 40 caracteres.</div></div>
-                                <div class="field"><label>Ayuda / contacto</label><input type="text" name="header[help_label]" value="{{ old('header.help_label', $header['settings']['help_label']) }}" maxlength="40"><div class="field-help">MÃ¡ximo 40 caracteres.</div></div>
-                                <div class="field"><label>Boton login</label><input type="text" name="header[login_label]" value="{{ old('header.login_label', $header['settings']['login_label']) }}" maxlength="40"><div class="field-help">MÃ¡ximo 40 caracteres.</div></div>
-                                <div class="field"><label>Texto buscador</label><input type="text" name="header[search_placeholder]" value="{{ old('header.search_placeholder', $header['settings']['search_placeholder']) }}" maxlength="60"><div class="field-help">MÃ¡ximo 60 caracteres.</div></div>
+                                <div class="field"><label>Idioma principal</label><input type="text" name="header[language_primary]" value="{{ old('header.language_primary', $header['settings']['language_primary']) }}" maxlength="30"><div class="field-help">Máximo 30 caracteres.</div></div>
+                                <div class="field"><label>Idioma secundario</label><input type="text" name="header[language_secondary]" value="{{ old('header.language_secondary', $header['settings']['language_secondary']) }}" maxlength="30"><div class="field-help">Máximo 30 caracteres.</div></div>
+                                <div class="field"><label>Accesibilidad</label><input type="text" name="header[accessibility_label]" value="{{ old('header.accessibility_label', $header['settings']['accessibility_label']) }}" maxlength="40"><div class="field-help">Máximo 40 caracteres.</div></div>
+                                <div class="field"><label>Ayuda / contacto</label><input type="text" name="header[help_label]" value="{{ old('header.help_label', $header['settings']['help_label']) }}" maxlength="40"><div class="field-help">Máximo 40 caracteres.</div></div>
+                                <div class="field"><label>Botón de inicio de sesión</label><input type="text" name="header[login_label]" value="{{ old('header.login_label', $header['settings']['login_label']) }}" maxlength="40"><div class="field-help">Máximo 40 caracteres.</div></div>
+                                <div class="field"><label>Texto del buscador</label><input type="text" name="header[search_placeholder]" value="{{ old('header.search_placeholder', $header['settings']['search_placeholder']) }}" maxlength="60"><div class="field-help">Máximo 60 caracteres.</div></div>
                             </div>
                         </div>
 
@@ -639,7 +639,7 @@
                                             <input type="hidden" data-field="id" value="{{ $link['id'] ?? '' }}">
                                         </div>
                                     @empty
-                                        <div class="empty-note">Todavia no hay enlaces cargados.</div>
+                                        <div class="empty-note">Todavía no hay enlaces cargados.</div>
                                     @endforelse
                                 </div>
                             </div>
@@ -652,7 +652,7 @@
                         <div>
                             <div class="section-eyebrow">Hero media</div>
                             <h3 class="section-title">Fondos y carrusel</h3>
-                            <p class="section-copy">Administra los fondos de la portada sin cambiar el diseno del frontend. Puedes cargar imagenes o videos.</p>
+                            <p class="section-copy">Administra los fondos de la portada sin cambiar el diseño del frontend. Puedes cargar imágenes o videos.</p>
                         </div>
                         <span class="pill pill-off">{{ count($hero['media'] ?? []) }} slides</span>
                     </div>
@@ -660,13 +660,13 @@
                     <div class="subpanel">
                         <h4>Textos principales de portada</h4>
                         <div class="grid grid-2">
-                            <div class="field"><label>Titulo principal</label><input type="text" name="hero[title]" value="{{ old('hero.title', $hero['settings']['title']) }}"></div>
-                            <div class="field"><label>Subtitulo</label><input type="text" name="hero[subtitle]" value="{{ old('hero.subtitle', $hero['settings']['subtitle']) }}"></div>
-                            <div class="field"><label>Titulo rastreo</label><input type="text" name="hero[tracking_title]" value="{{ old('hero.tracking_title', $hero['settings']['tracking_title']) }}"></div>
+                            <div class="field"><label>Título principal</label><input type="text" name="hero[title]" value="{{ old('hero.title', $hero['settings']['title']) }}"></div>
+                            <div class="field"><label>Subtítulo</label><input type="text" name="hero[subtitle]" value="{{ old('hero.subtitle', $hero['settings']['subtitle']) }}"></div>
+                            <div class="field"><label>Título de rastreo</label><input type="text" name="hero[tracking_title]" value="{{ old('hero.tracking_title', $hero['settings']['tracking_title']) }}"></div>
                             <div class="field"><label>Texto rastreo</label><input type="text" name="hero[tracking_text]" value="{{ old('hero.tracking_text', $hero['settings']['tracking_text']) }}"></div>
                             <div class="field"><label>Etiqueta campo</label><input type="text" name="hero[tracking_label]" value="{{ old('hero.tracking_label', $hero['settings']['tracking_label']) }}"></div>
                             <div class="field"><label>Placeholder campo</label><input type="text" name="hero[tracking_placeholder]" value="{{ old('hero.tracking_placeholder', $hero['settings']['tracking_placeholder']) }}"></div>
-                            <div class="field"><label>Texto boton</label><input type="text" name="hero[tracking_button]" value="{{ old('hero.tracking_button', $hero['settings']['tracking_button']) }}"></div>
+                            <div class="field"><label>Texto del botón</label><input type="text" name="hero[tracking_button]" value="{{ old('hero.tracking_button', $hero['settings']['tracking_button']) }}"></div>
                         </div>
                     </div>
 
@@ -674,7 +674,7 @@
                         <div class="toolbar">
                             <div>
                                 <h4>Carrusel de fondos</h4>
-                                <p>Sube imagenes o videos. El frontend mantendra el mismo formato visual con este contenido.</p>
+                                <p>Sube imágenes o videos. El frontend mantendrá el mismo formato visual con este contenido.</p>
                             </div>
                             <button type="button" class="button button-secondary" data-add-row>Agregar slide</button>
                         </div>
@@ -700,7 +700,7 @@
                                         <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                     </div>
                                 @empty
-                                    <div class="empty-note">No hay fondos configurados todavia.</div>
+                                    <div class="empty-note">No hay fondos configurados todavía.</div>
                                 @endforelse
                             </div>
                         </div>
@@ -718,10 +718,10 @@
                     </div>
 
                     <div class="subpanel">
-                        <h4>Cabecera de la seccion</h4>
+                        <h4>Cabecera de la sección</h4>
                         <div class="grid grid-3">
-                            <div class="field"><label>Titulo seccion</label><input type="text" name="services[title]" value="{{ old('services.title', $services['settings']['title']) }}"></div>
-                            <div class="field"><label>Subtitulo</label><input type="text" name="services[subtitle]" value="{{ old('services.subtitle', $services['settings']['subtitle']) }}"></div>
+                            <div class="field"><label>Título de la sección</label><input type="text" name="services[title]" value="{{ old('services.title', $services['settings']['title']) }}"></div>
+                            <div class="field"><label>Subtítulo</label><input type="text" name="services[subtitle]" value="{{ old('services.subtitle', $services['settings']['subtitle']) }}"></div>
                             <div class="field"><label>Texto superior</label><input type="text" name="services[kicker]" value="{{ old('services.kicker', $services['settings']['kicker']) }}"></div>
                         </div>
                     </div>
@@ -730,7 +730,7 @@
                         <div class="toolbar">
                             <div>
                                 <h4>Tarjetas de servicio</h4>
-                                <p>Sube imagenes y reorganiza el orden arrastrando cada tarjeta.</p>
+                                <p>Sube imágenes y reorganiza el orden arrastrando cada tarjeta.</p>
                             </div>
                             <button type="button" class="button button-secondary" data-add-row>Agregar servicio</button>
                         </div>
@@ -746,17 +746,17 @@
                                             <button type="button" class="button button-danger" data-remove-row>Eliminar</button>
                                         </div>
                                         <div class="grid grid-2" style="margin-top:12px;">
-                                            <div class="field"><label>Titulo</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
+                                            <div class="field"><label>Título</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
                                             <div class="field"><label>Icono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
                                             <div class="field"><label>Imagen actual</label><input type="text" data-field="iconImage" value="{{ $item['iconImage'] ?? '' }}"></div>
                                             <div class="field"><label>Subir imagen</label><input type="file" data-field="iconImage_file" accept="image/*" data-preview-input></div>
-                                            <div class="field" style="grid-column:1/-1;"><label>Descripcion</label><input type="text" data-field="text" value="{{ $item['text'] ?? '' }}"></div>
+                                            <div class="field" style="grid-column:1/-1;"><label>Descripción</label><input type="text" data-field="text" value="{{ $item['text'] ?? '' }}"></div>
                                         </div>
                                         <img src="{{ $item['iconImage'] ?? '' }}" alt="Imagen servicio" class="thumb" data-preview-image style="{{ empty($item['iconImage']) ? 'display:none; margin-top:14px;' : 'margin-top:14px;' }}">
                                         <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                     </div>
                                 @empty
-                                    <div class="empty-note">No hay servicios todavia. Crea el primero desde este mismo panel.</div>
+                                    <div class="empty-note">No hay servicios todavía. Crea el primero desde este mismo panel.</div>
                                 @endforelse
                             </div>
                         </div>
@@ -768,15 +768,15 @@
                         <div>
                             <div class="section-eyebrow">Utility area</div>
                             <h3 class="section-title">Herramientas</h3>
-                            <p class="section-copy">Ajusta el bloque de mapa y la calculadora de envios.</p>
+                            <p class="section-copy">Ajusta el bloque del mapa y la calculadora de envíos.</p>
                         </div>
                     </div>
                     <div class="subpanel">
                         <div class="grid grid-3">
-                            <div class="field"><label>Titulo mapa</label><input type="text" name="tools[map_title]" value="{{ old('tools.map_title', $tools['settings']['map_title'] ?? '') }}"></div>
+                            <div class="field"><label>Título del mapa</label><input type="text" name="tools[map_title]" value="{{ old('tools.map_title', $tools['settings']['map_title'] ?? '') }}"></div>
                             <div class="field"><label>Texto mapa</label><input type="text" name="tools[map_text]" value="{{ old('tools.map_text', $tools['settings']['map_text'] ?? '') }}"></div>
-                            <div class="field"><label>Boton mapa</label><input type="text" name="tools[map_button_label]" value="{{ old('tools.map_button_label', $tools['settings']['map_button_label'] ?? '') }}"></div>
-                            <div class="field"><label>Titulo calculadora</label><input type="text" name="tools[calculator_title]" value="{{ old('tools.calculator_title', $tools['settings']['calculator_title'] ?? '') }}"></div>
+                            <div class="field"><label>Botón del mapa</label><input type="text" name="tools[map_button_label]" value="{{ old('tools.map_button_label', $tools['settings']['map_button_label'] ?? '') }}"></div>
+                            <div class="field"><label>Título de la calculadora</label><input type="text" name="tools[calculator_title]" value="{{ old('tools.calculator_title', $tools['settings']['calculator_title'] ?? '') }}"></div>
                             <div class="field"><label>Texto calculadora</label><input type="text" name="tools[calculator_text]" value="{{ old('tools.calculator_text', $tools['settings']['calculator_text'] ?? '') }}"></div>
                             <div class="field"><label>Etiqueta origen</label><input type="text" name="tools[origin_label]" value="{{ old('tools.origin_label', $tools['settings']['origin_label'] ?? '') }}"></div>
                             <div class="field"><label>Placeholder origen</label><input type="text" name="tools[origin_placeholder]" value="{{ old('tools.origin_placeholder', $tools['settings']['origin_placeholder'] ?? '') }}"></div>
@@ -784,7 +784,7 @@
                             <div class="field"><label>Placeholder destino</label><input type="text" name="tools[destination_placeholder]" value="{{ old('tools.destination_placeholder', $tools['settings']['destination_placeholder'] ?? '') }}"></div>
                             <div class="field"><label>Etiqueta peso</label><input type="text" name="tools[weight_label]" value="{{ old('tools.weight_label', $tools['settings']['weight_label'] ?? '') }}"></div>
                             <div class="field"><label>Placeholder peso</label><input type="text" name="tools[weight_placeholder]" value="{{ old('tools.weight_placeholder', $tools['settings']['weight_placeholder'] ?? '') }}"></div>
-                            <div class="field"><label>Boton calcular</label><input type="text" name="tools[calculate_button_label]" value="{{ old('tools.calculate_button_label', $tools['settings']['calculate_button_label'] ?? '') }}"></div>
+                            <div class="field"><label>Botón de calcular</label><input type="text" name="tools[calculate_button_label]" value="{{ old('tools.calculate_button_label', $tools['settings']['calculate_button_label'] ?? '') }}"></div>
                         </div>
                     </div>
                 </section>
@@ -799,7 +799,7 @@
                     </div>
                     <div class="subpanel">
                         <div class="grid grid-2">
-                            <div class="field"><label>Titulo</label><input type="text" name="app_banner[title]" value="{{ old('app_banner.title', $appBanner['settings']['title'] ?? '') }}"></div>
+                            <div class="field"><label>Título</label><input type="text" name="app_banner[title]" value="{{ old('app_banner.title', $appBanner['settings']['title'] ?? '') }}"></div>
                             <div class="field"><label>Texto</label><input type="text" name="app_banner[text]" value="{{ old('app_banner.text', $appBanner['settings']['text'] ?? '') }}"></div>
                             <div class="field"><label>Texto App Store</label><input type="text" name="app_banner[app_store_label]" value="{{ old('app_banner.app_store_label', $appBanner['settings']['app_store_label'] ?? '') }}"></div>
                             <div class="field"><label>URL App Store</label><input type="text" name="app_banner[app_store_url]" value="{{ old('app_banner.app_store_url', $appBanner['settings']['app_store_url'] ?? '') }}"></div>
@@ -825,7 +825,7 @@
                         <div>
                             <div class="section-eyebrow">Commerce curation</div>
                             <h3 class="section-title">Market y productos</h3>
-                            <p class="section-copy">Carga piezas destacadas, imagenes, precios y descripciones.</p>
+                            <p class="section-copy">Carga piezas destacadas, imágenes, precios y descripciones.</p>
                         </div>
                         <span class="pill pill-off">{{ count($market['items']) }} productos</span>
                     </div>
@@ -833,10 +833,10 @@
                     <div class="subpanel">
                         <h4>Cabecera de market</h4>
                         <div class="grid grid-2">
-                            <div class="field"><label>Titulo</label><input type="text" name="market[title]" value="{{ old('market.title', $market['settings']['title'] ?? '') }}"></div>
-                            <div class="field"><label>Subtitulo</label><input type="text" name="market[subtitle]" value="{{ old('market.subtitle', $market['settings']['subtitle'] ?? '') }}"></div>
-                            <div class="field"><label>Texto boton final</label><input type="text" name="market[view_all_label]" value="{{ old('market.view_all_label', $market['settings']['view_all_label'] ?? '') }}"></div>
-                            <div class="field"><label>URL boton final</label><input type="text" name="market[view_all_url]" value="{{ old('market.view_all_url', $market['settings']['view_all_url'] ?? '') }}"></div>
+                            <div class="field"><label>Título</label><input type="text" name="market[title]" value="{{ old('market.title', $market['settings']['title'] ?? '') }}"></div>
+                            <div class="field"><label>Subtítulo</label><input type="text" name="market[subtitle]" value="{{ old('market.subtitle', $market['settings']['subtitle'] ?? '') }}"></div>
+                            <div class="field"><label>Texto del botón final</label><input type="text" name="market[view_all_label]" value="{{ old('market.view_all_label', $market['settings']['view_all_label'] ?? '') }}"></div>
+                            <div class="field"><label>URL del botón final</label><input type="text" name="market[view_all_url]" value="{{ old('market.view_all_url', $market['settings']['view_all_url'] ?? '') }}"></div>
                         </div>
                     </div>
 
@@ -844,7 +844,7 @@
                         <div class="toolbar">
                             <div>
                                 <h4>Productos destacados</h4>
-                                <p>Sube fotos y organiza el orden de aparicion con arrastrar y soltar.</p>
+                                <p>Sube fotos y organiza el orden de aparición con arrastrar y soltar.</p>
                             </div>
                             <button type="button" class="button button-secondary" data-add-row>Agregar producto</button>
                         </div>
@@ -860,14 +860,14 @@
                                             <button type="button" class="button button-danger" data-remove-row>Eliminar</button>
                                         </div>
                                         <div class="grid grid-3" style="margin-top:12px;">
-                                            <div class="field"><label>Titulo</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
+                                            <div class="field"><label>Título</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
                                             <div class="field"><label>Precio</label><input type="text" data-field="price" value="{{ $item['price'] ?? '' }}"></div>
                                             <div class="field"><label>Anio o etiqueta</label><input type="text" data-field="year" value="{{ $item['year'] ?? '' }}"></div>
                                             <div class="field"><label>Serie</label><input type="text" data-field="series" value="{{ $item['series'] ?? '' }}"></div>
                                             <div class="field"><label>Imagen actual</label><input type="text" data-field="image" value="{{ $item['image'] ?? '' }}"></div>
                                             <div class="field"><label>Subir imagen</label><input type="file" data-field="image_file" accept="image/*" data-preview-input></div>
                                         </div>
-                                        <div class="field" style="margin-top:12px;"><label>Descripcion</label><textarea class="field-small" data-field="description">{{ $item['description'] ?? '' }}</textarea></div>
+                                        <div class="field" style="margin-top:12px;"><label>Descripción</label><textarea class="field-small" data-field="description">{{ $item['description'] ?? '' }}</textarea></div>
                                         <img src="{{ $item['image'] ?? '' }}" alt="Imagen producto" class="thumb" data-preview-image style="{{ empty($item['image']) ? 'display:none; margin-top:14px;' : 'margin-top:14px;' }}">
                                         <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                     </div>
@@ -883,7 +883,7 @@
                     <div class="section-header">
                         <div>
                             <div class="section-eyebrow">Closure and contact</div>
-                            <h3 class="section-title">Pie de pagina</h3>
+                            <h3 class="section-title">Pie de página</h3>
                             <p class="section-copy">Cierra la experiencia con enlaces, datos de contacto y redes sociales.</p>
                         </div>
                     </div>
@@ -891,16 +891,16 @@
                     <div class="subpanel">
                         <h4>Textos base</h4>
                         <div class="grid grid-3">
-                            <div class="field"><label>Titulo ayuda</label><input type="text" name="footer[help_title]" value="{{ old('footer.help_title', $footer['settings']['help_title'] ?? '') }}"></div>
-                            <div class="field"><label>Titulo empresa</label><input type="text" name="footer[company_title]" value="{{ old('footer.company_title', $footer['settings']['company_title'] ?? '') }}"></div>
-                            <div class="field"><label>Titulo contacto</label><input type="text" name="footer[contact_title]" value="{{ old('footer.contact_title', $footer['settings']['contact_title'] ?? '') }}"></div>
-                            <div class="field"><label>Titulo redes</label><input type="text" name="footer[social_title]" value="{{ old('footer.social_title', $footer['settings']['social_title'] ?? '') }}"></div>
+                            <div class="field"><label>Título de ayuda</label><input type="text" name="footer[help_title]" value="{{ old('footer.help_title', $footer['settings']['help_title'] ?? '') }}"></div>
+                            <div class="field"><label>Título de empresa</label><input type="text" name="footer[company_title]" value="{{ old('footer.company_title', $footer['settings']['company_title'] ?? '') }}"></div>
+                            <div class="field"><label>Título de contacto</label><input type="text" name="footer[contact_title]" value="{{ old('footer.contact_title', $footer['settings']['contact_title'] ?? '') }}"></div>
+                            <div class="field"><label>Título de redes</label><input type="text" name="footer[social_title]" value="{{ old('footer.social_title', $footer['settings']['social_title'] ?? '') }}"></div>
                             <div class="field"><label>Texto redes</label><input type="text" name="footer[social_text]" value="{{ old('footer.social_text', $footer['settings']['social_text'] ?? '') }}"></div>
                             <div class="field"><label>Email</label><input type="text" name="footer[email]" value="{{ old('footer.email', $footer['settings']['email'] ?? '') }}"></div>
-                            <div class="field"><label>Direccion linea 1</label><input type="text" name="footer[address_line_1]" value="{{ old('footer.address_line_1', $address[0] ?? '') }}"></div>
-                            <div class="field"><label>Direccion linea 2</label><input type="text" name="footer[address_line_2]" value="{{ old('footer.address_line_2', $address[1] ?? '') }}"></div>
-                            <div class="field"><label>Telefono linea 1</label><input type="text" name="footer[phone_line_1]" value="{{ old('footer.phone_line_1', $phone[0] ?? '') }}"></div>
-                            <div class="field"><label>Telefono linea 2</label><input type="text" name="footer[phone_line_2]" value="{{ old('footer.phone_line_2', $phone[1] ?? '') }}"></div>
+                            <div class="field"><label>Dirección línea 1</label><input type="text" name="footer[address_line_1]" value="{{ old('footer.address_line_1', $address[0] ?? '') }}"></div>
+                            <div class="field"><label>Dirección línea 2</label><input type="text" name="footer[address_line_2]" value="{{ old('footer.address_line_2', $address[1] ?? '') }}"></div>
+                            <div class="field"><label>Teléfono línea 1</label><input type="text" name="footer[phone_line_1]" value="{{ old('footer.phone_line_1', $phone[0] ?? '') }}"></div>
+                            <div class="field"><label>Teléfono línea 2</label><input type="text" name="footer[phone_line_2]" value="{{ old('footer.phone_line_2', $phone[1] ?? '') }}"></div>
                             <div class="field"><label>Copyright</label><input type="text" name="footer[copyright]" value="{{ old('footer.copyright', $footer['settings']['copyright'] ?? '') }}"></div>
                             <div class="field"><label>Texto legal</label><input type="text" name="footer[legal_text]" value="{{ old('footer.legal_text', $footer['settings']['legal_text'] ?? '') }}"></div>
                         </div>
@@ -932,7 +932,7 @@
                                         <input type="hidden" data-field="id" value="{{ $link['id'] ?? '' }}">
                                     </div>
                                 @empty
-                                    <div class="empty-note">No hay enlaces de ayuda todavia.</div>
+                                    <div class="empty-note">No hay enlaces de ayuda todavía.</div>
                                 @endforelse
                             </div>
                         </div>
@@ -942,7 +942,7 @@
                         <div class="toolbar">
                             <div>
                                 <h4>Enlaces de empresa</h4>
-                                <p>Seccion institucional del footer.</p>
+                                <p>Sección institucional del footer.</p>
                             </div>
                             <button type="button" class="button button-secondary" data-add-row>Agregar enlace</button>
                         </div>
@@ -964,7 +964,7 @@
                                         <input type="hidden" data-field="id" value="{{ $link['id'] ?? '' }}">
                                     </div>
                                 @empty
-                                    <div class="empty-note">No hay enlaces de empresa todavia.</div>
+                                    <div class="empty-note">No hay enlaces de empresa todavía.</div>
                                 @endforelse
                             </div>
                         </div>
@@ -1008,8 +1008,8 @@
                     <div class="section-header">
                         <div>
                             <div class="section-eyebrow">Timeline</div>
-                            <h3 class="section-title">Historial general de la pagina</h3>
-                            <p class="section-copy">Resumen editorial de cambios y restauraciones aplicadas en esta pagina.</p>
+                            <h3 class="section-title">Historial general de la página</h3>
+                            <p class="section-copy">Resumen editorial de cambios y restauraciones aplicadas en esta página.</p>
                         </div>
                         <div class="section-metrics">
                             <span class="pill pill-off">{{ $historyData['total_changes'] }} cambios</span>
@@ -1020,14 +1020,14 @@
                     <div class="design-grid">
                         <div class="subpanel span-6">
                             <h4>Versiones recientes</h4>
-                            <p>Cada guardado crea una version completa que puedes restaurar.</p>
+                            <p>Cada guardado crea una versión completa que puedes restaurar.</p>
                             <div class="stack" style="gap:12px;">
                                 @forelse ($versions as $version)
                                     @php($isCurrentVersion = (int) $version->version_number === (int) $currentVersionNumber)
                                     <div class="repeater-card" style="padding:14px;">
                                         <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
                                             <div>
-                                                <strong>Version {{ $version->version_number }}</strong>
+                                                <strong>Versión {{ $version->version_number }}</strong>
                                                 <div style="font-size:12px; color:#6b7280; margin-top:4px;">
                                                     {{ $historyActionLabels[$version->action] ?? ucfirst($version->action) }} · {{ optional($version->created_at)->format('d/m/Y H:i') }}
                                                 </div>
@@ -1036,7 +1036,7 @@
                                         </div>
                                         @if ($isCurrentVersion)
                                             <div style="margin-top:10px;">
-                                                <span class="pill pill-ok">Version actual</span>
+                                                <span class="pill pill-ok">Versión actual</span>
                                             </div>
                                         @endif
                                         <div style="margin-top:10px; font-size:13px; color:#4b5563;">
@@ -1047,24 +1047,24 @@
                                             <div style="margin-top:6px;"><strong>Cambios incluidos:</strong> {{ $version->changeLogs->count() }}</div>
                                         </div>
                                         @if ($isCurrentVersion)
-                                            <div class="button button-secondary" style="width:100%; margin-top:12px; opacity:.78; cursor:default;">Version actual publicada</div>
+                                            <div class="button button-secondary" style="width:100%; margin-top:12px; opacity:.78; cursor:default;">Versión actual publicada</div>
                                         @else
                                             <form method="POST" action="{{ route('admin.pages.restore', [$page, $version]) }}" style="margin-top:12px;">
                                                 @csrf
-                                                <input type="hidden" name="change_summary" value="Restauracion desde version {{ $version->version_number }}">
-                                                <button type="submit" class="button button-secondary" style="width:100%;">Volver a esta version</button>
+                                                <input type="hidden" name="change_summary" value="Restauración desde la versión {{ $version->version_number }}">
+                                                <button type="submit" class="button button-secondary" style="width:100%;">Volver a esta versión</button>
                                             </form>
                                         @endif
                                     </div>
                                 @empty
-                                    <div class="empty-note">Todavia no hay versiones registradas.</div>
+                                    <div class="empty-note">Todavía no hay versiones registradas.</div>
                                 @endforelse
                             </div>
                         </div>
 
                         <div class="subpanel span-6">
                             <h4>Cambios recientes</h4>
-                            <p>Lectura simple de las ultimas acciones realizadas en contenido y estructura.</p>
+                            <p>Lectura simple de las últimas acciones realizadas en contenido y estructura.</p>
                             <div class="stack" style="gap:12px;">
                                 @forelse ($historyData['latest_changes'] as $log)
                                     <div class="repeater-card" style="padding:14px;">
@@ -1073,13 +1073,13 @@
                                             {{ optional($log->created_at)->format('d/m/Y H:i') }}
                                         </div>
                                         <div style="margin-top:10px; font-size:13px; color:#4b5563;">
-                                            <div><strong>Seccion:</strong> {{ $historySectionLabels[$log->section_key ?: 'general'] ?? ucfirst($log->section_key ?: 'general') }}</div>
+                                            <div><strong>Sección:</strong> {{ $historySectionLabels[$log->section_key ?: 'general'] ?? ucfirst($log->section_key ?: 'general') }}</div>
                                             <div style="margin-top:6px;"><strong>Usuario:</strong> {{ $log->created_by_name ?: 'Sistema' }}</div>
-                                            <div style="margin-top:6px;"><strong>Version:</strong> {{ $log->version?->version_number ?: 'N/D' }}</div>
+                                            <div style="margin-top:6px;"><strong>Versión:</strong> {{ $log->version?->version_number ?: 'N/D' }}</div>
                                         </div>
                                     </div>
                                 @empty
-                                    <div class="empty-note">Todavia no hay cambios registrados.</div>
+                                    <div class="empty-note">Todavía no hay cambios registrados.</div>
                                 @endforelse
                             </div>
                         </div>
@@ -1092,7 +1092,7 @@
                             <div>
                                 <div class="section-eyebrow">Section history</div>
                                 <h3 class="section-title">Historial de {{ $historySection['label'] }}</h3>
-                                <p class="section-copy">Revision editorial clara de cambios, responsables y restauraciones de esta seccion.</p>
+                                <p class="section-copy">Revisión editorial clara de cambios, responsables y restauraciones de esta sección.</p>
                             </div>
                             <div class="section-metrics">
                                 <span class="pill pill-off">{{ $historySection['count'] }} eventos</span>
@@ -1103,18 +1103,18 @@
                         <div class="design-grid">
                             <div class="subpanel span-3">
                                 <h4>Versiones relacionadas</h4>
-                                <p>Guardados donde esta seccion recibio algun cambio.</p>
+                                <p>Guardados donde esta sección recibió algún cambio.</p>
                                 <div class="stack" style="gap:12px;">
                                     @forelse ($historySection['versions'] as $version)
                                         @php($isCurrentVersion = (int) $version->version_number === (int) $currentVersionNumber)
                                         <div class="repeater-card" style="padding:14px;">
-                                            <strong>Version {{ $version->version_number }}</strong>
+                                            <strong>Versión {{ $version->version_number }}</strong>
                                             <div style="font-size:12px; color:#6b7280; margin-top:4px;">
                                                 {{ $historyActionLabels[$version->action] ?? ucfirst($version->action) }} · {{ optional($version->created_at)->format('d/m/Y H:i') }}
                                             </div>
                                             @if ($isCurrentVersion)
                                                 <div style="margin-top:10px;">
-                                                    <span class="pill pill-ok">Version actual</span>
+                                                    <span class="pill pill-ok">Versión actual</span>
                                                 </div>
                                             @endif
                                             <div style="margin-top:8px; font-size:13px; color:#4b5563;">
@@ -1124,24 +1124,24 @@
                                                 @endif
                                             </div>
                                             @if ($isCurrentVersion)
-                                                <div class="button button-secondary" style="width:100%; margin-top:12px; opacity:.78; cursor:default;">Version actual publicada</div>
+                                                <div class="button button-secondary" style="width:100%; margin-top:12px; opacity:.78; cursor:default;">Versión actual publicada</div>
                                             @else
                                                 <form method="POST" action="{{ route('admin.pages.restore', [$page, $version]) }}" style="margin-top:12px;">
                                                     @csrf
-                                                    <input type="hidden" name="change_summary" value="Restauracion desde version {{ $version->version_number }} para {{ $historySection['label'] }}">
-                                                    <button type="submit" class="button button-secondary" style="width:100%;">Volver a esta version</button>
+                                                    <input type="hidden" name="change_summary" value="Restauración desde la versión {{ $version->version_number }} para {{ $historySection['label'] }}">
+                                                    <button type="submit" class="button button-secondary" style="width:100%;">Volver a esta versión</button>
                                                 </form>
                                             @endif
                                         </div>
                                     @empty
-                                        <div class="empty-note">Esta seccion aun no tiene versiones relacionadas.</div>
+                                        <div class="empty-note">Esta sección aún no tiene versiones relacionadas.</div>
                                     @endforelse
                                 </div>
                             </div>
 
                             <div class="subpanel span-9">
-                                <h4>Linea de tiempo de la seccion</h4>
-                                <p>Lectura ejecutiva de lo que se modifico, quien lo hizo y como quedo el contenido.</p>
+                                <h4>Línea de tiempo de la sección</h4>
+                                <p>Lectura ejecutiva de lo que se modificó, quién lo hizo y cómo quedó el contenido.</p>
                                 <div class="stack" style="gap:12px;">
                                     @forelse ($historySection['logs'] as $log)
                                         <div class="repeater-card" style="padding:14px;">
@@ -1156,8 +1156,8 @@
                                             </div>
                                             <div class="grid grid-3" style="margin-top:12px;">
                                                 <div><strong>Usuario:</strong><br>{{ $log->created_by_name ?: 'Sistema' }}</div>
-                                                <div><strong>Version:</strong><br>{{ $log->version?->version_number ?: 'N/D' }}</div>
-                                                <div><strong>Elemento:</strong><br>{{ $log->item_name ?: ($historyFieldLabels[$log->field_name] ?? ($log->field_name ?: 'Seccion completa')) }}</div>
+                                                <div><strong>Versión:</strong><br>{{ $log->version?->version_number ?: 'N/D' }}</div>
+                                                <div><strong>Elemento:</strong><br>{{ $log->item_name ?: ($historyFieldLabels[$log->field_name] ?? ($log->field_name ?: 'Sección completa')) }}</div>
                                             </div>
                                             @php($changeDetails = $buildHistoryDiff($log->before_state, $log->after_state))
                                             @if (!empty($changeDetails))
@@ -1176,7 +1176,7 @@
                                                                         <div style="margin-top:4px; font-size:13px; color:#344054; line-height:1.55;">{{ $change['before'] }}</div>
                                                                     </div>
                                                                     <div>
-                                                                        <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:#667085;">Despues</div>
+                                                                        <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:#667085;">Después</div>
                                                                         <div style="margin-top:4px; font-size:13px; color:#344054; line-height:1.55;">{{ $change['after'] }}</div>
                                                                     </div>
                                                                 </div>
@@ -1187,7 +1187,7 @@
                                             @endif
                                         </div>
                                     @empty
-                                        <div class="empty-note">Todavia no hay cambios registrados para esta seccion.</div>
+                                        <div class="empty-note">Todavía no hay cambios registrados para esta sección.</div>
                                     @endforelse
                                 </div>
                             </div>
@@ -1204,7 +1204,7 @@
                             <input type="text" name="change_summary" value="{{ old('change_summary') }}" placeholder="Ej: Actualice hero, servicios y footer">
                         </div>
                     </div>
-                    <button type="submit" class="button button-primary">Guardar cambios del diseno</button>
+                    <button type="submit" class="button button-primary">Guardar cambios del diseño</button>
                 </div>
             </div>
 

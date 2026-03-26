@@ -21,7 +21,7 @@
                     <input type="email" name="email" value="{{ old('email') }}" required>
                 </div>
                 <div class="field">
-                    <label>Contrasena</label>
+                    <label>Contraseña</label>
                     <input type="password" name="password" required>
                 </div>
                 <button type="submit" class="button button-primary">Ingresar al panel</button>

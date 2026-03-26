@@ -5,9 +5,9 @@
     <div class="admin-topbar">
         <div class="admin-brand">
             <h2>Vistas del Sitio</h2>
-            <p>Administra las pantallas publicas con un flujo visual y ordenado.</p>
+            <p>Administra las pantallas públicas con un flujo visual y ordenado.</p>
         </div>
-        <form method="POST" action="{{ route('admin.logout') }}">@csrf<button type="submit" class="button button-secondary">Cerrar sesion</button></form>
+        <form method="POST" action="{{ route('admin.logout') }}">@csrf<button type="submit" class="button button-secondary">Cerrar sesión</button></form>
     </div>
 
     <div class="page-hero">
@@ -32,7 +32,7 @@
 
     <div class="card-grid">
         <div class="spot-card">
-            <span>Paginas</span>
+            <span>Páginas</span>
             <strong>{{ $pages->count() }}</strong>
             <p>Vistas disponibles para administrar desde el panel.</p>
         </div>
@@ -60,7 +60,7 @@
             <table class="page-table">
                 <thead>
                     <tr>
-                        <th>Pagina</th>
+                        <th>Página</th>
                         <th>Slug</th>
                         <th>Secciones</th>
                         <th>Estado</th>
@@ -70,7 +70,7 @@
                 <tbody>
                     @foreach ($pages as $page)
                         <tr>
-                            <td><strong>{{ $page->name }}</strong><br><span class="muted">{{ $page->meta_title ?: 'Sin titulo SEO' }}</span></td>
+                            <td><strong>{{ $page->name }}</strong><br><span class="muted">{{ $page->meta_title ?: 'Sin título SEO' }}</span></td>
                             <td>{{ $page->slug }}</td>
                             <td>{{ $page->sections_count }}</td>
                             <td><span class="pill {{ $page->is_active ? 'pill-ok' : 'pill-off' }}">{{ $page->is_active ? 'Activa' : 'Inactiva' }}</span></td>
