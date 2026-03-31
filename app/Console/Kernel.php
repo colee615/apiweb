@@ -19,6 +19,6 @@ class Kernel extends ConsoleKernel
      * Registrar comandos personalizados.
      */
     protected $commands = [
-       
+        \App\Console\Commands\CleanupCmsAssets::class,
     ];
 }
