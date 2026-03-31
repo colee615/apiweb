@@ -9,6 +9,7 @@ use App\Models\SiteSectionItem;
 use App\Models\User;
 use App\Support\ContentSecurity;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class SitePageEditor
 {
@@ -46,6 +47,10 @@ class SitePageEditor
                 actor: $actor,
                 options: $options
             );
+
+            DB::afterCommit(function () use ($beforePage, $updatedPage, $page) {
+                $this->cleanupObsoleteAssets($beforePage, $updatedPage, $page->id);
+            });
         });
 
         return $updatedPage;
@@ -170,5 +175,99 @@ class SitePageEditor
                 $query->orderBy('sort_order');
             },
         ]);
+    }
+
+    protected function cleanupObsoleteAssets(SitePage $beforePage, SitePage $afterPage, int $currentPageId): void
+    {
+        $beforePaths = $this->extractAssetPathsFromPage($beforePage);
+        $afterPaths = $this->extractAssetPathsFromPage($afterPage);
+        $pathsToDelete = array_diff($beforePaths, $afterPaths);
+
+        foreach ($pathsToDelete as $path) {
+            if (! $path || $this->assetPathIsUsedByOtherPages($path, $currentPageId)) {
+                continue;
+            }
+
+            if (Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+        }
+    }
+
+    protected function extractAssetPathsFromPage(SitePage $page): array
+    {
+        $paths = [];
+
+        $this->collectAssetPathsFromArray($page->theme ?? [], $paths);
+
+        foreach ($page->sections ?? [] as $section) {
+            $this->collectAssetPathsFromArray($section->settings ?? [], $paths);
+
+            foreach ($section->items ?? [] as $item) {
+                $this->collectAssetPathsFromArray($item->data ?? [], $paths);
+            }
+        }
+
+        return array_values(array_unique(array_filter($paths)));
+    }
+
+    protected function collectAssetPathsFromArray(array $data, array &$paths): void
+    {
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $this->collectAssetPathsFromArray($value, $paths);
+                continue;
+            }
+
+            if (! in_array($key, ContentSecurity::ASSET_KEYS, true)) {
+                continue;
+            }
+
+            $path = $this->normalizePublicStoragePath($value);
+
+            if ($path) {
+                $paths[] = $path;
+            }
+        }
+    }
+
+    protected function normalizePublicStoragePath(mixed $value): ?string
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        $value = trim($value);
+        $path = parse_url($value, PHP_URL_PATH) ?: $value;
+        $path = '/' . ltrim($path, '/');
+
+        if (! str_starts_with($path, '/storage/')) {
+            return null;
+        }
+
+        return ltrim(substr($path, strlen('/storage/')), '/');
+    }
+
+    protected function assetPathIsUsedByOtherPages(string $path, int $currentPageId): bool
+    {
+        $otherPages = SitePage::query()
+            ->whereKeyNot($currentPageId)
+            ->with([
+                'sections' => function ($query) {
+                    $query->orderBy('sort_order');
+                },
+                'sections.items' => function ($query) {
+                    $query->orderBy('sort_order');
+                },
+            ])
+            ->get();
+
+        foreach ($otherPages as $page) {
+            if (in_array($path, $this->extractAssetPathsFromPage($page), true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
