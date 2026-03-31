@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\SitePage;
 use App\Models\SiteSection;
 use App\Models\SiteSectionItem;
+use App\Support\ContentSecurity;
 
 class SitePagePayloadBuilder
 {
@@ -56,7 +57,7 @@ class SitePagePayloadBuilder
 
     public function normalizeAssetFields(array $data): array
     {
-        $assetKeys = ['logo_url', 'background_image', 'iconImage', 'image', 'src', 'poster', 'poster_image'];
+        $data = ContentSecurity::sanitizeArray($data);
 
         foreach ($data as $key => $value) {
             if (is_array($value)) {
@@ -64,8 +65,8 @@ class SitePagePayloadBuilder
                 continue;
             }
 
-            if (in_array($key, $assetKeys, true)) {
-                $data[$key] = $this->normalizeAssetUrl($value);
+            if (in_array($key, ContentSecurity::ASSET_KEYS, true)) {
+                $data[$key] = ContentSecurity::normalizeAssetUrl($value);
             }
         }
 
@@ -74,18 +75,6 @@ class SitePagePayloadBuilder
 
     public function normalizeAssetUrl(?string $value): ?string
     {
-        if (! $value) {
-            return $value;
-        }
-
-        if (preg_match('/^https?:\/\//i', $value)) {
-            return $value;
-        }
-
-        if (str_starts_with($value, '/storage/') || str_starts_with($value, 'storage/')) {
-            return url(ltrim($value, '/'));
-        }
-
-        return $value;
+        return ContentSecurity::normalizeAssetUrl($value);
     }
 }

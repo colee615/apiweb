@@ -6,6 +6,7 @@ use App\Models\SitePage;
 use App\Models\SitePageChangeLog;
 use App\Models\SitePageVersion;
 use App\Services\SitePageEditor;
+use App\Support\ContentSecurity;
 use Illuminate\Support\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -62,6 +63,17 @@ class AdminPageController extends Controller
             'meta_description' => ['nullable', 'string'],
             'is_active' => ['nullable', 'boolean'],
             'change_summary' => ['nullable', 'string', 'max:1000'],
+            'theme.logo_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:5120'],
+            'announcement_modal.poster_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'announcement_modal.items.*.poster_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'app_banner.background_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'app_banner.items.*.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'app_banner.items.*.duration_seconds' => ['nullable', 'integer', 'min:1', 'max:300'],
+            'services.items.*.iconImage_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:3072'],
+            'market.items.*.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'hero.media.*.media_file' => ['nullable', 'file', 'mimetypes:image/jpeg,image/png,image/webp,image/svg+xml,video/mp4,video/webm', 'max:20480'],
+            'hero.media.*.poster_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'hero.media.*.duration_seconds' => ['nullable', 'integer', 'min:1', 'max:300'],
         ]);
 
         $payload = [
@@ -132,6 +144,7 @@ class AdminPageController extends Controller
                     'poster_title' => '',
                     'poster_caption' => '',
                 ]),
+                'items' => $this->sectionItems($page, 'announcement_modal') ?: $this->defaultAnnouncementModalItems($page),
             ],
             'header' => [
                 'settings' => $this->sectionSettings($page, 'header', [
@@ -174,11 +187,13 @@ class AdminPageController extends Controller
             ],
             'tools' => [
                 'settings' => $this->sectionSettings($page, 'tools', []),
+                'items' => $this->sectionItems($page, 'tools') ?: $this->defaultToolOfficeItems(),
             ],
             'app_banner' => [
                 'settings' => $this->sectionSettings($page, 'app_banner', [
                     'background_image' => '',
                 ]),
+                'items' => $this->sectionItems($page, 'app_banner') ?: $this->defaultAppBannerItems($page),
             ],
             'market' => [
                 'settings' => $this->sectionSettings($page, 'market', []),
@@ -207,7 +222,15 @@ class AdminPageController extends Controller
                 'poster_alt' => $request->input('announcement_modal.poster_alt'),
                 'poster_title' => $request->input('announcement_modal.poster_title'),
                 'poster_caption' => $request->input('announcement_modal.poster_caption'),
-            ]),
+            ], $this->mapRepeaterItems(data_get($form, 'announcement_modal.items', []), 'announcement_slide', function ($item) {
+                return [
+                    'title' => $item['title'] ?? '',
+                    'poster_image' => $this->storeRepeaterImage($item, 'poster_file', 'poster_image', 'cms/announcement'),
+                    'poster_alt' => $item['poster_alt'] ?? 'Comunicado institucional',
+                    'poster_title' => $item['poster_title'] ?? '',
+                    'poster_caption' => $item['poster_caption'] ?? '',
+                ];
+            })),
 
             $this->makeSectionPayload($page, 'header', 'Encabezado', 'header', 1, [
                 'language_primary' => $request->input('header.language_primary'),
@@ -219,7 +242,7 @@ class AdminPageController extends Controller
             ], $this->mapRepeaterItems(data_get($form, 'header.links', []), 'nav_link', function ($item) {
                 return [
                     'label' => $item['label'] ?? '',
-                    'url' => $item['url'] ?? '#',
+                    'url' => ContentSecurity::sanitizeLinkUrl($item['url'] ?? '#') ?? '#',
                 ];
             })),
 
@@ -266,23 +289,43 @@ class AdminPageController extends Controller
                 'weight_label' => $request->input('tools.weight_label'),
                 'weight_placeholder' => $request->input('tools.weight_placeholder'),
                 'calculate_button_label' => $request->input('tools.calculate_button_label'),
-            ]),
+            ], $this->mapRepeaterItems(data_get($form, 'tools.items', []), 'office', function ($item) {
+                return [
+                    'title' => $item['title'] ?? '',
+                    'name' => $item['name'] ?? '',
+                    'dept' => strtoupper(trim((string) ($item['dept'] ?? ''))),
+                    'address' => $item['address'] ?? '',
+                    'hours' => $item['hours'] ?? '',
+                    'weekday_hours' => $item['weekday_hours'] ?? '',
+                    'saturday_hours' => $item['saturday_hours'] ?? '',
+                    'phone' => $item['phone'] ?? '',
+                    'left' => $item['left'] ?? '',
+                    'top' => $item['top'] ?? '',
+                    'maps_url' => ContentSecurity::sanitizeLinkUrl($item['maps_url'] ?? '#') ?? '#',
+                ];
+            })),
 
             $this->makeSectionPayload($page, 'app_banner', 'Banner App', 'app_banner', 6, [
                 'title' => $request->input('app_banner.title'),
                 'text' => $request->input('app_banner.text'),
                 'app_store_label' => $request->input('app_banner.app_store_label'),
                 'play_store_label' => $request->input('app_banner.play_store_label'),
-                'app_store_url' => $request->input('app_banner.app_store_url'),
-                'play_store_url' => $request->input('app_banner.play_store_url'),
+                'app_store_url' => ContentSecurity::sanitizeLinkUrl($request->input('app_banner.app_store_url')) ?? '#',
+                'play_store_url' => ContentSecurity::sanitizeLinkUrl($request->input('app_banner.play_store_url')) ?? '#',
                 'background_image' => $this->storeUploadedImage($request, 'app_banner.background_file', $request->input('app_banner.background_image'), 'cms/app-banner'),
-            ]),
+            ], $this->mapRepeaterItems(data_get($form, 'app_banner.items', []), 'app_banner_slide', function ($item) {
+                return [
+                    'title' => $item['title'] ?? '',
+                    'image' => $this->storeRepeaterImage($item, 'image_file', 'image', 'cms/app-banner'),
+                    'duration_seconds' => max(1, min(300, (int) ($item['duration_seconds'] ?? 5))),
+                ];
+            })),
 
             $this->makeSectionPayload($page, 'market', 'Market', 'product_grid', 7, [
                 'title' => $request->input('market.title'),
                 'subtitle' => $request->input('market.subtitle'),
                 'view_all_label' => $request->input('market.view_all_label'),
-                'view_all_url' => $request->input('market.view_all_url'),
+                'view_all_url' => ContentSecurity::sanitizeLinkUrl($request->input('market.view_all_url')) ?? '#',
             ], $this->mapRepeaterItems(data_get($form, 'market.items', []), 'product', function ($item) {
                 return [
                     'title' => $item['title'] ?? '',
@@ -373,6 +416,7 @@ class AdminPageController extends Controller
                     'data' => [
                         'title' => $item['title'] ?? ('Slide ' . ($index + 1)),
                         'media_type' => $item['media_type'] ?? 'image',
+                        'duration_seconds' => max(1, min(300, (int) ($item['duration_seconds'] ?? 5))),
                         'src' => $this->storeRepeaterAsset($item, 'media_file', 'src', 'cms/hero'),
                         'poster' => $this->storeRepeaterAsset($item, 'poster_file', 'poster', 'cms/hero'),
                     ],
@@ -423,7 +467,7 @@ class AdminPageController extends Controller
                 $data = [
                     'group' => $group,
                     'label' => $item['label'] ?? '',
-                    'url' => $item['url'] ?? '#',
+                    'url' => ContentSecurity::sanitizeLinkUrl($item['url'] ?? '#') ?? '#',
                 ];
 
                 if ($withAria) {
@@ -472,7 +516,7 @@ class AdminPageController extends Controller
 
     protected function normalizeAssetFields(array $data): array
     {
-        $assetKeys = ['logo_url', 'background_image', 'iconImage', 'image', 'src', 'poster', 'poster_image'];
+        $data = ContentSecurity::sanitizeArray($data);
 
         foreach ($data as $key => $value) {
             if (is_array($value)) {
@@ -480,8 +524,8 @@ class AdminPageController extends Controller
                 continue;
             }
 
-            if (in_array($key, $assetKeys, true)) {
-                $data[$key] = $this->normalizeAssetUrl($value);
+            if (in_array($key, ContentSecurity::ASSET_KEYS, true)) {
+                $data[$key] = ContentSecurity::normalizeAssetUrl($value);
             }
         }
 
@@ -490,19 +534,56 @@ class AdminPageController extends Controller
 
     protected function normalizeAssetUrl(?string $value): ?string
     {
-        if (! $value) {
-            return $value;
+        return ContentSecurity::normalizeAssetUrl($value);
+    }
+
+    protected function defaultToolOfficeItems(): array
+    {
+        return [
+            ['title' => 'Oficina Correos Cobija', 'name' => 'Cobija', 'dept' => 'BON', 'address' => 'Av. 9 de Febrero, Cobija, Pando', 'hours' => 'Lun a Vie, 08:30 a 16:30', 'weekday_hours' => '08:30 a 16:30', 'saturday_hours' => '09:00 a 12:30', 'phone' => '+591 3 8420001', 'left' => '33.2%', 'top' => '16.5%', 'maps_url' => 'https://www.google.com/maps/search/?api=1&query=-11.0267,-68.7692'],
+            ['title' => 'Oficina Central La Paz', 'name' => 'La Paz', 'dept' => 'BOL', 'address' => 'Av. Mariscal Santa Cruz, La Paz', 'hours' => 'Lun a Vie, 08:00 a 18:00', 'weekday_hours' => '08:00 a 18:00', 'saturday_hours' => '09:00 a 13:00', 'phone' => '+591 2 2312121', 'left' => '29.6%', 'top' => '46%', 'maps_url' => 'https://www.google.com/maps/search/?api=1&query=-16.4957,-68.1336'],
+            ['title' => 'Oficina Correos Trinidad', 'name' => 'Trinidad', 'dept' => 'BOB', 'address' => 'Zona Central, Trinidad, Beni', 'hours' => 'Lun a Vie, 08:30 a 16:30', 'weekday_hours' => '08:30 a 16:30', 'saturday_hours' => '09:00 a 12:30', 'phone' => '+591 3 4622001', 'left' => '43.8%', 'top' => '35.5%', 'maps_url' => 'https://www.google.com/maps/search/?api=1&query=-14.8333,-64.9'],
+            ['title' => 'Oficina Correos Oruro', 'name' => 'Oruro', 'dept' => 'BOO', 'address' => 'Calle La Plata, Oruro', 'hours' => 'Lun a Vie, 08:30 a 16:30', 'weekday_hours' => '08:30 a 16:30', 'saturday_hours' => '09:00 a 12:30', 'phone' => '+591 2 5277001', 'left' => '31.8%', 'top' => '67.2%', 'maps_url' => 'https://www.google.com/maps/search/?api=1&query=-17.9647,-67.106'],
+            ['title' => 'Oficina Correos Cochabamba', 'name' => 'Cochabamba', 'dept' => 'BOC', 'address' => 'Av. Ayacucho, Cochabamba', 'hours' => 'Lun a Vie, 08:00 a 17:30', 'weekday_hours' => '08:00 a 17:30', 'saturday_hours' => '09:00 a 12:30', 'phone' => '+591 4 4528001', 'left' => '41.8%', 'top' => '58.5%', 'maps_url' => 'https://www.google.com/maps/search/?api=1&query=-17.3895,-66.1568'],
+            ['title' => 'Oficina Correos Santa Cruz', 'name' => 'Santa Cruz', 'dept' => 'BOS', 'address' => 'Av. Irala, Santa Cruz de la Sierra', 'hours' => 'Lun a Vie, 08:00 a 17:30', 'weekday_hours' => '08:00 a 17:30', 'saturday_hours' => '09:00 a 12:30', 'phone' => '+591 3 3366001', 'left' => '59.2%', 'top' => '58%', 'maps_url' => 'https://www.google.com/maps/search/?api=1&query=-17.7833,-63.1821'],
+            ['title' => 'Oficina Correos Sucre', 'name' => 'Sucre', 'dept' => 'BOH', 'address' => 'Calle Aniceto Arce, Sucre', 'hours' => 'Lun a Vie, 08:30 a 16:30', 'weekday_hours' => '08:30 a 16:30', 'saturday_hours' => '09:00 a 12:30', 'phone' => '+591 4 6459001', 'left' => '46.6%', 'top' => '75.2%', 'maps_url' => 'https://www.google.com/maps/search/?api=1&query=-19.047,-65.2595'],
+            ['title' => 'Oficina Correos Potosi', 'name' => 'Potosi', 'dept' => 'BOP', 'address' => 'Zona Central, Potosi', 'hours' => 'Lun a Vie, 08:30 a 16:30', 'weekday_hours' => '08:30 a 16:30', 'saturday_hours' => '09:00 a 12:30', 'phone' => '+591 2 6229001', 'left' => '35.7%', 'top' => '81.2%', 'maps_url' => 'https://www.google.com/maps/search/?api=1&query=-19.5723,-65.755'],
+            ['title' => 'Oficina Correos Tarija', 'name' => 'Tarija', 'dept' => 'BOT', 'address' => 'Calle General Trigo, Tarija', 'hours' => 'Lun a Vie, 08:30 a 16:30', 'weekday_hours' => '08:30 a 16:30', 'saturday_hours' => '09:00 a 12:30', 'phone' => '+591 4 6648001', 'left' => '47.7%', 'top' => '87.5%', 'maps_url' => 'https://www.google.com/maps/search/?api=1&query=-21.5355,-64.7296'],
+        ];
+    }
+
+    protected function defaultAnnouncementModalItems(SitePage $page): array
+    {
+        $settings = $page->sections->firstWhere('key', 'announcement_modal')?->settings ?? [];
+        $posterImage = $this->normalizeAssetUrl($settings['poster_image'] ?? '');
+
+        if (! filled($posterImage)) {
+            return [];
         }
 
-        if (preg_match('/^https?:\/\//i', $value)) {
-            return $value;
+        return [[
+            'title' => $settings['poster_title'] ?: 'Popup principal',
+            'poster_image' => $posterImage,
+            'poster_alt' => $settings['poster_alt'] ?? 'Comunicado institucional',
+            'poster_title' => $settings['poster_title'] ?? '',
+            'poster_caption' => $settings['poster_caption'] ?? '',
+        ]];
+    }
+
+    protected function defaultAppBannerItems(SitePage $page): array
+    {
+        $settings = $page->sections->firstWhere('key', 'app_banner')?->settings ?? [];
+        $backgroundImage = $this->normalizeAssetUrl($settings['background_image'] ?? '');
+
+        if (! filled($backgroundImage)) {
+            return [];
         }
 
-        if (str_starts_with($value, '/storage/') || str_starts_with($value, 'storage/')) {
-            return url(ltrim($value, '/'));
-        }
-
-        return $value;
+        return [[
+            'title' => 'Banner principal',
+            'image' => $backgroundImage,
+            'duration_seconds' => 5,
+        ]];
     }
 
     protected function buildHistoryData(SitePage $page): array

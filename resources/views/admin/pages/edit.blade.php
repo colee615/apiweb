@@ -46,6 +46,9 @@
         'map_title' => 'Título del mapa',
         'map_text' => 'Texto del mapa',
         'map_button_label' => 'Botón del mapa',
+        'maps_url' => 'Google Maps URL',
+        'weekday_hours' => 'Horario de lunes a viernes',
+        'saturday_hours' => 'Horario de sábado',
         'calculator_title' => 'Título de calculadora',
         'calculator_text' => 'Texto de calculadora',
         'origin_label' => 'Etiqueta de origen',
@@ -74,6 +77,7 @@
         'price' => 'Precio',
         'year' => 'Año',
         'series' => 'Serie',
+        'dept' => 'Código de departamento',
         'group' => 'Grupo',
         'media_type' => 'Tipo de medio',
         'phone' => 'Teléfono',
@@ -101,6 +105,8 @@
         'sort_order' => 'Orden',
         'type' => 'Tipo',
         'key' => 'Clave',
+        'left' => 'Posición izquierda',
+        'top' => 'Posición superior',
     ];
     $historyIgnoredKeys = ['id', 'page_id', 'section_id', 'item_id', 'created_at', 'updated_at'];
     $historyAssetFields = ['src', 'poster', 'poster_image', 'iconImage', 'image', 'background_image', 'logo_url'];
@@ -392,10 +398,10 @@
                         <div>
                             <div class="section-eyebrow">Startup announcement</div>
                             <h3 class="section-title">Popup de inicio</h3>
-                            <p class="section-copy">Sube una sola imagen institucional para que aparezca al cargar la página. El frontend la mostrará completa, sin barras internas de desplazamiento.</p>
+                            <p class="section-copy">Carga uno o varios afiches institucionales. Si solo existe uno, se mostrará como pieza única; si agregas varios, el frontend los mostrará como una secuencia elegante.</p>
                         </div>
                         <div class="section-metrics">
-                            <span class="pill {{ !empty($announcement['settings']['poster_image']) ? 'pill-ok' : 'pill-off' }}">{{ !empty($announcement['settings']['poster_image']) ? 'Imagen cargada' : 'Sin imagen' }}</span>
+                            <span class="pill {{ count($announcement['items'] ?? []) ? 'pill-ok' : 'pill-off' }}">{{ count($announcement['items'] ?? []) ? count($announcement['items']) . ' popup(s)' : 'Sin popups' }}</span>
                             <span class="pill {{ !empty($announcement['settings']['enabled']) ? 'pill-ok' : 'pill-off' }}">{{ !empty($announcement['settings']['enabled']) ? 'Activo' : 'Inactivo' }}</span>
                         </div>
                     </div>
@@ -421,32 +427,68 @@
                         </div>
 
                         <div class="subpanel span-8">
-                            <h4>Imagen del comunicado</h4>
-                            <p>Este bloque esta pensado para una sola pieza grafica vertical u horizontal. Si subes una nueva imagen, el popup del frontend se actualizara con ese arte.</p>
-                            <div class="image-frame">
-                                @if (!empty($announcement['settings']['poster_image']))
-                                    <img src="{{ $announcement['settings']['poster_image'] }}" alt="Popup actual" class="thumb" style="max-width: 420px; aspect-ratio: auto;">
-                                @endif
+                            <div class="toolbar">
+                                <div>
+                                    <h4>Secuencia de popups</h4>
+                                    <p>Ordena varias piezas como si fueran una baraja. La primera será la portada inicial y el usuario podrá recorrer las demás.</p>
+                                </div>
+                                <button type="button" class="button button-secondary" data-add-row>Agregar popup</button>
+                            </div>
+                            <div class="stack" data-collection data-base="announcement_modal[items]" data-template="announcement-template">
+                                <div data-rows>
+                                    @forelse (($announcement['items'] ?? []) as $item)
+                                        <div class="repeater-card" data-row>
+                                            <div class="toolbar">
+                                                <div class="actions">
+                                                    <span class="drag-handle" data-drag>::</span>
+                                                    <strong>{{ $item['title'] ?? 'Popup institucional' }}</strong>
+                                                </div>
+                                                <button type="button" class="button button-danger" data-remove-row>Eliminar</button>
+                                            </div>
+                                            <div class="grid grid-2" style="margin-top:12px;">
+                                                <div class="field"><label>Nombre interno</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
+                                                <div class="field"><label>Texto alternativo</label><input type="text" data-field="poster_alt" value="{{ $item['poster_alt'] ?? 'Comunicado institucional' }}"></div>
+                                                <div class="field"><label>Imagen actual</label><input type="text" data-field="poster_image" value="{{ $item['poster_image'] ?? '' }}"></div>
+                                                <div class="field"><label>Subir imagen</label><input type="file" data-field="poster_file" accept="image/*" data-preview-input></div>
+                                                <div class="field"><label>Título visible</label><input type="text" data-field="poster_title" value="{{ $item['poster_title'] ?? '' }}"></div>
+                                                <div class="field"><label>Pie o detalle</label><input type="text" data-field="poster_caption" value="{{ $item['poster_caption'] ?? '' }}"></div>
+                                            </div>
+                                            @if (!empty($item['poster_image']))
+                                                <img class="thumb" data-preview-image src="{{ $item['poster_image'] }}" style="display:block; margin-top:14px; max-width: 320px; aspect-ratio: auto;" alt="Preview">
+                                            @else
+                                                <img class="thumb" data-preview-image style="display:none; margin-top:14px; max-width: 320px; aspect-ratio: auto;" alt="Preview">
+                                            @endif
+                                            <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
+                                        </div>
+                                    @empty
+                                        <div class="empty-note">No hay popups cargados todavía. Agrega el primero para mostrarlo al abrir la página.</div>
+                                    @endforelse
+                                </div>
+                            </div>
+
+                            <div class="image-frame" style="margin-top:16px;">
+                                <strong>Compatibilidad con la versión anterior</strong>
+                                <p style="margin:0; color:#667085;">Los campos antiguos se conservan para no perder contenido guardado previamente. Si ya estás usando varios popups, puedes dejar esta base vacía.</p>
                                 <div class="grid grid-2">
                                     <div class="field">
-                                        <label>URL imagen</label>
+                                        <label>URL imagen base</label>
                                         <input type="text" name="announcement_modal[poster_image]" value="{{ old('announcement_modal.poster_image', $announcement['settings']['poster_image'] ?? '') }}">
                                     </div>
                                     <div class="field">
-                                        <label>Subir imagen</label>
+                                        <label>Subir imagen base</label>
                                         <input type="file" name="announcement_modal[poster_file]" accept="image/*">
                                     </div>
                                     <div class="field">
-                                        <label>Texto alternativo</label>
+                                        <label>Texto alternativo base</label>
                                         <input type="text" name="announcement_modal[poster_alt]" value="{{ old('announcement_modal.poster_alt', $announcement['settings']['poster_alt'] ?? 'Comunicado institucional') }}">
                                     </div>
                                     <div class="field">
-                                        <label>Título opcional</label>
+                                        <label>Título base</label>
                                         <input type="text" name="announcement_modal[poster_title]" value="{{ old('announcement_modal.poster_title', $announcement['settings']['poster_title'] ?? '') }}">
                                     </div>
                                 </div>
                                 <div class="field">
-                                    <label>Pie opcional</label>
+                                    <label>Pie base</label>
                                     <input type="text" name="announcement_modal[poster_caption]" value="{{ old('announcement_modal.poster_caption', $announcement['settings']['poster_caption'] ?? '') }}">
                                 </div>
                             </div>
@@ -693,6 +735,7 @@
                                         <div class="grid grid-2" style="margin-top:12px;">
                                             <div class="field"><label>Nombre interno</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
                                             <div class="field"><label>Tipo</label><select data-field="media_type" data-media-type><option value="image" {{ ($item['media_type'] ?? 'image') === 'image' ? 'selected' : '' }}>Imagen</option><option value="video" {{ ($item['media_type'] ?? '') === 'video' ? 'selected' : '' }}>Video</option></select></div>
+                                            <div class="field"><label>Duración (segundos)</label><input type="number" min="1" max="300" step="1" data-field="duration_seconds" value="{{ $item['duration_seconds'] ?? 5 }}"></div>
                                             <div class="field"><label>Archivo actual</label><input type="text" data-field="src" value="{{ $item['src'] ?? '' }}"></div>
                                             <div class="field"><label>Subir archivo</label><input type="file" data-field="media_file" accept="image/*,video/*"></div>
                                             <div class="field" data-poster-field><label>Poster o imagen previa</label><input type="text" data-field="poster" value="{{ $item['poster'] ?? '' }}"></div>
@@ -788,35 +831,108 @@
                             <div class="field"><label>Botón de calcular</label><input type="text" name="tools[calculate_button_label]" value="{{ old('tools.calculate_button_label', $tools['settings']['calculate_button_label'] ?? '') }}"></div>
                         </div>
                     </div>
+                    <div class="subpanel">
+                        <div class="empty-note" style="margin-bottom:16px;">
+                            Códigos del mapa:
+                            `BON` Pando, `BOL` La Paz, `BOB` Beni, `BOO` Oruro, `BOC` Cochabamba, `BOS` Santa Cruz, `BOH` Chuquisaca, `BOP` Potosí, `BOT` Tarija.
+                            Usa posiciones como `29.6%` y `46%` para mover cada pin sobre el mapa.
+                        </div>
+                        <div class="toolbar">
+                            <div>
+                                <h4>Oficinas del mapa</h4>
+                                <p>Administra la información, el departamento y la posición visual de cada pin.</p>
+                            </div>
+                            <button type="button" class="button button-secondary" data-add-row>Agregar oficina</button>
+                        </div>
+                        <div class="stack" data-collection data-base="tools[items]" data-template="office-template">
+                            <div data-rows>
+                                @forelse ($tools['items'] ?? [] as $item)
+                                    <div class="repeater-card" data-row>
+                                        <div class="toolbar">
+                                            <div class="actions">
+                                                <span class="drag-handle" data-drag>::</span>
+                                                <strong>{{ $item['title'] ?? 'Oficina' }}</strong>
+                                            </div>
+                                            <button type="button" class="button button-danger" data-remove-row>Eliminar</button>
+                                        </div>
+                                        <div class="grid grid-3" style="margin-top:12px;">
+                                            <div class="field"><label>Nombre oficina</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
+                                            <div class="field"><label>Ciudad o etiqueta</label><input type="text" data-field="name" value="{{ $item['name'] ?? '' }}"></div>
+                                            <div class="field"><label>Código depto</label><input type="text" data-field="dept" value="{{ $item['dept'] ?? '' }}" placeholder="BOL, BOC, BOS..."></div>
+                                            <div class="field"><label>Dirección</label><input type="text" data-field="address" value="{{ $item['address'] ?? '' }}"></div>
+                                            <div class="field"><label>Lun a Vie</label><input type="text" data-field="weekday_hours" value="{{ $item['weekday_hours'] ?? '' }}" placeholder="08:00 a 18:00"></div>
+                                            <div class="field"><label>Sábado</label><input type="text" data-field="saturday_hours" value="{{ $item['saturday_hours'] ?? '' }}" placeholder="09:00 a 13:00"></div>
+                                            <div class="field"><label>Teléfono</label><input type="text" data-field="phone" value="{{ $item['phone'] ?? '' }}"></div>
+                                            <div class="field"><label>Posición izquierda</label><input type="text" data-field="left" value="{{ $item['left'] ?? '' }}" placeholder="29.6%"></div>
+                                            <div class="field"><label>Posición arriba</label><input type="text" data-field="top" value="{{ $item['top'] ?? '' }}" placeholder="46%"></div>
+                                            <div class="field"><label>Google Maps URL</label><input type="text" data-field="maps_url" value="{{ $item['maps_url'] ?? '' }}"></div>
+                                            <div class="field" style="grid-column:1/-1;"><label>Horario general de respaldo</label><input type="text" data-field="hours" value="{{ $item['hours'] ?? '' }}" placeholder="Opcional, útil para compatibilidad con datos antiguos"></div>
+                                        </div>
+                                        <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
+                                    </div>
+                                @empty
+                                    <div class="empty-note">No hay oficinas todavía. Crea la primera desde este panel.</div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
                 </section>
 
                 <section class="section-card" x-show="tab === 'banner'">
                     <div class="section-header">
                         <div>
                             <div class="section-eyebrow">App promotion</div>
-                            <h3 class="section-title">Banner administrable</h3>
-                            <p class="section-copy">Cambia la imagen principal del banner manteniendo exactamente el mismo bloque visual del frontend.</p>
+                            <h3 class="section-title">Banner frontal visual</h3>
+                            <p class="section-copy">Este bloque ahora se maneja como carrusel de imágenes puras, sin textos ni botones superpuestos en el frontend. Solo importa la pieza gráfica y su duración.</p>
                         </div>
+                        <span class="pill {{ count($appBanner['items'] ?? []) ? 'pill-ok' : 'pill-off' }}">{{ count($appBanner['items'] ?? []) ?: 0 }} banner(s)</span>
                     </div>
                     <div class="subpanel">
-                        <div class="grid grid-2">
-                            <div class="field"><label>Título</label><input type="text" name="app_banner[title]" value="{{ old('app_banner.title', $appBanner['settings']['title'] ?? '') }}"></div>
-                            <div class="field"><label>Texto</label><input type="text" name="app_banner[text]" value="{{ old('app_banner.text', $appBanner['settings']['text'] ?? '') }}"></div>
-                            <div class="field"><label>Texto App Store</label><input type="text" name="app_banner[app_store_label]" value="{{ old('app_banner.app_store_label', $appBanner['settings']['app_store_label'] ?? '') }}"></div>
-                            <div class="field"><label>URL App Store</label><input type="text" name="app_banner[app_store_url]" value="{{ old('app_banner.app_store_url', $appBanner['settings']['app_store_url'] ?? '') }}"></div>
-                            <div class="field"><label>Texto Google Play</label><input type="text" name="app_banner[play_store_label]" value="{{ old('app_banner.play_store_label', $appBanner['settings']['play_store_label'] ?? '') }}"></div>
-                            <div class="field"><label>URL Google Play</label><input type="text" name="app_banner[play_store_url]" value="{{ old('app_banner.play_store_url', $appBanner['settings']['play_store_url'] ?? '') }}"></div>
+                        <div class="toolbar">
+                            <div>
+                                <h4>Slides del banner</h4>
+                                <p>Usa imágenes horizontales, idealmente 16:9 o panorámicas, para cubrir bien desktop y móvil. Cada slide puede tener su propio tiempo.</p>
+                            </div>
+                            <button type="button" class="button button-secondary" data-add-row>Agregar banner</button>
                         </div>
-                    </div>
-                    <div class="subpanel">
-                        <h4>Imagen del banner</h4>
-                        <p>Si subes una imagen, el fondo del bloque se actualiza sin romper el formato actual.</p>
-                        <div class="image-frame">
+                        <div class="stack" data-collection data-base="app_banner[items]" data-template="app-banner-template">
+                            <div data-rows>
+                                @forelse (($appBanner['items'] ?? []) as $item)
+                                    <div class="repeater-card" data-row>
+                                        <div class="toolbar">
+                                            <div class="actions">
+                                                <span class="drag-handle" data-drag>::</span>
+                                                <strong>{{ $item['title'] ?? 'Banner visual' }}</strong>
+                                            </div>
+                                            <button type="button" class="button button-danger" data-remove-row>Eliminar</button>
+                                        </div>
+                                        <div class="grid grid-3" style="margin-top:12px;">
+                                            <div class="field"><label>Nombre interno</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
+                                            <div class="field"><label>Duración (segundos)</label><input type="number" min="1" max="300" step="1" data-field="duration_seconds" value="{{ $item['duration_seconds'] ?? 5 }}"></div>
+                                            <div class="field"><label>Imagen actual</label><input type="text" data-field="image" value="{{ $item['image'] ?? '' }}"></div>
+                                            <div class="field"><label>Subir imagen</label><input type="file" data-field="image_file" accept="image/*" data-preview-input></div>
+                                        </div>
+                                        @if (!empty($item['image']))
+                                            <img class="thumb" data-preview-image src="{{ $item['image'] }}" style="display:block; margin-top:14px; max-width: 320px; aspect-ratio: 16 / 9;" alt="Preview">
+                                        @else
+                                            <img class="thumb" data-preview-image style="display:none; margin-top:14px; max-width: 320px; aspect-ratio: 16 / 9;" alt="Preview">
+                                        @endif
+                                        <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
+                                    </div>
+                                @empty
+                                    <div class="empty-note">No hay banners cargados todavía. Agrega el primero para activar el carrusel visual.</div>
+                                @endforelse
+                            </div>
+                        </div>
+
+                        <div class="image-frame" style="margin-top:16px;">
+                            <strong>Compatibilidad con la imagen antigua</strong>
+                            <p style="margin:0; color:#667085;">Si ya tenías una imagen base guardada, este campo se conserva como respaldo. En el frontend se usará solo si no hay slides nuevos.</p>
                             @if (!empty($appBanner['settings']['background_image']))
                                 <img src="{{ $appBanner['settings']['background_image'] }}" alt="Banner actual" class="thumb" style="max-width: 320px;">
                             @endif
-                            <div class="field"><label>URL imagen</label><input type="text" name="app_banner[background_image]" value="{{ old('app_banner.background_image', $appBanner['settings']['background_image'] ?? '') }}"></div>
-                            <div class="field"><label>Subir imagen</label><input type="file" name="app_banner[background_file]" accept="image/*"></div>
+                            <div class="field"><label>URL imagen base</label><input type="text" name="app_banner[background_image]" value="{{ old('app_banner.background_image', $appBanner['settings']['background_image'] ?? '') }}"></div>
+                            <div class="field"><label>Subir imagen base</label><input type="file" name="app_banner[background_file]" accept="image/*"></div>
                         </div>
                     </div>
                 </section>

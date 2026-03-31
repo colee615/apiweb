@@ -7,6 +7,7 @@ use App\Models\SitePageVersion;
 use App\Models\SiteSection;
 use App\Models\SiteSectionItem;
 use App\Models\User;
+use App\Support\ContentSecurity;
 use Illuminate\Support\Facades\DB;
 
 class SitePageEditor
@@ -18,6 +19,7 @@ class SitePageEditor
 
     public function updatePage(SitePage $page, array $data, ?User $actor = null, array $options = []): SitePage
     {
+        $data = ContentSecurity::sanitizePageData($data);
         $beforePage = $this->loadEditablePage($page);
         $updatedPage = null;
 

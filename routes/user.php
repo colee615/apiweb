@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::post('/login', 'UserController@login');
+Route::post('/login', 'UserController@login')->middleware('throttle:login');
 
 Route::middleware('auth:api_users')->group(function () {
     Route::get('/site/pages', 'SitePageController@index');

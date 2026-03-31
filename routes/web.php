@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 Route::redirect('/', '/admin');
 
 Route::get('/admin/login', [AdminAuthController::class, 'create'])->name('admin.login');
-Route::post('/admin/login', [AdminAuthController::class, 'store'])->name('admin.login.store');
+Route::post('/admin/login', [AdminAuthController::class, 'store'])->middleware('throttle:admin-login')->name('admin.login.store');
 Route::post('/admin/logout', [AdminAuthController::class, 'destroy'])->name('admin.logout');
 
 Route::middleware('admin.session')->group(function () {
