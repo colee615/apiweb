@@ -104,6 +104,8 @@ class SitePageVersioningService
         ]);
 
         foreach ($changes as $change) {
+            $change = $this->normalizeChangeForeignKeys($change);
+
             SitePageChangeLog::create([
                 'site_page_id' => $page->id,
                 'site_page_version_id' => $version->id,
@@ -124,6 +126,26 @@ class SitePageVersioningService
         }
 
         return $version->fresh(['actor', 'restoredFrom']);
+    }
+
+    protected function normalizeChangeForeignKeys(array $change): array
+    {
+        if (($change['action'] ?? null) !== 'deleted') {
+            return $change;
+        }
+
+        if (($change['entity_type'] ?? null) === 'section') {
+            $change['site_section_id'] = null;
+            $change['site_section_item_id'] = null;
+
+            return $change;
+        }
+
+        if (($change['entity_type'] ?? null) === 'item') {
+            $change['site_section_item_id'] = null;
+        }
+
+        return $change;
     }
 
     protected function buildChanges(array $beforeSnapshot, array $afterSnapshot): array
