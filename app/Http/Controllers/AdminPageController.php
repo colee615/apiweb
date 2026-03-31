@@ -51,6 +51,51 @@ class AdminPageController extends Controller
 
     public function update(Request $request, SitePage $page): RedirectResponse
     {
+        $messages = [
+            'required' => 'Completa el campo :attribute.',
+            'string' => 'El campo :attribute debe ser texto.',
+            'integer' => 'El campo :attribute debe ser un numero entero.',
+            'boolean' => 'El campo :attribute debe ser un valor valido.',
+            'file' => 'Debes subir un archivo valido en :attribute.',
+            'image' => 'El archivo de :attribute debe ser una imagen valida.',
+            'mimes' => 'La :attribute debe estar en uno de estos formatos: :values.',
+            'mimetypes' => 'El archivo de :attribute tiene un formato no permitido.',
+            'max.string' => 'El campo :attribute no debe superar los :max caracteres.',
+            'max.numeric' => 'El campo :attribute no puede ser mayor a :max.',
+            'max.file' => 'La :attribute es demasiado pesada. Reduce el archivo antes de subirlo.',
+            'min.numeric' => 'El campo :attribute no puede ser menor a :min.',
+            'unique' => 'La :attribute ya esta en uso. Usa otro valor.',
+            'theme.logo_file.max' => 'El logo del sitio debe pesar como maximo 15 MB.',
+            'announcement_modal.poster_file.max' => 'La imagen principal del popup debe pesar como maximo 15 MB.',
+            'announcement_modal.items.*.poster_file.max' => 'Cada imagen del popup debe pesar como maximo 15 MB.',
+            'app_banner.background_file.max' => 'La imagen base del banner debe pesar como maximo 15 MB.',
+            'app_banner.items.*.image_file.max' => 'Cada imagen del banner debe pesar como maximo 15 MB.',
+            'services.items.*.iconImage_file.max' => 'Cada icono del servicio debe pesar como maximo 15 MB.',
+            'market.items.*.image_file.max' => 'Cada imagen del producto debe pesar como maximo 15 MB.',
+            'hero.media.*.media_file.max' => 'Cada imagen o video del carrusel principal debe pesar como maximo 15 MB.',
+            'hero.media.*.poster_file.max' => 'Cada portada del carrusel principal debe pesar como maximo 15 MB.',
+        ];
+
+        $attributes = [
+            'slug' => 'URL interna',
+            'name' => 'nombre de la pagina',
+            'meta_title' => 'titulo SEO',
+            'meta_description' => 'descripcion SEO',
+            'is_active' => 'estado de publicacion',
+            'change_summary' => 'resumen del cambio',
+            'theme.logo_file' => 'logo del sitio',
+            'announcement_modal.poster_file' => 'imagen principal del popup',
+            'announcement_modal.items.*.poster_file' => 'imagen de un popup',
+            'app_banner.background_file' => 'imagen base del banner',
+            'app_banner.items.*.image_file' => 'imagen de un slide del banner',
+            'app_banner.items.*.duration_seconds' => 'duracion de un slide del banner',
+            'services.items.*.iconImage_file' => 'icono del servicio',
+            'market.items.*.image_file' => 'imagen del producto',
+            'hero.media.*.media_file' => 'archivo del carrusel principal',
+            'hero.media.*.poster_file' => 'portada del video principal',
+            'hero.media.*.duration_seconds' => 'duracion de un elemento del carrusel principal',
+        ];
+
         $data = $request->validate([
             'slug' => [
                 'required',
@@ -63,18 +108,18 @@ class AdminPageController extends Controller
             'meta_description' => ['nullable', 'string'],
             'is_active' => ['nullable', 'boolean'],
             'change_summary' => ['nullable', 'string', 'max:1000'],
-            'theme.logo_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:5120'],
-            'announcement_modal.poster_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
-            'announcement_modal.items.*.poster_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
-            'app_banner.background_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
-            'app_banner.items.*.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'theme.logo_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'announcement_modal.poster_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'],
+            'announcement_modal.items.*.poster_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'],
+            'app_banner.background_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'],
+            'app_banner.items.*.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'],
             'app_banner.items.*.duration_seconds' => ['nullable', 'integer', 'min:1', 'max:300'],
-            'services.items.*.iconImage_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:3072'],
-            'market.items.*.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
-            'hero.media.*.media_file' => ['nullable', 'file', 'mimetypes:image/jpeg,image/png,image/webp,image/svg+xml,video/mp4,video/webm', 'max:20480'],
-            'hero.media.*.poster_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'services.items.*.iconImage_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'market.items.*.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'],
+            'hero.media.*.media_file' => ['nullable', 'file', 'mimetypes:image/jpeg,image/png,image/webp,image/svg+xml,video/mp4,video/webm', 'max:15360'],
+            'hero.media.*.poster_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'],
             'hero.media.*.duration_seconds' => ['nullable', 'integer', 'min:1', 'max:300'],
-        ]);
+        ], $messages, $attributes);
 
         $payload = [
             'slug' => $data['slug'],
@@ -109,6 +154,10 @@ class AdminPageController extends Controller
 
         $data = $request->validate([
             'change_summary' => ['nullable', 'string', 'max:1000'],
+        ], [
+            'max.string' => 'El resumen del cambio no debe superar los :max caracteres.',
+        ], [
+            'change_summary' => 'resumen del cambio',
         ]);
 
         $this->editor->restoreVersion(

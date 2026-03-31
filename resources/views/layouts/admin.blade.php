@@ -150,6 +150,120 @@
         .notice { padding:16px 18px; border-radius:18px; margin-bottom:16px; font-weight: 700; }
         .notice-success { background:#eaf9f2; color:var(--success); }
         .notice-error { background:#fdeaea; color:var(--primary); }
+        [x-cloak] { display:none !important; }
+        .admin-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 1200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(15, 23, 42, .56);
+            backdrop-filter: blur(10px);
+        }
+        .admin-modal-card {
+            position: relative;
+            width: min(680px, 100%);
+            padding: 28px;
+            border-radius: 30px;
+            background:
+                radial-gradient(circle at top right, rgba(44, 110, 200, .10), transparent 24%),
+                linear-gradient(180deg, #ffffff, #f7faff);
+            border: 1px solid rgba(255,255,255,.86);
+            box-shadow: 0 28px 70px rgba(15, 23, 42, .24);
+        }
+        .admin-modal-close {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            width: 42px;
+            height: 42px;
+            border: 0;
+            border-radius: 999px;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 800;
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary), #2c6ec8);
+            box-shadow: 0 14px 28px rgba(32, 83, 154, .24);
+        }
+        .admin-modal-head {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 16px;
+            align-items: start;
+            margin-bottom: 20px;
+        }
+        .admin-modal-icon {
+            width: 60px;
+            height: 60px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            font-size: 24px;
+            font-weight: 800;
+            color: #9a3412;
+            background: linear-gradient(180deg, #fff1e7, #ffe2cf);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+        }
+        .admin-modal-kicker {
+            display: inline-flex;
+            margin-bottom: 8px;
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: #edf3fb;
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+        .admin-modal-copy h3 {
+            margin: 0 0 8px;
+            font-size: 28px;
+            line-height: 1.05;
+        }
+        .admin-modal-copy p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+        .admin-modal-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 22px;
+        }
+        .admin-modal-item {
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: #fff;
+            border: 1px solid #e7edf7;
+            color: var(--accent);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
+        }
+        .admin-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+        @media (max-width: 640px) {
+            .admin-modal-card {
+                padding: 22px 18px;
+                border-radius: 24px;
+            }
+            .admin-modal-head {
+                grid-template-columns: 1fr;
+            }
+            .admin-modal-close {
+                top: 14px;
+                right: 14px;
+            }
+            .admin-modal-copy h3 {
+                font-size: 24px;
+            }
+        }
         .page-table { width:100%; border-collapse:collapse; }
         .page-table th, .page-table td { padding:18px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
         .page-table th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }

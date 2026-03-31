@@ -221,10 +221,11 @@
 @endphp
 
 @section('content')
-<div
-    class="admin-shell stack"
-    x-data="{
+    <div
+        class="admin-shell stack"
+        x-data="{
         tab: @js(request('tab', 'design_text')),
+        errorModalOpen: @js($errors->any()),
         go(section) {
             this.tab = section;
             if (window.history && window.history.replaceState) {
@@ -301,7 +302,35 @@
     </div>
 
     @if (session('status'))<div class="notice notice-success">{{ session('status') }}</div>@endif
-    @if ($errors->any())<div class="notice notice-error">{{ $errors->first() }}</div>@endif
+    @if ($errors->any())
+        <div
+            class="admin-modal-backdrop"
+            x-cloak
+            x-show="errorModalOpen"
+            x-transition.opacity
+            @keydown.escape.window="errorModalOpen = false"
+        >
+            <div class="admin-modal-card" @click.away="errorModalOpen = false">
+                <button type="button" class="admin-modal-close" @click="errorModalOpen = false" aria-label="Cerrar">x</button>
+                <div class="admin-modal-head">
+                    <div class="admin-modal-icon">!</div>
+                    <div class="admin-modal-copy">
+                        <span class="admin-modal-kicker">Revisa estos puntos</span>
+                        <h3>No pudimos guardar los cambios</h3>
+                        <p>Encontramos datos incompletos o archivos que no cumplen con el formato permitido. Corrige estos puntos y vuelve a guardar.</p>
+                    </div>
+                </div>
+                <div class="admin-modal-list">
+                    @foreach ($errors->all() as $error)
+                        <div class="admin-modal-item">{{ $error }}</div>
+                    @endforeach
+                </div>
+                <div class="admin-modal-actions">
+                    <button type="button" class="button button-primary" @click="errorModalOpen = false">Entendido</button>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <form method="POST" action="{{ route('admin.pages.update', $page) }}" class="stack" enctype="multipart/form-data">
         @csrf
