@@ -144,7 +144,7 @@ class AdminPageController extends Controller
                     'poster_title' => '',
                     'poster_caption' => '',
                 ]),
-                'items' => $this->sectionItems($page, 'announcement_modal') ?: $this->defaultAnnouncementModalItems($page),
+                'items' => $this->sectionItems($page, 'announcement_modal'),
             ],
             'header' => [
                 'settings' => $this->sectionSettings($page, 'header', [
@@ -212,25 +212,34 @@ class AdminPageController extends Controller
     {
         $form = $request->all();
         $statusSettings = data_get($this->buildEditorData($page), 'status.settings', []);
+        $announcementItems = $this->mapRepeaterItems(data_get($form, 'announcement_modal.items', []), 'announcement_slide', function ($item) {
+            return [
+                'title' => $item['title'] ?? '',
+                'poster_image' => $this->storeRepeaterImage($item, 'poster_file', 'poster_image', 'cms/announcement'),
+                'poster_alt' => $item['poster_alt'] ?? 'Comunicado institucional',
+                'poster_title' => $item['poster_title'] ?? '',
+                'poster_caption' => $item['poster_caption'] ?? '',
+            ];
+        });
+
+        $announcementSettings = [
+            'enabled' => $request->boolean('announcement_modal.enabled'),
+            'show_once' => $request->boolean('announcement_modal.show_once'),
+            'storage_key' => $request->input('announcement_modal.storage_key') ?: 'cb-home-announcement',
+            'poster_image' => $this->storeUploadedImage($request, 'announcement_modal.poster_file', $request->input('announcement_modal.poster_image'), 'cms/announcement'),
+            'poster_alt' => $request->input('announcement_modal.poster_alt'),
+            'poster_title' => $request->input('announcement_modal.poster_title'),
+            'poster_caption' => $request->input('announcement_modal.poster_caption'),
+        ];
+
+        if (empty($announcementItems)) {
+            $announcementSettings['poster_image'] = '';
+            $announcementSettings['poster_title'] = '';
+            $announcementSettings['poster_caption'] = '';
+        }
 
         return [
-            $this->makeSectionPayload($page, 'announcement_modal', 'Popup de inicio', 'announcement_modal', 0, [
-                'enabled' => $request->boolean('announcement_modal.enabled'),
-                'show_once' => $request->boolean('announcement_modal.show_once'),
-                'storage_key' => $request->input('announcement_modal.storage_key') ?: 'cb-home-announcement',
-                'poster_image' => $this->storeUploadedImage($request, 'announcement_modal.poster_file', $request->input('announcement_modal.poster_image'), 'cms/announcement'),
-                'poster_alt' => $request->input('announcement_modal.poster_alt'),
-                'poster_title' => $request->input('announcement_modal.poster_title'),
-                'poster_caption' => $request->input('announcement_modal.poster_caption'),
-            ], $this->mapRepeaterItems(data_get($form, 'announcement_modal.items', []), 'announcement_slide', function ($item) {
-                return [
-                    'title' => $item['title'] ?? '',
-                    'poster_image' => $this->storeRepeaterImage($item, 'poster_file', 'poster_image', 'cms/announcement'),
-                    'poster_alt' => $item['poster_alt'] ?? 'Comunicado institucional',
-                    'poster_title' => $item['poster_title'] ?? '',
-                    'poster_caption' => $item['poster_caption'] ?? '',
-                ];
-            })),
+            $this->makeSectionPayload($page, 'announcement_modal', 'Popup de inicio', 'announcement_modal', 0, $announcementSettings, $announcementItems),
 
             $this->makeSectionPayload($page, 'header', 'Encabezado', 'header', 1, [
                 'language_primary' => $request->input('header.language_primary'),
