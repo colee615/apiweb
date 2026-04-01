@@ -7,7 +7,6 @@ use App\Models\SitePageChangeLog;
 use App\Models\SitePageVersion;
 use App\Services\SitePageEditor;
 use App\Support\ContentSecurity;
-use Illuminate\Support\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -145,7 +144,7 @@ class AdminPageController extends Controller
 
         return redirect()
             ->route('admin.pages.edit', $page)
-            ->with('status', 'Diseño y contenidos actualizados correctamente.');
+            ->with('status', 'Diseno y contenidos actualizados correctamente.');
     }
 
     public function restore(Request $request, SitePage $page, SitePageVersion $version): RedirectResponse
@@ -169,7 +168,7 @@ class AdminPageController extends Controller
 
         return redirect()
             ->route('admin.pages.edit', $page)
-            ->with('status', 'Se restauró la versión seleccionada correctamente.');
+            ->with('status', 'Se restauro la version seleccionada correctamente.');
     }
 
     protected function buildEditorData(SitePage $page): array
@@ -189,7 +188,7 @@ class AdminPageController extends Controller
                     'show_once' => false,
                     'storage_key' => 'cb-home-announcement',
                     'poster_image' => '',
-                    'poster_alt' => 'Comunicado institucional',
+                    'poster_alt' => '',
                     'poster_title' => '',
                     'poster_caption' => '',
                 ]),
@@ -197,52 +196,52 @@ class AdminPageController extends Controller
             ],
             'header' => [
                 'settings' => $this->sectionSettings($page, 'header', [
-                    'language_primary' => 'Español',
-                    'language_secondary' => 'English',
-                    'accessibility_label' => 'Accesibilidad',
-                    'help_label' => 'Ayuda / Contacto',
-                    'login_label' => 'Iniciar sesión',
-                    'search_placeholder' => 'Buscar...',
+                    'language_primary' => '',
+                    'language_secondary' => '',
+                    'accessibility_label' => '',
+                    'help_label' => '',
+                    'login_label' => '',
+                    'search_placeholder' => '',
                 ]),
                 'links' => $this->sectionItems($page, 'header'),
             ],
             'hero' => [
                 'settings' => $this->sectionSettings($page, 'hero', [
-                    'title' => 'Conectando Bolivia|con el Mundo',
-                    'subtitle' => 'Servicio postal confiable, rápido y seguro',
-                    'tracking_title' => 'Rastrea tu envío',
-                    'tracking_text' => 'Ingresa tu código de seguimiento para conocer el estado de tu paquete',
-                    'tracking_label' => 'Código de seguimiento',
-                    'tracking_placeholder' => 'Ej: PE123456789',
-                    'tracking_button' => 'Buscar',
+                    'title' => '',
+                    'subtitle' => '',
+                    'tracking_title' => '',
+                    'tracking_text' => '',
+                    'tracking_label' => '',
+                    'tracking_placeholder' => '',
+                    'tracking_button' => '',
                 ]),
                 'media' => $this->sectionItems($page, 'hero'),
             ],
             'services' => [
                 'settings' => $this->sectionSettings($page, 'services', [
-                    'title' => 'Servicios Destacados',
-                    'subtitle' => 'Soluciones integrales para todas tus necesidades de envío',
-                    'kicker' => 'Servicio destacado',
+                    'title' => '',
+                    'subtitle' => '',
+                    'kicker' => '',
                 ]),
                 'items' => $this->sectionItems($page, 'services'),
             ],
             'status' => [
                 'settings' => $this->sectionSettings($page, 'status', [
-                    'title' => 'Estado de tu envío',
-                    'subtitle' => 'Ingresa tu número de seguimiento para conocer el estado de tu paquete',
-                    'placeholder' => 'Ej: PE123456789',
-                    'button_label' => 'Rastrear',
+                    'title' => '',
+                    'subtitle' => '',
+                    'placeholder' => '',
+                    'button_label' => '',
                 ]),
             ],
             'tools' => [
                 'settings' => $this->sectionSettings($page, 'tools', []),
-                'items' => $this->sectionItems($page, 'tools') ?: $this->defaultToolOfficeItems(),
+                'items' => $this->sectionItems($page, 'tools'),
             ],
             'app_banner' => [
                 'settings' => $this->sectionSettings($page, 'app_banner', [
                     'background_image' => '',
                 ]),
-                'items' => $this->sectionItems($page, 'app_banner') ?: $this->defaultAppBannerItems($page),
+                'items' => $this->sectionItems($page, 'app_banner'),
             ],
             'market' => [
                 'settings' => $this->sectionSettings($page, 'market', []),
@@ -265,7 +264,7 @@ class AdminPageController extends Controller
             return [
                 'title' => $item['title'] ?? '',
                 'poster_image' => $this->storeRepeaterImage($item, 'poster_file', 'poster_image', 'cms/announcement'),
-                'poster_alt' => $item['poster_alt'] ?? 'Comunicado institucional',
+                'poster_alt' => $item['poster_alt'] ?? '',
                 'poster_title' => $item['poster_title'] ?? '',
                 'poster_caption' => $item['poster_caption'] ?? '',
             ];
@@ -300,7 +299,7 @@ class AdminPageController extends Controller
             ], $this->mapRepeaterItems(data_get($form, 'header.links', []), 'nav_link', function ($item) {
                 return [
                     'label' => $item['label'] ?? '',
-                    'url' => ContentSecurity::sanitizeLinkUrl($item['url'] ?? '#') ?? '#',
+                    'url' => ContentSecurity::sanitizeLinkUrl($item['url'] ?? '') ?? '',
                 ];
             })),
 
@@ -327,11 +326,11 @@ class AdminPageController extends Controller
                 ];
             })),
 
-            $this->makeSectionPayload($page, 'status', 'Estado de envío', 'tracking_form', 4, [
-                'title' => $request->input('status.title', $statusSettings['title'] ?? 'Estado de tu envío'),
-                'subtitle' => $request->input('status.subtitle', $statusSettings['subtitle'] ?? 'Ingresa tu número de seguimiento para conocer el estado de tu paquete'),
-                'placeholder' => $request->input('status.placeholder', $statusSettings['placeholder'] ?? 'Ej: PE123456789'),
-                'button_label' => $request->input('status.button_label', $statusSettings['button_label'] ?? 'Rastrear'),
+            $this->makeSectionPayload($page, 'status', 'Estado de envio', 'tracking_form', 4, [
+                'title' => $request->input('status.title', $statusSettings['title'] ?? ''),
+                'subtitle' => $request->input('status.subtitle', $statusSettings['subtitle'] ?? ''),
+                'placeholder' => $request->input('status.placeholder', $statusSettings['placeholder'] ?? ''),
+                'button_label' => $request->input('status.button_label', $statusSettings['button_label'] ?? ''),
             ]),
 
             $this->makeSectionPayload($page, 'tools', 'Herramientas', 'tools', 5, [
@@ -359,7 +358,7 @@ class AdminPageController extends Controller
                     'phone' => $item['phone'] ?? '',
                     'left' => $item['left'] ?? '',
                     'top' => $item['top'] ?? '',
-                    'maps_url' => ContentSecurity::sanitizeLinkUrl($item['maps_url'] ?? '#') ?? '#',
+                    'maps_url' => ContentSecurity::sanitizeLinkUrl($item['maps_url'] ?? '') ?? '',
                 ];
             })),
 
@@ -368,8 +367,8 @@ class AdminPageController extends Controller
                 'text' => $request->input('app_banner.text'),
                 'app_store_label' => $request->input('app_banner.app_store_label'),
                 'play_store_label' => $request->input('app_banner.play_store_label'),
-                'app_store_url' => ContentSecurity::sanitizeLinkUrl($request->input('app_banner.app_store_url')) ?? '#',
-                'play_store_url' => ContentSecurity::sanitizeLinkUrl($request->input('app_banner.play_store_url')) ?? '#',
+                'app_store_url' => ContentSecurity::sanitizeLinkUrl($request->input('app_banner.app_store_url')) ?? '',
+                'play_store_url' => ContentSecurity::sanitizeLinkUrl($request->input('app_banner.play_store_url')) ?? '',
                 'background_image' => $this->storeUploadedImage($request, 'app_banner.background_file', $request->input('app_banner.background_image'), 'cms/app-banner'),
             ], $this->mapRepeaterItems(data_get($form, 'app_banner.items', []), 'app_banner_slide', function ($item) {
                 return [
@@ -383,7 +382,7 @@ class AdminPageController extends Controller
                 'title' => $request->input('market.title'),
                 'subtitle' => $request->input('market.subtitle'),
                 'view_all_label' => $request->input('market.view_all_label'),
-                'view_all_url' => ContentSecurity::sanitizeLinkUrl($request->input('market.view_all_url')) ?? '#',
+                'view_all_url' => ContentSecurity::sanitizeLinkUrl($request->input('market.view_all_url')) ?? '',
             ], $this->mapRepeaterItems(data_get($form, 'market.items', []), 'product', function ($item) {
                 return [
                     'title' => $item['title'] ?? '',
@@ -395,7 +394,7 @@ class AdminPageController extends Controller
                 ];
             })),
 
-            $this->makeSectionPayload($page, 'footer', 'Pie de página', 'footer', 8, [
+            $this->makeSectionPayload($page, 'footer', 'Pie de pagina', 'footer', 8, [
                 'help_title' => $request->input('footer.help_title'),
                 'company_title' => $request->input('footer.company_title'),
                 'contact_title' => $request->input('footer.contact_title'),
@@ -525,7 +524,7 @@ class AdminPageController extends Controller
                 $data = [
                     'group' => $group,
                     'label' => $item['label'] ?? '',
-                    'url' => ContentSecurity::sanitizeLinkUrl($item['url'] ?? '#') ?? '#',
+                    'url' => ContentSecurity::sanitizeLinkUrl($item['url'] ?? '') ?? '',
                 ];
 
                 if ($withAria) {
@@ -593,55 +592,6 @@ class AdminPageController extends Controller
     protected function normalizeAssetUrl(?string $value): ?string
     {
         return ContentSecurity::normalizeAssetUrl($value);
-    }
-
-    protected function defaultToolOfficeItems(): array
-    {
-        return [
-            ['title' => 'Oficina Correos Cobija', 'name' => 'Cobija', 'dept' => 'BON', 'address' => 'Av. 9 de Febrero, Cobija, Pando', 'hours' => 'Lun a Vie, 08:30 a 16:30', 'weekday_hours' => '08:30 a 16:30', 'saturday_hours' => '09:00 a 12:30', 'phone' => '+591 3 8420001', 'left' => '33.2%', 'top' => '16.5%', 'maps_url' => 'https://www.google.com/maps/search/?api=1&query=-11.0267,-68.7692'],
-            ['title' => 'Oficina Central La Paz', 'name' => 'La Paz', 'dept' => 'BOL', 'address' => 'Av. Mariscal Santa Cruz, La Paz', 'hours' => 'Lun a Vie, 08:00 a 18:00', 'weekday_hours' => '08:00 a 18:00', 'saturday_hours' => '09:00 a 13:00', 'phone' => '+591 2 2312121', 'left' => '29.6%', 'top' => '46%', 'maps_url' => 'https://www.google.com/maps/search/?api=1&query=-16.4957,-68.1336'],
-            ['title' => 'Oficina Correos Trinidad', 'name' => 'Trinidad', 'dept' => 'BOB', 'address' => 'Zona Central, Trinidad, Beni', 'hours' => 'Lun a Vie, 08:30 a 16:30', 'weekday_hours' => '08:30 a 16:30', 'saturday_hours' => '09:00 a 12:30', 'phone' => '+591 3 4622001', 'left' => '43.8%', 'top' => '35.5%', 'maps_url' => 'https://www.google.com/maps/search/?api=1&query=-14.8333,-64.9'],
-            ['title' => 'Oficina Correos Oruro', 'name' => 'Oruro', 'dept' => 'BOO', 'address' => 'Calle La Plata, Oruro', 'hours' => 'Lun a Vie, 08:30 a 16:30', 'weekday_hours' => '08:30 a 16:30', 'saturday_hours' => '09:00 a 12:30', 'phone' => '+591 2 5277001', 'left' => '31.8%', 'top' => '67.2%', 'maps_url' => 'https://www.google.com/maps/search/?api=1&query=-17.9647,-67.106'],
-            ['title' => 'Oficina Correos Cochabamba', 'name' => 'Cochabamba', 'dept' => 'BOC', 'address' => 'Av. Ayacucho, Cochabamba', 'hours' => 'Lun a Vie, 08:00 a 17:30', 'weekday_hours' => '08:00 a 17:30', 'saturday_hours' => '09:00 a 12:30', 'phone' => '+591 4 4528001', 'left' => '41.8%', 'top' => '58.5%', 'maps_url' => 'https://www.google.com/maps/search/?api=1&query=-17.3895,-66.1568'],
-            ['title' => 'Oficina Correos Santa Cruz', 'name' => 'Santa Cruz', 'dept' => 'BOS', 'address' => 'Av. Irala, Santa Cruz de la Sierra', 'hours' => 'Lun a Vie, 08:00 a 17:30', 'weekday_hours' => '08:00 a 17:30', 'saturday_hours' => '09:00 a 12:30', 'phone' => '+591 3 3366001', 'left' => '59.2%', 'top' => '58%', 'maps_url' => 'https://www.google.com/maps/search/?api=1&query=-17.7833,-63.1821'],
-            ['title' => 'Oficina Correos Sucre', 'name' => 'Sucre', 'dept' => 'BOH', 'address' => 'Calle Aniceto Arce, Sucre', 'hours' => 'Lun a Vie, 08:30 a 16:30', 'weekday_hours' => '08:30 a 16:30', 'saturday_hours' => '09:00 a 12:30', 'phone' => '+591 4 6459001', 'left' => '46.6%', 'top' => '75.2%', 'maps_url' => 'https://www.google.com/maps/search/?api=1&query=-19.047,-65.2595'],
-            ['title' => 'Oficina Correos Potosi', 'name' => 'Potosi', 'dept' => 'BOP', 'address' => 'Zona Central, Potosi', 'hours' => 'Lun a Vie, 08:30 a 16:30', 'weekday_hours' => '08:30 a 16:30', 'saturday_hours' => '09:00 a 12:30', 'phone' => '+591 2 6229001', 'left' => '35.7%', 'top' => '81.2%', 'maps_url' => 'https://www.google.com/maps/search/?api=1&query=-19.5723,-65.755'],
-            ['title' => 'Oficina Correos Tarija', 'name' => 'Tarija', 'dept' => 'BOT', 'address' => 'Calle General Trigo, Tarija', 'hours' => 'Lun a Vie, 08:30 a 16:30', 'weekday_hours' => '08:30 a 16:30', 'saturday_hours' => '09:00 a 12:30', 'phone' => '+591 4 6648001', 'left' => '47.7%', 'top' => '87.5%', 'maps_url' => 'https://www.google.com/maps/search/?api=1&query=-21.5355,-64.7296'],
-        ];
-    }
-
-    protected function defaultAnnouncementModalItems(SitePage $page): array
-    {
-        $settings = $page->sections->firstWhere('key', 'announcement_modal')?->settings ?? [];
-        $posterImage = $this->normalizeAssetUrl($settings['poster_image'] ?? '');
-
-        if (! filled($posterImage)) {
-            return [];
-        }
-
-        return [[
-            'title' => $settings['poster_title'] ?: 'Popup principal',
-            'poster_image' => $posterImage,
-            'poster_alt' => $settings['poster_alt'] ?? 'Comunicado institucional',
-            'poster_title' => $settings['poster_title'] ?? '',
-            'poster_caption' => $settings['poster_caption'] ?? '',
-        ]];
-    }
-
-    protected function defaultAppBannerItems(SitePage $page): array
-    {
-        $settings = $page->sections->firstWhere('key', 'app_banner')?->settings ?? [];
-        $backgroundImage = $this->normalizeAssetUrl($settings['background_image'] ?? '');
-
-        if (! filled($backgroundImage)) {
-            return [];
-        }
-
-        return [[
-            'title' => 'Banner principal',
-            'image' => $backgroundImage,
-            'duration_seconds' => 5,
-        ]];
     }
 
     protected function buildHistoryData(SitePage $page): array
