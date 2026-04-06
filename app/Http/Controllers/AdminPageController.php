@@ -40,6 +40,15 @@ class AdminPageController extends Controller
             },
         ]);
 
+        if ($this->isAboutPage($page)) {
+            return view('admin.pages.edit-about', [
+                'page' => $page,
+                'editorData' => $this->buildAboutEditorData($page),
+                'versions' => $page->versions()->with(['actor', 'changeLogs'])->take(12)->get(),
+                'historyData' => $this->buildHistoryData($page),
+            ]);
+        }
+
         return view('admin.pages.edit', [
             'page' => $page,
             'editorData' => $this->buildEditorData($page),
@@ -73,6 +82,9 @@ class AdminPageController extends Controller
             'market.items.*.image_file.max' => 'Cada imagen del producto debe pesar como maximo 15 MB.',
             'hero.media.*.media_file.max' => 'Cada imagen o video del carrusel principal debe pesar como maximo 15 MB.',
             'hero.media.*.poster_file.max' => 'Cada portada del carrusel principal debe pesar como maximo 15 MB.',
+            'hero_gallery.items.*.image_file.max' => 'Cada imagen del carrusel institucional debe pesar como maximo 15 MB.',
+            'history.items.*.image_file.max' => 'Cada imagen de historia debe pesar como maximo 15 MB.',
+            'organigram.image_file.max' => 'La imagen del organigrama debe pesar como maximo 15 MB.',
         ];
 
         $attributes = [
@@ -93,9 +105,12 @@ class AdminPageController extends Controller
             'hero.media.*.media_file' => 'archivo del carrusel principal',
             'hero.media.*.poster_file' => 'portada del video principal',
             'hero.media.*.duration_seconds' => 'duracion de un elemento del carrusel principal',
+            'hero_gallery.items.*.image_file' => 'imagen del carrusel institucional',
+            'history.items.*.image_file' => 'imagen de la historia',
+            'organigram.image_file' => 'imagen del organigrama',
         ];
 
-        $data = $request->validate([
+        $rules = [
             'slug' => [
                 'required',
                 'string',
@@ -118,7 +133,15 @@ class AdminPageController extends Controller
             'hero.media.*.media_file' => ['nullable', 'file', 'mimetypes:image/jpeg,image/png,image/webp,image/svg+xml,video/mp4,video/webm', 'max:15360'],
             'hero.media.*.poster_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'],
             'hero.media.*.duration_seconds' => ['nullable', 'integer', 'min:1', 'max:300'],
-        ], $messages, $attributes);
+        ];
+
+        if ($this->isAboutPage($page)) {
+            $rules['hero_gallery.items.*.image_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'];
+            $rules['history.items.*.image_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'];
+            $rules['organigram.image_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'];
+        }
+
+        $data = $request->validate($rules, $messages, $attributes);
 
         $payload = [
             'slug' => $data['slug'],
@@ -132,7 +155,9 @@ class AdminPageController extends Controller
                 'secondary_color' => $request->input('theme.secondary_color'),
                 'accent_color' => $request->input('theme.accent_color'),
             ],
-            'sections' => $this->buildSectionsPayload($request, $page),
+            'sections' => $this->isAboutPage($page)
+                ? $this->buildAboutSectionsPayload($request, $page)
+                : $this->buildSectionsPayload($request, $page),
         ];
 
         $this->editor->updatePage(
@@ -252,6 +277,68 @@ class AdminPageController extends Controller
                 'help_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'help')),
                 'company_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'company')),
                 'social_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'social')),
+            ],
+        ];
+    }
+
+    protected function buildAboutEditorData(SitePage $page): array
+    {
+        $theme = $page->theme ?? [];
+
+        return [
+            'theme' => [
+                'logo_url' => $this->normalizeAssetUrl($theme['logo_url'] ?? ''),
+                'primary_color' => $theme['primary_color'] ?? '#20539a',
+                'secondary_color' => $theme['secondary_color'] ?? '#102542',
+                'accent_color' => $theme['accent_color'] ?? '#f3b53f',
+            ],
+            'hero_gallery' => [
+                'settings' => $this->sectionSettings($page, 'hero_gallery', [
+                    'title' => '',
+                    'subtitle' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'hero_gallery'),
+            ],
+            'mission_vision' => [
+                'settings' => $this->sectionSettings($page, 'mission_vision', [
+                    'mission_title' => 'Mision',
+                    'mission_text' => '',
+                    'vision_title' => 'Vision',
+                    'vision_text' => '',
+                ]),
+            ],
+            'history' => [
+                'settings' => $this->sectionSettings($page, 'history', [
+                    'kicker' => '',
+                    'title' => '',
+                    'text' => '',
+                    'carousel_title' => '',
+                    'carousel_text' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'history'),
+            ],
+            'principles' => [
+                'settings' => $this->sectionSettings($page, 'principles', [
+                    'title' => '',
+                    'subtitle' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'principles'),
+            ],
+            'organigram' => [
+                'settings' => $this->sectionSettings($page, 'organigram', [
+                    'title' => '',
+                    'subtitle' => '',
+                    'card_title' => '',
+                    'card_text' => '',
+                    'image' => '',
+                ]),
+            ],
+            'objectives' => [
+                'settings' => $this->sectionSettings($page, 'objectives', [
+                    'title' => '',
+                    'subtitle' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'objectives'),
             ],
         ];
     }
@@ -413,6 +500,75 @@ class AdminPageController extends Controller
         ];
     }
 
+    protected function buildAboutSectionsPayload(Request $request, SitePage $page): array
+    {
+        $form = $request->all();
+
+        return [
+            $this->makeSectionPayload($page, 'hero_gallery', 'Carrusel superior', 'hero_gallery', 0, [
+                'title' => $request->input('hero_gallery.title'),
+                'subtitle' => $request->input('hero_gallery.subtitle'),
+            ], $this->mapRepeaterItems(data_get($form, 'hero_gallery.items', []), 'hero_gallery_slide', function ($item) {
+                return [
+                    'eyebrow' => $item['eyebrow'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'text' => $item['text'] ?? '',
+                    'image' => $this->storeRepeaterImage($item, 'image_file', 'image', 'cms/about/hero'),
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'mission_vision', 'Mision y vision', 'mission_vision', 1, [
+                'mission_title' => $request->input('mission_vision.mission_title'),
+                'mission_text' => $request->input('mission_vision.mission_text'),
+                'vision_title' => $request->input('mission_vision.vision_title'),
+                'vision_text' => $request->input('mission_vision.vision_text'),
+            ]),
+
+            $this->makeSectionPayload($page, 'history', 'Historia', 'history', 2, [
+                'kicker' => $request->input('history.kicker'),
+                'title' => $request->input('history.title'),
+                'text' => $request->input('history.text'),
+                'carousel_title' => $request->input('history.carousel_title'),
+                'carousel_text' => $request->input('history.carousel_text'),
+            ], $this->mapRepeaterItems(data_get($form, 'history.items', []), 'history_slide', function ($item) {
+                return [
+                    'title' => $item['title'] ?? '',
+                    'text' => $item['text'] ?? '',
+                    'image' => $this->storeRepeaterImage($item, 'image_file', 'image', 'cms/about/history'),
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'principles', 'Principios', 'principles', 3, [
+                'title' => $request->input('principles.title'),
+                'subtitle' => $request->input('principles.subtitle'),
+            ], $this->mapRepeaterItems(data_get($form, 'principles.items', []), 'principle', function ($item) {
+                return [
+                    'icon' => $item['icon'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'text' => $item['text'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'organigram', 'Organigrama', 'organigram', 4, [
+                'title' => $request->input('organigram.title'),
+                'subtitle' => $request->input('organigram.subtitle'),
+                'card_title' => $request->input('organigram.card_title'),
+                'card_text' => $request->input('organigram.card_text'),
+                'image' => $this->storeUploadedImage($request, 'organigram.image_file', $request->input('organigram.image'), 'cms/about/organigram'),
+            ]),
+
+            $this->makeSectionPayload($page, 'objectives', 'Objetivos institucionales', 'objectives', 5, [
+                'title' => $request->input('objectives.title'),
+                'subtitle' => $request->input('objectives.subtitle'),
+            ], $this->mapTextRepeaterItems(data_get($form, 'objectives.items', []), 'objective', function ($item) {
+                return [
+                    'icon' => $item['icon'] ?? 'target',
+                    'text' => $item['text'] ?? '',
+                ];
+            })),
+        ];
+    }
+
     protected function makeSectionPayload(
         SitePage $page,
         string $key,
@@ -477,6 +633,24 @@ class AdminPageController extends Controller
                         'src' => $this->storeRepeaterAsset($item, 'media_file', 'src', 'cms/hero'),
                         'poster' => $this->storeRepeaterAsset($item, 'poster_file', 'poster', 'cms/hero'),
                     ],
+                ];
+            })
+            ->all();
+    }
+
+    protected function mapTextRepeaterItems(array $items, string $type, callable $dataMapper): array
+    {
+        return collect($items)
+            ->filter(fn ($item) => filled($item['text'] ?? null))
+            ->values()
+            ->map(function ($item, $index) use ($type, $dataMapper) {
+                return [
+                    'id' => $item['id'] ?? null,
+                    'name' => $item['title'] ?? \Illuminate\Support\Str::limit($item['text'] ?? ('Item ' . ($index + 1)), 80),
+                    'type' => $type,
+                    'sort_order' => $index,
+                    'is_active' => true,
+                    'data' => $dataMapper($item),
                 ];
             })
             ->all();
@@ -636,5 +810,10 @@ class AdminPageController extends Controller
             'history_sections' => $historySections,
             'latest_changes' => $changeLogs->take(20)->values(),
         ];
+    }
+
+    protected function isAboutPage(SitePage $page): bool
+    {
+        return $page->slug === 'quienes-somos';
     }
 }
