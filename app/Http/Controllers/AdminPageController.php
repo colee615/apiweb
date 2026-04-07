@@ -101,6 +101,7 @@ class AdminPageController extends Controller
             'featured_story.items.*.poster_file.max' => 'Cada portada del video destacado debe pesar como maximo 15 MB.',
             'news_grid.items.*.media_file.max' => 'Cada imagen o video de noticia debe pesar como maximo 15 MB.',
             'news_grid.items.*.poster_file.max' => 'Cada portada del video de noticia debe pesar como maximo 15 MB.',
+            'footer.seal_logo_file.max' => 'El logo inferior del footer debe pesar como maximo 15 MB.',
         ];
 
         $attributes = [
@@ -133,6 +134,7 @@ class AdminPageController extends Controller
             'featured_story.items.*.poster_file' => 'portada del video destacado',
             'news_grid.items.*.media_file' => 'archivo de una noticia',
             'news_grid.items.*.poster_file' => 'portada del video de una noticia',
+            'footer.seal_logo_file' => 'logo inferior del footer',
         ];
 
         $rules = [
@@ -155,6 +157,7 @@ class AdminPageController extends Controller
             'app_banner.items.*.duration_seconds' => ['nullable', 'integer', 'min:1', 'max:300'],
             'services.items.*.iconImage_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'market.items.*.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'],
+            'footer.seal_logo_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'hero.media.*.media_file' => ['nullable', 'file', 'mimetypes:image/jpeg,image/png,image/webp,image/svg+xml,video/mp4,video/webm', 'max:15360'],
             'hero.media.*.poster_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'],
             'hero.media.*.duration_seconds' => ['nullable', 'integer', 'min:1', 'max:300'],
@@ -317,9 +320,13 @@ class AdminPageController extends Controller
                 'items' => $this->sectionItems($page, 'market'),
             ],
             'footer' => [
-                'settings' => $this->sectionSettings($page, 'footer', []),
+                'settings' => $this->sectionSettings($page, 'footer', [
+                    'seal_logo' => '',
+                ]),
                 'help_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'help')),
                 'company_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'company')),
+                'alliances_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'alliances')),
+                'international_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'international')),
                 'social_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'social')),
             ],
         ];
@@ -578,17 +585,22 @@ class AdminPageController extends Controller
             $this->makeSectionPayload($page, 'footer', 'Pie de pagina', 'footer', 8, [
                 'help_title' => $request->input('footer.help_title'),
                 'company_title' => $request->input('footer.company_title'),
+                'alliances_title' => $request->input('footer.alliances_title'),
+                'international_title' => $request->input('footer.international_title'),
                 'contact_title' => $request->input('footer.contact_title'),
                 'social_title' => $request->input('footer.social_title'),
                 'social_text' => $request->input('footer.social_text'),
                 'address' => trim(($request->input('footer.address_line_1') ?? '') . '|' . ($request->input('footer.address_line_2') ?? ''), '|'),
                 'phone' => trim(($request->input('footer.phone_line_1') ?? '') . '|' . ($request->input('footer.phone_line_2') ?? ''), '|'),
                 'email' => $request->input('footer.email'),
+                'seal_logo' => $this->storeUploadedImage($request, 'footer.seal_logo_file', $request->input('footer.seal_logo'), 'cms/footer'),
                 'copyright' => $request->input('footer.copyright'),
                 'legal_text' => $request->input('footer.legal_text'),
             ], array_merge(
                 $this->mapFooterLinks(data_get($form, 'footer.help_links', []), 'help', 'help_link'),
                 $this->mapFooterLinks(data_get($form, 'footer.company_links', []), 'company', 'company_link'),
+                $this->mapFooterLinks(data_get($form, 'footer.alliances_links', []), 'alliances', 'alliance_link'),
+                $this->mapFooterLinks(data_get($form, 'footer.international_links', []), 'international', 'international_link'),
                 $this->mapFooterLinks(data_get($form, 'footer.social_links', []), 'social', 'social_link', true),
             )),
         ];

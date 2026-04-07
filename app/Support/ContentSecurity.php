@@ -12,6 +12,7 @@ class ContentSecurity
         'src',
         'poster',
         'poster_image',
+        'seal_logo',
     ];
 
     public const LINK_KEYS = [

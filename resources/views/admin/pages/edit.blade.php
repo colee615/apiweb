@@ -83,6 +83,7 @@
         'phone' => 'Teléfono',
         'email' => 'Correo',
         'address' => 'Dirección',
+        'seal_logo' => 'Logo inferior del footer',
         'copyright' => 'Copyright',
         'legal_text' => 'Texto legal',
         'help_title' => 'Título de ayuda',
@@ -109,7 +110,7 @@
         'top' => 'Posición superior',
     ];
     $historyIgnoredKeys = ['id', 'page_id', 'section_id', 'item_id', 'created_at', 'updated_at'];
-    $historyAssetFields = ['src', 'poster', 'poster_image', 'iconImage', 'image', 'background_image', 'logo_url'];
+    $historyAssetFields = ['src', 'poster', 'poster_image', 'iconImage', 'image', 'background_image', 'logo_url', 'seal_logo'];
     $isAssocHistoryArray = function (array $value): bool {
         return array_keys($value) !== range(0, count($value) - 1);
     };
@@ -1039,6 +1040,8 @@
                         <div class="grid grid-3">
                             <div class="field"><label>Título de ayuda</label><input type="text" name="footer[help_title]" value="{{ old('footer.help_title', $footer['settings']['help_title'] ?? '') }}"></div>
                             <div class="field"><label>Título de empresa</label><input type="text" name="footer[company_title]" value="{{ old('footer.company_title', $footer['settings']['company_title'] ?? '') }}"></div>
+                            <div class="field"><label>Título de entidades</label><input type="text" name="footer[alliances_title]" value="{{ old('footer.alliances_title', $footer['settings']['alliances_title'] ?? '') }}"></div>
+                            <div class="field"><label>Título internacional</label><input type="text" name="footer[international_title]" value="{{ old('footer.international_title', $footer['settings']['international_title'] ?? '') }}"></div>
                             <div class="field"><label>Título de contacto</label><input type="text" name="footer[contact_title]" value="{{ old('footer.contact_title', $footer['settings']['contact_title'] ?? '') }}"></div>
                             <div class="field"><label>Título de redes</label><input type="text" name="footer[social_title]" value="{{ old('footer.social_title', $footer['settings']['social_title'] ?? '') }}"></div>
                             <div class="field"><label>Texto redes</label><input type="text" name="footer[social_text]" value="{{ old('footer.social_text', $footer['settings']['social_text'] ?? '') }}"></div>
@@ -1047,6 +1050,19 @@
                             <div class="field"><label>Dirección línea 2</label><input type="text" name="footer[address_line_2]" value="{{ old('footer.address_line_2', $address[1] ?? '') }}"></div>
                             <div class="field"><label>Teléfono línea 1</label><input type="text" name="footer[phone_line_1]" value="{{ old('footer.phone_line_1', $phone[0] ?? '') }}"></div>
                             <div class="field"><label>Teléfono línea 2</label><input type="text" name="footer[phone_line_2]" value="{{ old('footer.phone_line_2', $phone[1] ?? '') }}"></div>
+                            <div class="field">
+                                <label>Logo inferior del footer</label>
+                                <input type="text" name="footer[seal_logo]" value="{{ old('footer.seal_logo', $footer['settings']['seal_logo'] ?? '') }}" placeholder="/storage/cms/footer/sello.png o https://...">
+                            </div>
+                            <div class="field">
+                                <label>Subir logo inferior</label>
+                                <input type="file" name="footer[seal_logo_file]" accept=".jpg,.jpeg,.png,.webp,.svg">
+                                @if (!empty($footer['settings']['seal_logo']))
+                                    <div class="image-frame" style="margin-top:12px; max-width:180px;">
+                                        <img src="{{ $footer['settings']['seal_logo'] }}" alt="Logo inferior actual">
+                                    </div>
+                                @endif
+                            </div>
                             <div class="field"><label>Copyright</label><input type="text" name="footer[copyright]" value="{{ old('footer.copyright', $footer['settings']['copyright'] ?? '') }}"></div>
                             <div class="field"><label>Texto legal</label><input type="text" name="footer[legal_text]" value="{{ old('footer.legal_text', $footer['settings']['legal_text'] ?? '') }}"></div>
                         </div>
@@ -1111,6 +1127,70 @@
                                     </div>
                                 @empty
                                     <div class="empty-note">No hay enlaces de empresa todavía.</div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subpanel">
+                        <div class="toolbar">
+                            <div>
+                                <h4>Entidades relacionadas</h4>
+                                <p>Instituciones nacionales que quieres destacar en el footer.</p>
+                            </div>
+                            <button type="button" class="button button-secondary" data-add-row>Agregar enlace</button>
+                        </div>
+                        <div class="stack" data-collection data-base="footer[alliances_links]" data-template="link-template">
+                            <div data-rows>
+                                @forelse ($footer['alliances_links'] as $link)
+                                    <div class="repeater-card" data-row>
+                                        <div class="toolbar">
+                                            <div class="actions">
+                                                <span class="drag-handle" data-drag>::</span>
+                                                <strong>{{ $link['label'] ?? 'Enlace' }}</strong>
+                                            </div>
+                                            <button type="button" class="button button-danger" data-remove-row>Eliminar</button>
+                                        </div>
+                                        <div class="grid grid-2" style="margin-top:12px;">
+                                            <div class="field"><label>Texto</label><input type="text" data-field="label" value="{{ $link['label'] ?? '' }}"></div>
+                                            <div class="field"><label>URL</label><input type="text" data-field="url" value="{{ $link['url'] ?? '#' }}"></div>
+                                        </div>
+                                        <input type="hidden" data-field="id" value="{{ $link['id'] ?? '' }}">
+                                    </div>
+                                @empty
+                                    <div class="empty-note">No hay entidades relacionadas todavía.</div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subpanel">
+                        <div class="toolbar">
+                            <div>
+                                <h4>Organizaciones internacionales</h4>
+                                <p>Vínculos institucionales internacionales visibles en el footer.</p>
+                            </div>
+                            <button type="button" class="button button-secondary" data-add-row>Agregar enlace</button>
+                        </div>
+                        <div class="stack" data-collection data-base="footer[international_links]" data-template="link-template">
+                            <div data-rows>
+                                @forelse ($footer['international_links'] as $link)
+                                    <div class="repeater-card" data-row>
+                                        <div class="toolbar">
+                                            <div class="actions">
+                                                <span class="drag-handle" data-drag>::</span>
+                                                <strong>{{ $link['label'] ?? 'Enlace' }}</strong>
+                                            </div>
+                                            <button type="button" class="button button-danger" data-remove-row>Eliminar</button>
+                                        </div>
+                                        <div class="grid grid-2" style="margin-top:12px;">
+                                            <div class="field"><label>Texto</label><input type="text" data-field="label" value="{{ $link['label'] ?? '' }}"></div>
+                                            <div class="field"><label>URL</label><input type="text" data-field="url" value="{{ $link['url'] ?? '#' }}"></div>
+                                        </div>
+                                        <input type="hidden" data-field="id" value="{{ $link['id'] ?? '' }}">
+                                    </div>
+                                @empty
+                                    <div class="empty-note">No hay organizaciones internacionales todavía.</div>
                                 @endforelse
                             </div>
                         </div>
