@@ -49,6 +49,15 @@ class AdminPageController extends Controller
             ]);
         }
 
+        if ($this->isNewsPage($page)) {
+            return view('admin.pages.edit-news', [
+                'page' => $page,
+                'editorData' => $this->buildNewsEditorData($page),
+                'versions' => $page->versions()->with(['actor', 'changeLogs'])->take(12)->get(),
+                'historyData' => $this->buildHistoryData($page),
+            ]);
+        }
+
         return view('admin.pages.edit', [
             'page' => $page,
             'editorData' => $this->buildEditorData($page),
@@ -85,6 +94,8 @@ class AdminPageController extends Controller
             'hero_gallery.items.*.image_file.max' => 'Cada imagen del carrusel institucional debe pesar como maximo 15 MB.',
             'history.items.*.image_file.max' => 'Cada imagen de historia debe pesar como maximo 15 MB.',
             'organigram.image_file.max' => 'La imagen del organigrama debe pesar como maximo 15 MB.',
+            'featured_story.items.*.image_file.max' => 'Cada imagen destacada de noticias debe pesar como maximo 15 MB.',
+            'news_grid.items.*.image_file.max' => 'Cada imagen de noticia debe pesar como maximo 15 MB.',
         ];
 
         $attributes = [
@@ -108,6 +119,8 @@ class AdminPageController extends Controller
             'hero_gallery.items.*.image_file' => 'imagen del carrusel institucional',
             'history.items.*.image_file' => 'imagen de la historia',
             'organigram.image_file' => 'imagen del organigrama',
+            'featured_story.items.*.image_file' => 'imagen de la noticia destacada',
+            'news_grid.items.*.image_file' => 'imagen de una noticia',
         ];
 
         $rules = [
@@ -141,6 +154,11 @@ class AdminPageController extends Controller
             $rules['organigram.image_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'];
         }
 
+        if ($this->isNewsPage($page)) {
+            $rules['featured_story.items.*.image_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'];
+            $rules['news_grid.items.*.image_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'];
+        }
+
         $data = $request->validate($rules, $messages, $attributes);
 
         $payload = [
@@ -157,7 +175,9 @@ class AdminPageController extends Controller
             ],
             'sections' => $this->isAboutPage($page)
                 ? $this->buildAboutSectionsPayload($request, $page)
-                : $this->buildSectionsPayload($request, $page),
+                : ($this->isNewsPage($page)
+                    ? $this->buildNewsSectionsPayload($request, $page)
+                    : $this->buildSectionsPayload($request, $page)),
         ];
 
         $this->editor->updatePage(
@@ -339,6 +359,56 @@ class AdminPageController extends Controller
                     'subtitle' => '',
                 ]),
                 'items' => $this->sectionItems($page, 'objectives'),
+            ],
+        ];
+    }
+
+    protected function buildNewsEditorData(SitePage $page): array
+    {
+        $theme = $page->theme ?? [];
+
+        return [
+            'theme' => [
+                'logo_url' => $this->normalizeAssetUrl($theme['logo_url'] ?? ''),
+                'primary_color' => $theme['primary_color'] ?? '#20539a',
+                'secondary_color' => $theme['secondary_color'] ?? '#102542',
+                'accent_color' => $theme['accent_color'] ?? '#f3b53f',
+            ],
+            'featured_story' => [
+                'settings' => $this->sectionSettings($page, 'featured_story', [
+                    'button_label' => 'Leer noticia completa',
+                ]),
+                'items' => $this->sectionItems($page, 'featured_story'),
+            ],
+            'category_filters' => [
+                'settings' => $this->sectionSettings($page, 'category_filters', [
+                    'search_placeholder' => 'Buscar noticias...',
+                ]),
+                'items' => $this->sectionItems($page, 'category_filters'),
+            ],
+            'news_grid' => [
+                'settings' => $this->sectionSettings($page, 'news_grid', [
+                    'title' => '',
+                    'subtitle' => '',
+                    'cta_label' => 'Leer mas',
+                ]),
+                'items' => $this->sectionItems($page, 'news_grid'),
+            ],
+            'newsletter' => [
+                'settings' => $this->sectionSettings($page, 'newsletter', [
+                    'badge' => '',
+                    'title' => '',
+                    'text' => '',
+                    'placeholder' => '',
+                    'button_label' => '',
+                    'legal_text' => '',
+                ]),
+            ],
+            'pagination' => [
+                'settings' => $this->sectionSettings($page, 'pagination', [
+                    'load_more_label' => 'Cargar mas noticias',
+                ]),
+                'items' => $this->sectionItems($page, 'pagination'),
             ],
         ];
     }
@@ -564,6 +634,71 @@ class AdminPageController extends Controller
                 return [
                     'icon' => $item['icon'] ?? 'target',
                     'text' => $item['text'] ?? '',
+                ];
+            })),
+        ];
+    }
+
+    protected function buildNewsSectionsPayload(Request $request, SitePage $page): array
+    {
+        $form = $request->all();
+
+        return [
+            $this->makeSectionPayload($page, 'featured_story', 'Noticia destacada', 'featured_story', 0, [
+                'button_label' => $request->input('featured_story.button_label'),
+            ], $this->mapRepeaterItems(data_get($form, 'featured_story.items', []), 'featured_story_item', function ($item) {
+                return [
+                    'badge' => $item['badge'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'excerpt' => $item['excerpt'] ?? '',
+                    'category' => $item['category'] ?? '',
+                    'image' => $this->storeRepeaterImage($item, 'image_file', 'image', 'cms/news/featured'),
+                    'article_url' => ContentSecurity::sanitizeLinkUrl($item['article_url'] ?? '') ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'category_filters', 'Filtros de categoria', 'category_filters', 1, [
+                'search_placeholder' => $request->input('category_filters.search_placeholder'),
+            ], $this->mapRepeaterItems(data_get($form, 'category_filters.items', []), 'news_category', function ($item) {
+                return [
+                    'label' => $item['label'] ?? '',
+                    'url' => ContentSecurity::sanitizeLinkUrl($item['url'] ?? '') ?? '',
+                    'is_active' => ! empty($item['is_active']),
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'news_grid', 'Grid de noticias', 'news_grid', 2, [
+                'title' => $request->input('news_grid.title'),
+                'subtitle' => $request->input('news_grid.subtitle'),
+                'cta_label' => $request->input('news_grid.cta_label'),
+            ], $this->mapRepeaterItems(data_get($form, 'news_grid.items', []), 'news_card', function ($item) {
+                return [
+                    'date' => $item['date'] ?? '',
+                    'category' => $item['category'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'excerpt' => $item['excerpt'] ?? '',
+                    'image' => $this->storeRepeaterImage($item, 'image_file', 'image', 'cms/news/cards'),
+                    'article_url' => ContentSecurity::sanitizeLinkUrl($item['article_url'] ?? '') ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'newsletter', 'Boletin', 'newsletter', 3, [
+                'badge' => $request->input('newsletter.badge'),
+                'title' => $request->input('newsletter.title'),
+                'text' => $request->input('newsletter.text'),
+                'placeholder' => $request->input('newsletter.placeholder'),
+                'button_label' => $request->input('newsletter.button_label'),
+                'legal_text' => $request->input('newsletter.legal_text'),
+            ]),
+
+            $this->makeSectionPayload($page, 'pagination', 'Paginacion', 'pagination', 4, [
+                'load_more_label' => $request->input('pagination.load_more_label'),
+            ], $this->mapRepeaterItems(data_get($form, 'pagination.items', []), 'news_page', function ($item) {
+                return [
+                    'label' => $item['label'] ?? '',
+                    'url' => ContentSecurity::sanitizeLinkUrl($item['url'] ?? '') ?? '',
+                    'is_active' => ! empty($item['is_active']),
+                    'is_ellipsis' => ! empty($item['is_ellipsis']),
                 ];
             })),
         ];
@@ -815,5 +950,10 @@ class AdminPageController extends Controller
     protected function isAboutPage(SitePage $page): bool
     {
         return $page->slug === 'quienes-somos';
+    }
+
+    protected function isNewsPage(SitePage $page): bool
+    {
+        return $page->slug === 'noticias';
     }
 }
