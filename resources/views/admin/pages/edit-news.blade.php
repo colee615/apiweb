@@ -113,7 +113,7 @@
 
                 <section class="section-card" x-show="tab === 'featured'">
                     <div class="section-header">
-                        <div><div class="section-eyebrow">Hero editorial</div><h3 class="section-title">Noticia destacada</h3><p class="section-copy">Bloque principal con badge, titular, resumen, categoria e imagen.</p></div>
+                        <div><div class="section-eyebrow">Hero editorial</div><h3 class="section-title">Noticia destacada</h3><p class="section-copy">Bloque principal con texto editorial a la izquierda y medio visual limpio a la derecha.</p></div>
                         <span class="pill pill-off">{{ count($featuredStory['items']) }} destacado(s)</span>
                     </div>
                     <div class="subpanel">
@@ -133,8 +133,19 @@
                                             <div class="field"><label>Categoria</label><input type="text" data-field="category" value="{{ $item['category'] ?? '' }}"></div>
                                             <div class="field"><label>URL noticia</label><input type="text" data-field="article_url" value="{{ $item['article_url'] ?? '' }}"></div>
                                             <div class="field" style="grid-column:1 / -1;"><label>Titulo</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
-                                            <div class="field"><label>URL imagen</label><input type="text" data-field="image" value="{{ $item['image'] ?? '' }}"></div>
-                                            <div class="field"><label>Subir imagen</label><input type="file" data-field="image_file" accept="image/*"></div>
+                                            <div class="field">
+                                                <label>Tipo de medio</label>
+                                                <select data-field="media_type">
+                                                    <option value="image" {{ ($item['media_type'] ?? 'image') === 'image' ? 'selected' : '' }}>Imagen</option>
+                                                    <option value="video" {{ ($item['media_type'] ?? '') === 'video' ? 'selected' : '' }}>Video</option>
+                                                </select>
+                                            </div>
+                                            <div class="field"><label>URL del medio</label><input type="text" data-field="media_url" value="{{ $item['media_url'] ?? ($item['image'] ?? '') }}"></div>
+                                            <div class="field"><label>Subir imagen o video</label><input type="file" data-field="media_file" accept="image/*,video/mp4,video/webm"></div>
+                                        </div>
+                                        <div class="grid grid-2" style="margin-top:12px;">
+                                            <div class="field"><label>URL portada (opcional para video)</label><input type="text" data-field="poster_image" value="{{ $item['poster_image'] ?? '' }}"></div>
+                                            <div class="field"><label>Subir portada del video</label><input type="file" data-field="poster_file" accept="image/*"></div>
                                         </div>
                                         <div class="field" style="margin-top:12px;"><label>Resumen</label><textarea class="field-small" data-field="excerpt">{{ $item['excerpt'] ?? '' }}</textarea></div>
                                         <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
@@ -174,7 +185,7 @@
 
                 <section class="section-card" x-show="tab === 'grid'">
                     <div class="section-header">
-                        <div><div class="section-eyebrow">Contenido</div><h3 class="section-title">Grid de noticias</h3><p class="section-copy">Tarjetas con fecha, categoria, titular, extracto, imagen y enlace.</p></div>
+                        <div><div class="section-eyebrow">Contenido</div><h3 class="section-title">Grid de noticias</h3><p class="section-copy">Tarjetas con fecha, categoria, titular, extracto y medio visual limpio.</p></div>
                         <span class="pill pill-off">{{ count($newsGrid['items']) }} noticia(s)</span>
                     </div>
                     <div class="subpanel">
@@ -196,8 +207,19 @@
                                             <div class="field"><label>Categoria</label><input type="text" data-field="category" value="{{ $item['category'] ?? '' }}"></div>
                                             <div class="field"><label>URL noticia</label><input type="text" data-field="article_url" value="{{ $item['article_url'] ?? '' }}"></div>
                                             <div class="field" style="grid-column:1 / -1;"><label>Titulo</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
-                                            <div class="field"><label>URL imagen</label><input type="text" data-field="image" value="{{ $item['image'] ?? '' }}"></div>
-                                            <div class="field"><label>Subir imagen</label><input type="file" data-field="image_file" accept="image/*"></div>
+                                            <div class="field">
+                                                <label>Tipo de medio</label>
+                                                <select data-field="media_type">
+                                                    <option value="image" {{ ($item['media_type'] ?? 'image') === 'image' ? 'selected' : '' }}>Imagen</option>
+                                                    <option value="video" {{ ($item['media_type'] ?? '') === 'video' ? 'selected' : '' }}>Video</option>
+                                                </select>
+                                            </div>
+                                            <div class="field"><label>URL del medio</label><input type="text" data-field="media_url" value="{{ $item['media_url'] ?? ($item['image'] ?? '') }}"></div>
+                                            <div class="field"><label>Subir imagen o video</label><input type="file" data-field="media_file" accept="image/*,video/mp4,video/webm"></div>
+                                        </div>
+                                        <div class="grid grid-2" style="margin-top:12px;">
+                                            <div class="field"><label>URL portada (opcional para video)</label><input type="text" data-field="poster_image" value="{{ $item['poster_image'] ?? '' }}"></div>
+                                            <div class="field"><label>Subir portada del video</label><input type="file" data-field="poster_file" accept="image/*"></div>
                                         </div>
                                         <div class="field" style="margin-top:12px;"><label>Extracto</label><textarea class="field-small" data-field="excerpt">{{ $item['excerpt'] ?? '' }}</textarea></div>
                                         <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
@@ -273,8 +295,19 @@
             <div class="field"><label>Categoria</label><input type="text" data-field="category"></div>
             <div class="field"><label>URL noticia</label><input type="text" data-field="article_url"></div>
             <div class="field" style="grid-column:1 / -1;"><label>Titulo</label><input type="text" data-field="title"></div>
-            <div class="field"><label>URL imagen</label><input type="text" data-field="image"></div>
-            <div class="field"><label>Subir imagen</label><input type="file" data-field="image_file" accept="image/*"></div>
+            <div class="field">
+                <label>Tipo de medio</label>
+                <select data-field="media_type">
+                    <option value="image" selected>Imagen</option>
+                    <option value="video">Video</option>
+                </select>
+            </div>
+            <div class="field"><label>URL del medio</label><input type="text" data-field="media_url"></div>
+            <div class="field"><label>Subir imagen o video</label><input type="file" data-field="media_file" accept="image/*,video/mp4,video/webm"></div>
+        </div>
+        <div class="grid grid-2" style="margin-top:12px;">
+            <div class="field"><label>URL portada (opcional para video)</label><input type="text" data-field="poster_image"></div>
+            <div class="field"><label>Subir portada del video</label><input type="file" data-field="poster_file" accept="image/*"></div>
         </div>
         <div class="field" style="margin-top:12px;"><label>Resumen</label><textarea class="field-small" data-field="excerpt"></textarea></div>
         <input type="hidden" data-field="id">
@@ -301,8 +334,19 @@
             <div class="field"><label>Categoria</label><input type="text" data-field="category"></div>
             <div class="field"><label>URL noticia</label><input type="text" data-field="article_url"></div>
             <div class="field" style="grid-column:1 / -1;"><label>Titulo</label><input type="text" data-field="title"></div>
-            <div class="field"><label>URL imagen</label><input type="text" data-field="image"></div>
-            <div class="field"><label>Subir imagen</label><input type="file" data-field="image_file" accept="image/*"></div>
+            <div class="field">
+                <label>Tipo de medio</label>
+                <select data-field="media_type">
+                    <option value="image" selected>Imagen</option>
+                    <option value="video">Video</option>
+                </select>
+            </div>
+            <div class="field"><label>URL del medio</label><input type="text" data-field="media_url"></div>
+            <div class="field"><label>Subir imagen o video</label><input type="file" data-field="media_file" accept="image/*,video/mp4,video/webm"></div>
+        </div>
+        <div class="grid grid-2" style="margin-top:12px;">
+            <div class="field"><label>URL portada (opcional para video)</label><input type="text" data-field="poster_image"></div>
+            <div class="field"><label>Subir portada del video</label><input type="file" data-field="poster_file" accept="image/*"></div>
         </div>
         <div class="field" style="margin-top:12px;"><label>Extracto</label><textarea class="field-small" data-field="excerpt"></textarea></div>
         <input type="hidden" data-field="id">

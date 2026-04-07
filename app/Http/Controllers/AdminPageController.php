@@ -91,11 +91,16 @@ class AdminPageController extends Controller
             'market.items.*.image_file.max' => 'Cada imagen del producto debe pesar como maximo 15 MB.',
             'hero.media.*.media_file.max' => 'Cada imagen o video del carrusel principal debe pesar como maximo 15 MB.',
             'hero.media.*.poster_file.max' => 'Cada portada del carrusel principal debe pesar como maximo 15 MB.',
-            'hero_gallery.items.*.image_file.max' => 'Cada imagen del carrusel institucional debe pesar como maximo 15 MB.',
-            'history.items.*.image_file.max' => 'Cada imagen de historia debe pesar como maximo 15 MB.',
-            'organigram.image_file.max' => 'La imagen del organigrama debe pesar como maximo 15 MB.',
-            'featured_story.items.*.image_file.max' => 'Cada imagen destacada de noticias debe pesar como maximo 15 MB.',
-            'news_grid.items.*.image_file.max' => 'Cada imagen de noticia debe pesar como maximo 15 MB.',
+            'hero_gallery.items.*.media_file.max' => 'Cada imagen o video del carrusel institucional debe pesar como maximo 15 MB.',
+            'hero_gallery.items.*.poster_file.max' => 'Cada portada del video institucional debe pesar como maximo 15 MB.',
+            'history.items.*.media_file.max' => 'Cada imagen o video de historia debe pesar como maximo 15 MB.',
+            'history.items.*.poster_file.max' => 'Cada portada del video de historia debe pesar como maximo 15 MB.',
+            'organigram.media_file.max' => 'La imagen o video del organigrama debe pesar como maximo 15 MB.',
+            'organigram.poster_file.max' => 'La portada del video del organigrama debe pesar como maximo 15 MB.',
+            'featured_story.items.*.media_file.max' => 'Cada imagen o video destacado de noticias debe pesar como maximo 15 MB.',
+            'featured_story.items.*.poster_file.max' => 'Cada portada del video destacado debe pesar como maximo 15 MB.',
+            'news_grid.items.*.media_file.max' => 'Cada imagen o video de noticia debe pesar como maximo 15 MB.',
+            'news_grid.items.*.poster_file.max' => 'Cada portada del video de noticia debe pesar como maximo 15 MB.',
         ];
 
         $attributes = [
@@ -116,11 +121,18 @@ class AdminPageController extends Controller
             'hero.media.*.media_file' => 'archivo del carrusel principal',
             'hero.media.*.poster_file' => 'portada del video principal',
             'hero.media.*.duration_seconds' => 'duracion de un elemento del carrusel principal',
-            'hero_gallery.items.*.image_file' => 'imagen del carrusel institucional',
-            'history.items.*.image_file' => 'imagen de la historia',
-            'organigram.image_file' => 'imagen del organigrama',
-            'featured_story.items.*.image_file' => 'imagen de la noticia destacada',
-            'news_grid.items.*.image_file' => 'imagen de una noticia',
+            'hero_gallery.items.*.media_file' => 'archivo del carrusel institucional',
+            'hero_gallery.items.*.poster_file' => 'portada del video institucional',
+            'hero_gallery.items.*.duration_seconds' => 'duracion de un slide institucional',
+            'history.items.*.media_file' => 'archivo de la historia',
+            'history.items.*.poster_file' => 'portada del video de historia',
+            'history.items.*.duration_seconds' => 'duracion de un slide de historia',
+            'organigram.media_file' => 'archivo del organigrama',
+            'organigram.poster_file' => 'portada del video del organigrama',
+            'featured_story.items.*.media_file' => 'archivo de la noticia destacada',
+            'featured_story.items.*.poster_file' => 'portada del video destacado',
+            'news_grid.items.*.media_file' => 'archivo de una noticia',
+            'news_grid.items.*.poster_file' => 'portada del video de una noticia',
         ];
 
         $rules = [
@@ -149,14 +161,26 @@ class AdminPageController extends Controller
         ];
 
         if ($this->isAboutPage($page)) {
-            $rules['hero_gallery.items.*.image_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'];
-            $rules['history.items.*.image_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'];
-            $rules['organigram.image_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'];
+            $rules['hero_gallery.items.*.media_type'] = ['nullable', 'string', Rule::in(['image', 'video'])];
+            $rules['hero_gallery.items.*.media_file'] = ['nullable', 'file', 'mimetypes:image/jpeg,image/png,image/webp,image/svg+xml,video/mp4,video/webm', 'max:15360'];
+            $rules['hero_gallery.items.*.poster_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'];
+            $rules['hero_gallery.items.*.duration_seconds'] = ['nullable', 'integer', 'min:1', 'max:300'];
+            $rules['history.items.*.media_type'] = ['nullable', 'string', Rule::in(['image', 'video'])];
+            $rules['history.items.*.media_file'] = ['nullable', 'file', 'mimetypes:image/jpeg,image/png,image/webp,image/svg+xml,video/mp4,video/webm', 'max:15360'];
+            $rules['history.items.*.poster_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'];
+            $rules['history.items.*.duration_seconds'] = ['nullable', 'integer', 'min:1', 'max:300'];
+            $rules['organigram.media_type'] = ['nullable', 'string', Rule::in(['image', 'video'])];
+            $rules['organigram.media_file'] = ['nullable', 'file', 'mimetypes:image/jpeg,image/png,image/webp,image/svg+xml,video/mp4,video/webm', 'max:15360'];
+            $rules['organigram.poster_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'];
         }
 
         if ($this->isNewsPage($page)) {
-            $rules['featured_story.items.*.image_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'];
-            $rules['news_grid.items.*.image_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'];
+            $rules['featured_story.items.*.media_type'] = ['nullable', 'string', Rule::in(['image', 'video'])];
+            $rules['featured_story.items.*.media_file'] = ['nullable', 'file', 'mimetypes:image/jpeg,image/png,image/webp,image/svg+xml,video/mp4,video/webm', 'max:15360'];
+            $rules['featured_story.items.*.poster_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'];
+            $rules['news_grid.items.*.media_type'] = ['nullable', 'string', Rule::in(['image', 'video'])];
+            $rules['news_grid.items.*.media_file'] = ['nullable', 'file', 'mimetypes:image/jpeg,image/png,image/webp,image/svg+xml,video/mp4,video/webm', 'max:15360'];
+            $rules['news_grid.items.*.poster_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'];
         }
 
         $data = $request->validate($rules, $messages, $attributes);
@@ -579,11 +603,22 @@ class AdminPageController extends Controller
                 'title' => $request->input('hero_gallery.title'),
                 'subtitle' => $request->input('hero_gallery.subtitle'),
             ], $this->mapRepeaterItems(data_get($form, 'hero_gallery.items', []), 'hero_gallery_slide', function ($item) {
+                $mediaType = ($item['media_type'] ?? '') === 'video' ? 'video' : 'image';
+                $mediaUrl = $this->storeRepeaterAsset($item, 'media_file', 'media_url', 'cms/about/hero');
+                $duration = (int) ($item['duration_seconds'] ?? 0);
+
+                if ($duration < 1 || $duration > 300) {
+                    $duration = 5;
+                }
+
                 return [
-                    'eyebrow' => $item['eyebrow'] ?? '',
-                    'title' => $item['title'] ?? '',
-                    'text' => $item['text'] ?? '',
-                    'image' => $this->storeRepeaterImage($item, 'image_file', 'image', 'cms/about/hero'),
+                    'media_type' => $mediaType,
+                    'media_url' => $mediaUrl ?: $this->normalizeAssetUrl($item['image'] ?? ''),
+                    'image' => $mediaType === 'image'
+                        ? ($mediaUrl ?: $this->normalizeAssetUrl($item['image'] ?? ''))
+                        : null,
+                    'poster_image' => $this->storeRepeaterImage($item, 'poster_file', 'poster_image', 'cms/about/hero'),
+                    'duration_seconds' => $duration,
                 ];
             })),
 
@@ -601,10 +636,24 @@ class AdminPageController extends Controller
                 'carousel_title' => $request->input('history.carousel_title'),
                 'carousel_text' => $request->input('history.carousel_text'),
             ], $this->mapRepeaterItems(data_get($form, 'history.items', []), 'history_slide', function ($item) {
+                $mediaType = ($item['media_type'] ?? '') === 'video' ? 'video' : 'image';
+                $mediaUrl = $this->storeRepeaterAsset($item, 'media_file', 'media_url', 'cms/about/history');
+                $duration = (int) ($item['duration_seconds'] ?? 0);
+
+                if ($duration < 1 || $duration > 300) {
+                    $duration = 6;
+                }
+
                 return [
                     'title' => $item['title'] ?? '',
                     'text' => $item['text'] ?? '',
-                    'image' => $this->storeRepeaterImage($item, 'image_file', 'image', 'cms/about/history'),
+                    'media_type' => $mediaType,
+                    'media_url' => $mediaUrl ?: $this->normalizeAssetUrl($item['image'] ?? ''),
+                    'image' => $mediaType === 'image'
+                        ? ($mediaUrl ?: $this->normalizeAssetUrl($item['image'] ?? ''))
+                        : null,
+                    'poster_image' => $this->storeRepeaterImage($item, 'poster_file', 'poster_image', 'cms/about/history'),
+                    'duration_seconds' => $duration,
                 ];
             })),
 
@@ -624,7 +673,12 @@ class AdminPageController extends Controller
                 'subtitle' => $request->input('organigram.subtitle'),
                 'card_title' => $request->input('organigram.card_title'),
                 'card_text' => $request->input('organigram.card_text'),
-                'image' => $this->storeUploadedImage($request, 'organigram.image_file', $request->input('organigram.image'), 'cms/about/organigram'),
+                'media_type' => $request->input('organigram.media_type') === 'video' ? 'video' : 'image',
+                'media_url' => $this->storeUploadedImage($request, 'organigram.media_file', $request->input('organigram.media_url') ?: $request->input('organigram.image'), 'cms/about/organigram'),
+                'image' => $request->input('organigram.media_type') === 'video'
+                    ? null
+                    : $this->storeUploadedImage($request, 'organigram.media_file', $request->input('organigram.media_url') ?: $request->input('organigram.image'), 'cms/about/organigram'),
+                'poster_image' => $this->storeUploadedImage($request, 'organigram.poster_file', $request->input('organigram.poster_image'), 'cms/about/organigram'),
             ]),
 
             $this->makeSectionPayload($page, 'objectives', 'Objetivos institucionales', 'objectives', 5, [
@@ -647,12 +701,20 @@ class AdminPageController extends Controller
             $this->makeSectionPayload($page, 'featured_story', 'Noticia destacada', 'featured_story', 0, [
                 'button_label' => $request->input('featured_story.button_label'),
             ], $this->mapRepeaterItems(data_get($form, 'featured_story.items', []), 'featured_story_item', function ($item) {
+                $mediaType = ($item['media_type'] ?? '') === 'video' ? 'video' : 'image';
+                $mediaUrl = $this->storeRepeaterAsset($item, 'media_file', 'media_url', 'cms/news/featured');
+
                 return [
                     'badge' => $item['badge'] ?? '',
                     'title' => $item['title'] ?? '',
                     'excerpt' => $item['excerpt'] ?? '',
                     'category' => $item['category'] ?? '',
-                    'image' => $this->storeRepeaterImage($item, 'image_file', 'image', 'cms/news/featured'),
+                    'media_type' => $mediaType,
+                    'media_url' => $mediaUrl ?: $this->normalizeAssetUrl($item['image'] ?? ''),
+                    'image' => $mediaType === 'image'
+                        ? ($mediaUrl ?: $this->normalizeAssetUrl($item['image'] ?? ''))
+                        : null,
+                    'poster_image' => $this->storeRepeaterImage($item, 'poster_file', 'poster_image', 'cms/news/featured'),
                     'article_url' => ContentSecurity::sanitizeLinkUrl($item['article_url'] ?? '') ?? '',
                 ];
             })),
@@ -672,12 +734,20 @@ class AdminPageController extends Controller
                 'subtitle' => $request->input('news_grid.subtitle'),
                 'cta_label' => $request->input('news_grid.cta_label'),
             ], $this->mapRepeaterItems(data_get($form, 'news_grid.items', []), 'news_card', function ($item) {
+                $mediaType = ($item['media_type'] ?? '') === 'video' ? 'video' : 'image';
+                $mediaUrl = $this->storeRepeaterAsset($item, 'media_file', 'media_url', 'cms/news/cards');
+
                 return [
                     'date' => $item['date'] ?? '',
                     'category' => $item['category'] ?? '',
                     'title' => $item['title'] ?? '',
                     'excerpt' => $item['excerpt'] ?? '',
-                    'image' => $this->storeRepeaterImage($item, 'image_file', 'image', 'cms/news/cards'),
+                    'media_type' => $mediaType,
+                    'media_url' => $mediaUrl ?: $this->normalizeAssetUrl($item['image'] ?? ''),
+                    'image' => $mediaType === 'image'
+                        ? ($mediaUrl ?: $this->normalizeAssetUrl($item['image'] ?? ''))
+                        : null,
+                    'poster_image' => $this->storeRepeaterImage($item, 'poster_file', 'poster_image', 'cms/news/cards'),
                     'article_url' => ContentSecurity::sanitizeLinkUrl($item['article_url'] ?? '') ?? '',
                 ];
             })),

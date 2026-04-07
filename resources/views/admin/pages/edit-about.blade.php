@@ -115,14 +115,8 @@
 
                 <section class="section-card" x-show="tab === 'backgrounds'">
                     <div class="section-header">
-                        <div><div class="section-eyebrow">Fondos</div><h3 class="section-title">Carrusel superior</h3><p class="section-copy">Hero principal con slides y fotografias institucionales.</p></div>
+                        <div><div class="section-eyebrow">Fondos</div><h3 class="section-title">Carrusel superior</h3><p class="section-copy">Carrusel visual puro para imagenes o videos, sin textos superpuestos en frontend.</p></div>
                         <span class="pill pill-off">{{ count($heroGallery['items']) }} slide(s)</span>
-                    </div>
-                    <div class="subpanel">
-                        <div class="grid grid-2">
-                            <div class="field"><label>Titulo base</label><input type="text" name="hero_gallery[title]" value="{{ old('hero_gallery.title', $heroGallery['settings']['title'] ?? '') }}"></div>
-                            <div class="field"><label>Subtitulo base</label><input type="text" name="hero_gallery[subtitle]" value="{{ old('hero_gallery.subtitle', $heroGallery['settings']['subtitle'] ?? '') }}"></div>
-                        </div>
                     </div>
                     <div class="subpanel">
                         <div class="toolbar"><div><h4>Slides del carrusel</h4></div><button type="button" class="button button-secondary" data-add-row>Agregar slide</button></div>
@@ -130,14 +124,23 @@
                             <div data-rows>
                                 @foreach ($heroGallery['items'] as $item)
                                     <div class="repeater-card" data-row>
-                                        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Slide' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
+                                        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ ($item['media_type'] ?? 'image') === 'video' ? 'Video' : 'Imagen' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
                                         <div class="grid grid-3" style="margin-top:12px;">
-                                            <div class="field"><label>Ceja</label><input type="text" data-field="eyebrow" value="{{ $item['eyebrow'] ?? '' }}"></div>
-                                            <div class="field"><label>Titulo</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
-                                            <div class="field"><label>URL imagen</label><input type="text" data-field="image" value="{{ $item['image'] ?? '' }}"></div>
+                                            <div class="field">
+                                                <label>Tipo de medio</label>
+                                                <select data-field="media_type">
+                                                    <option value="image" {{ ($item['media_type'] ?? 'image') === 'image' ? 'selected' : '' }}>Imagen</option>
+                                                    <option value="video" {{ ($item['media_type'] ?? '') === 'video' ? 'selected' : '' }}>Video</option>
+                                                </select>
+                                            </div>
+                                            <div class="field"><label>Duracion (segundos)</label><input type="number" min="1" max="300" data-field="duration_seconds" value="{{ $item['duration_seconds'] ?? 5 }}"></div>
+                                            <div class="field"><label>URL del medio</label><input type="text" data-field="media_url" value="{{ $item['media_url'] ?? ($item['image'] ?? '') }}"></div>
                                         </div>
-                                        <div class="field" style="margin-top:12px;"><label>Texto</label><textarea class="field-small" data-field="text">{{ $item['text'] ?? '' }}</textarea></div>
-                                        <div class="field" style="margin-top:12px;"><label>Subir imagen</label><input type="file" data-field="image_file" accept="image/*"></div>
+                                        <div class="grid grid-2" style="margin-top:12px;">
+                                            <div class="field"><label>Subir imagen o video</label><input type="file" data-field="media_file" accept="image/*,video/mp4,video/webm"></div>
+                                            <div class="field"><label>Portada del video</label><input type="file" data-field="poster_file" accept="image/*"></div>
+                                        </div>
+                                        <div class="field" style="margin-top:12px;"><label>URL portada (opcional para video)</label><input type="text" data-field="poster_image" value="{{ $item['poster_image'] ?? '' }}"></div>
                                         <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                     </div>
                                 @endforeach
@@ -172,18 +175,28 @@
                         </div>
                     </div>
                     <div class="subpanel">
-                        <div class="toolbar"><div><h4>Slides de historia</h4><p>Imagenes y textos que acompanan el relato institucional.</p></div><button type="button" class="button button-secondary" data-add-row>Agregar slide</button></div>
+                        <div class="toolbar"><div><h4>Slides de historia</h4><p>Slider visual puro para imagenes o videos, sin textos encima en frontend.</p></div><button type="button" class="button button-secondary" data-add-row>Agregar slide</button></div>
                         <div class="stack" data-collection data-base="history[items]" data-template="history-template">
                             <div data-rows>
                                 @foreach ($history['items'] as $item)
                                     <div class="repeater-card" data-row>
-                                        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Historia' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
+                                        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ ($item['media_type'] ?? 'image') === 'video' ? 'Video' : 'Imagen' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
                                         <div class="grid grid-3" style="margin-top:12px;">
-                                            <div class="field"><label>Titulo</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
-                                            <div class="field"><label>URL imagen</label><input type="text" data-field="image" value="{{ $item['image'] ?? '' }}"></div>
-                                            <div class="field"><label>Subir imagen</label><input type="file" data-field="image_file" accept="image/*"></div>
+                                            <div class="field">
+                                                <label>Tipo de medio</label>
+                                                <select data-field="media_type">
+                                                    <option value="image" {{ ($item['media_type'] ?? 'image') === 'image' ? 'selected' : '' }}>Imagen</option>
+                                                    <option value="video" {{ ($item['media_type'] ?? '') === 'video' ? 'selected' : '' }}>Video</option>
+                                                </select>
+                                            </div>
+                                            <div class="field"><label>Duracion (segundos)</label><input type="number" min="1" max="300" data-field="duration_seconds" value="{{ $item['duration_seconds'] ?? 6 }}"></div>
+                                            <div class="field"><label>URL del medio</label><input type="text" data-field="media_url" value="{{ $item['media_url'] ?? ($item['image'] ?? '') }}"></div>
                                         </div>
-                                        <div class="field" style="margin-top:12px;"><label>Texto</label><textarea class="field-small" data-field="text">{{ $item['text'] ?? '' }}</textarea></div>
+                                        <div class="grid grid-2" style="margin-top:12px;">
+                                            <div class="field"><label>Subir imagen o video</label><input type="file" data-field="media_file" accept="image/*,video/mp4,video/webm"></div>
+                                            <div class="field"><label>Portada del video</label><input type="file" data-field="poster_file" accept="image/*"></div>
+                                        </div>
+                                        <div class="field" style="margin-top:12px;"><label>URL portada (opcional para video)</label><input type="text" data-field="poster_image" value="{{ $item['poster_image'] ?? '' }}"></div>
                                         <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                     </div>
                                 @endforeach
@@ -225,7 +238,7 @@
 
                 <section class="section-card" x-show="tab === 'organigram'">
                     <div class="section-header">
-                        <div><div class="section-eyebrow">Institucional</div><h3 class="section-title">Bloque de organigrama</h3><p class="section-copy">Controla el titulo principal, la tarjeta informativa y la imagen del organigrama.</p></div>
+                        <div><div class="section-eyebrow">Institucional</div><h3 class="section-title">Bloque de organigrama</h3><p class="section-copy">Controla el titulo externo de la seccion y el medio visual del organigrama, sin textos encima del visual.</p></div>
                     </div>
                     <div class="design-grid">
                         <div class="subpanel span-7">
@@ -233,17 +246,24 @@
                             <div class="grid grid-2">
                                 <div class="field"><label>Titulo de seccion</label><input type="text" name="organigram[title]" value="{{ old('organigram.title', $organigram['settings']['title'] ?? '') }}"></div>
                                 <div class="field"><label>Subtitulo</label><input type="text" name="organigram[subtitle]" value="{{ old('organigram.subtitle', $organigram['settings']['subtitle'] ?? '') }}"></div>
-                                <div class="field"><label>Titulo de tarjeta</label><input type="text" name="organigram[card_title]" value="{{ old('organigram.card_title', $organigram['settings']['card_title'] ?? '') }}"></div>
-                                <div class="field"><label>URL de imagen</label><input type="text" name="organigram[image]" value="{{ old('organigram.image', $organigram['settings']['image'] ?? '') }}"></div>
-                                <div class="field" style="grid-column:1 / -1;"><label>Texto de tarjeta</label><textarea name="organigram[card_text]" class="field-small">{{ old('organigram.card_text', $organigram['settings']['card_text'] ?? '') }}</textarea></div>
+                                <div class="field">
+                                    <label>Tipo de medio</label>
+                                    <select name="organigram[media_type]">
+                                        <option value="image" {{ old('organigram.media_type', $organigram['settings']['media_type'] ?? 'image') === 'image' ? 'selected' : '' }}>Imagen</option>
+                                        <option value="video" {{ old('organigram.media_type', $organigram['settings']['media_type'] ?? '') === 'video' ? 'selected' : '' }}>Video</option>
+                                    </select>
+                                </div>
+                                <div class="field"><label>URL del medio</label><input type="text" name="organigram[media_url]" value="{{ old('organigram.media_url', $organigram['settings']['media_url'] ?? ($organigram['settings']['image'] ?? '')) }}"></div>
+                                <div class="field" style="grid-column:1 / -1;"><label>URL portada (opcional para video)</label><input type="text" name="organigram[poster_image]" value="{{ old('organigram.poster_image', $organigram['settings']['poster_image'] ?? '') }}"></div>
                             </div>
                         </div>
                         <div class="subpanel span-5">
                             <h4>Archivo visual</h4>
-                            <div class="field"><label>Subir imagen del organigrama</label><input type="file" name="organigram[image_file]" accept="image/*"></div>
-                            @if (!empty($organigram['settings']['image']))
+                            <div class="field"><label>Subir imagen o video del organigrama</label><input type="file" name="organigram[media_file]" accept="image/*,video/mp4,video/webm"></div>
+                            <div class="field" style="margin-top:12px;"><label>Subir portada del video</label><input type="file" name="organigram[poster_file]" accept="image/*"></div>
+                            @if (!empty($organigram['settings']['media_url']) || !empty($organigram['settings']['image']))
                                 <div class="image-frame" style="margin-top:16px;">
-                                    <img src="{{ $organigram['settings']['image'] }}" alt="Organigrama actual" style="width:100%; border-radius:18px;">
+                                    <img src="{{ $organigram['settings']['poster_image'] ?? ($organigram['settings']['media_url'] ?? $organigram['settings']['image']) }}" alt="Organigrama actual" style="width:100%; border-radius:18px;">
                                 </div>
                             @endif
                         </div>
@@ -300,12 +320,21 @@
     <div class="repeater-card" data-row>
         <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Slide</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
         <div class="grid grid-3" style="margin-top:12px;">
-            <div class="field"><label>Ceja</label><input type="text" data-field="eyebrow"></div>
-            <div class="field"><label>Titulo</label><input type="text" data-field="title"></div>
-            <div class="field"><label>URL imagen</label><input type="text" data-field="image"></div>
+            <div class="field">
+                <label>Tipo de medio</label>
+                <select data-field="media_type">
+                    <option value="image" selected>Imagen</option>
+                    <option value="video">Video</option>
+                </select>
+            </div>
+            <div class="field"><label>Duracion (segundos)</label><input type="number" min="1" max="300" data-field="duration_seconds" value="5"></div>
+            <div class="field"><label>URL del medio</label><input type="text" data-field="media_url"></div>
         </div>
-        <div class="field" style="margin-top:12px;"><label>Texto</label><textarea class="field-small" data-field="text"></textarea></div>
-        <div class="field" style="margin-top:12px;"><label>Subir imagen</label><input type="file" data-field="image_file" accept="image/*"></div>
+        <div class="grid grid-2" style="margin-top:12px;">
+            <div class="field"><label>Subir imagen o video</label><input type="file" data-field="media_file" accept="image/*,video/mp4,video/webm"></div>
+            <div class="field"><label>Portada del video</label><input type="file" data-field="poster_file" accept="image/*"></div>
+        </div>
+        <div class="field" style="margin-top:12px;"><label>URL portada (opcional para video)</label><input type="text" data-field="poster_image"></div>
         <input type="hidden" data-field="id">
     </div>
 </template>
@@ -314,11 +343,21 @@
     <div class="repeater-card" data-row>
         <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Historia</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
         <div class="grid grid-3" style="margin-top:12px;">
-            <div class="field"><label>Titulo</label><input type="text" data-field="title"></div>
-            <div class="field"><label>URL imagen</label><input type="text" data-field="image"></div>
-            <div class="field"><label>Subir imagen</label><input type="file" data-field="image_file" accept="image/*"></div>
+            <div class="field">
+                <label>Tipo de medio</label>
+                <select data-field="media_type">
+                    <option value="image" selected>Imagen</option>
+                    <option value="video">Video</option>
+                </select>
+            </div>
+            <div class="field"><label>Duracion (segundos)</label><input type="number" min="1" max="300" data-field="duration_seconds" value="6"></div>
+            <div class="field"><label>URL del medio</label><input type="text" data-field="media_url"></div>
         </div>
-        <div class="field" style="margin-top:12px;"><label>Texto</label><textarea class="field-small" data-field="text"></textarea></div>
+        <div class="grid grid-2" style="margin-top:12px;">
+            <div class="field"><label>Subir imagen o video</label><input type="file" data-field="media_file" accept="image/*,video/mp4,video/webm"></div>
+            <div class="field"><label>Portada del video</label><input type="file" data-field="poster_file" accept="image/*"></div>
+        </div>
+        <div class="field" style="margin-top:12px;"><label>URL portada (opcional para video)</label><input type="text" data-field="poster_image"></div>
         <input type="hidden" data-field="id">
     </div>
 </template>
