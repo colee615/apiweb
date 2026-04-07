@@ -537,6 +537,14 @@
             display:grid; gap:12px; padding:16px; border-radius:22px; border:1px dashed var(--line-strong);
             background: linear-gradient(180deg, #fff, #f8fbff);
         }
+        .image-frame img {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            max-height: 180px;
+            object-fit: contain;
+        }
         .save-dock {
             position: sticky; bottom: 18px; display:flex; justify-content:space-between; align-items:center; gap:14px;
             padding: 16px 18px; border-radius: 22px; background: rgba(15,23,42,.94); color: #fff;
