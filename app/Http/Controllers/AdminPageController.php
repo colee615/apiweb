@@ -69,7 +69,7 @@ class AdminPageController extends Controller
     public function update(Request $request, SitePage $page): RedirectResponse
     {
         $messages = [
-            'required' => 'Completa el campo :attribute.',
+            'required' => 'Completa el campooooo :attribute.',
             'string' => 'El campo :attribute debe ser texto.',
             'integer' => 'El campo :attribute debe ser un numero entero.',
             'boolean' => 'El campo :attribute debe ser un valor valido.',
