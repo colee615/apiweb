@@ -812,7 +812,17 @@ class AdminPageController extends Controller
     protected function mapRepeaterItems(array $items, string $type, callable $dataMapper): array
     {
         return collect($items)
-            ->filter(fn ($item) => filled($item['title'] ?? $item['label'] ?? $item['name'] ?? null))
+            ->filter(function ($item) {
+                return filled($item['title'] ?? $item['label'] ?? $item['name'] ?? null)
+                    || filled($item['text'] ?? null)
+                    || filled($item['image'] ?? null)
+                    || filled($item['media_url'] ?? null)
+                    || filled($item['src'] ?? null)
+                    || (($item['media_file'] ?? null) instanceof \Illuminate\Http\UploadedFile)
+                    || (($item['image_file'] ?? null) instanceof \Illuminate\Http\UploadedFile)
+                    || (($item['poster_file'] ?? null) instanceof \Illuminate\Http\UploadedFile)
+                    || (($item['iconImage_file'] ?? null) instanceof \Illuminate\Http\UploadedFile);
+            })
             ->values()
             ->map(function ($item, $index) use ($type, $dataMapper) {
                 return [
