@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 class ContactController extends Controller
 {
@@ -20,11 +22,23 @@ class ContactController extends Controller
         $recipient = trim((string) env('CONTACT_FORM_TO', 'atencionalcliente@correos.gob.bo'));
         $subject = trim((string) ($data['subject'] ?? ''));
 
-        Mail::raw($this->buildBody($data), function ($mail) use ($recipient, $data, $subject) {
-            $mail->to($recipient)
-                ->replyTo($data['email'], $data['name'])
-                ->subject($subject !== '' ? $subject : 'Nuevo mensaje de contacto desde la web');
-        });
+        try {
+            Mail::raw($this->buildBody($data), function ($mail) use ($recipient, $data, $subject) {
+                $mail->to($recipient)
+                    ->replyTo($data['email'], $data['name'])
+                    ->subject($subject !== '' ? $subject : 'Nuevo mensaje de contacto desde la web');
+            });
+        } catch (Throwable $exception) {
+            Log::error('No se pudo enviar el correo del formulario de contacto.', [
+                'recipient' => $recipient,
+                'sender_email' => $data['email'],
+                'error' => $exception->getMessage(),
+            ]);
+
+            return response()->json([
+                'message' => 'No se pudo enviar el mensaje en este momento. Verifica la configuracion del correo del servidor.',
+            ], 502);
+        }
 
         return response()->json([
             'message' => 'Tu mensaje fue enviado correctamente.',
