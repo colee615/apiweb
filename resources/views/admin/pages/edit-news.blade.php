@@ -10,39 +10,6 @@
 
 @section('content')
 <div class="admin-shell stack" x-data="{ tab: @js(request('tab', 'design_text')), go(section) { this.tab = section; } }">
-    <div class="admin-topbar">
-        <div class="admin-brand">
-            <h2>Editor Studio de {{ $page->name }}</h2>
-            <p>Administra la portada de noticias. El header y el footer se siguen heredando desde Home.</p>
-        </div>
-        <div class="actions">
-            <a href="{{ route('admin.dashboard') }}" class="button button-secondary">Volver al panel</a>
-            <form method="POST" action="{{ route('admin.logout') }}">@csrf<button type="submit" class="button button-ghost">Cerrar sesion</button></form>
-        </div>
-    </div>
-
-    <div class="panel hero-panel">
-        <div class="split-header">
-            <div style="max-width:760px;">
-                <div class="section-eyebrow">Newsroom Studio</div>
-                <h1 style="margin:14px 0 10px; font-size:40px; line-height:1;">Control visual de "Noticias"</h1>
-                <p class="section-copy">Edita la noticia destacada, filtros, tarjetas, bloque de boletin y paginacion desde un solo lugar.</p>
-            </div>
-            <div class="section-metrics">
-                <span class="pill {{ $page->is_active ? 'pill-ok' : 'pill-off' }}">{{ $page->is_active ? 'Publicada' : 'Oculta' }}</span>
-                <span class="pill pill-off">{{ count($newsGrid['items']) }} noticias</span>
-                <span class="pill pill-off">{{ count($categoryFilters['items']) }} filtros</span>
-                <span class="pill pill-off">{{ count($pagination['items']) }} paginas</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="card-grid">
-        <div class="spot-card"><span>Destacado</span><strong>{{ count($featuredStory['items']) }}</strong><p>Hero principal administrable con llamada a la accion.</p></div>
-        <div class="spot-card"><span>Noticias</span><strong>{{ count($newsGrid['items']) }}</strong><p>Tarjetas de noticias listas para edicion visual.</p></div>
-        <div class="spot-card"><span>Boletin</span><strong>1</strong><p>Bloque de suscripcion y paginacion editable.</p></div>
-    </div>
-
     @if (session('status'))<div class="notice notice-success">{{ session('status') }}</div>@endif
     @if ($errors->any())<div class="notice notice-error">@foreach ($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>@endif
 

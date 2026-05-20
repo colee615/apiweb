@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
@@ -11,97 +11,136 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #eef3f9;
+            --bg: #f4f7fb;
             --panel: rgba(255,255,255,.88);
             --panel-solid: #ffffff;
             --line: #dfe6f3;
             --line-strong: #cfd8ea;
             --text: #0f172a;
             --muted: #667085;
-            --primary: #0f4c81;
-            --primary-dark: #0a3559;
-            --accent: #123047;
-            --accent-soft: #214d68;
+            --primary: #1e63c6;
+            --primary-dark: #154f9f;
+            --accent: #0e2344;
+            --accent-soft: #355174;
             --success: #0c7a58;
-            --sidebar: #0d1b2a;
-            --sidebar-soft: #18364d;
-            --shadow: 0 20px 60px rgba(18, 48, 71, 0.12);
+            --sidebar: #ffffff;
+            --sidebar-soft: #eef3fb;
+            --shadow: 0 16px 36px rgba(19, 45, 86, 0.08);
         }
         * { box-sizing: border-box; }
         body {
             margin: 0;
             font-family: "Manrope", Arial, sans-serif;
-            background:
-                radial-gradient(circle at top left, rgba(15, 76, 129, .10), transparent 24%),
-                radial-gradient(circle at top right, rgba(18, 48, 71, .08), transparent 22%),
-                var(--bg);
+            background: var(--bg);
             color: var(--text);
         }
         a { color: inherit; text-decoration: none; }
-        .admin-app { min-height: 100vh; display: grid; grid-template-columns: 290px 1fr; }
+        .admin-app { min-height: 100vh; display: grid; grid-template-columns: 278px 1fr; transition: grid-template-columns .2s ease; }
+        .admin-app.sidebar-collapsed { grid-template-columns: 84px 1fr; }
         .sidebar {
             position: sticky;
             top: 0;
             height: 100vh;
-            background:
-                radial-gradient(circle at top, rgba(255,255,255,.10), transparent 28%),
-                linear-gradient(180deg, #0d1b2a, #123047 52%, #1d516f);
-            color: #fff;
-            padding: 28px 20px;
+            background: #fff;
+            color: var(--accent);
+            padding: 24px 18px;
+            border-right: 1px solid #e5ebf5;
+            overflow: hidden;
         }
+        .admin-app.sidebar-collapsed .brand,
+        .admin-app.sidebar-collapsed .nav-link span:first-child { display: none; }
+        .admin-app.sidebar-collapsed .nav-link { justify-content: center; padding: 12px; }
         .brand {
-            padding: 20px;
-            border: 1px solid rgba(255,255,255,.10);
-            border-radius: 28px;
-            background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
-            backdrop-filter: blur(12px);
-            margin-bottom: 22px;
+            padding: 8px 6px 16px;
+            border-bottom: 1px solid #e8edf6;
+            margin-bottom: 16px;
         }
-        .brand-badge {
-            display: inline-flex;
-            padding: 8px 12px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 800;
-            letter-spacing: .08em;
-            text-transform: uppercase;
-            background: rgba(255,255,255,.08);
-            margin-bottom: 14px;
-        }
-        .brand h1 { margin: 0; font-size: 24px; font-weight: 800; }
-        .brand p { margin: 10px 0 0; color: rgba(255,255,255,.72); line-height: 1.5; font-size: 14px; }
+        .brand-badge { display: none; }
+        .brand h1 { margin: 0; font-size: 22px; font-weight: 800; }
+        .brand p { margin: 6px 0 0; color: #5f7190; line-height: 1.4; font-size: 13px; }
         .nav-group { display: grid; gap: 12px; }
         .nav-link {
             display: flex; align-items: center; justify-content: space-between; gap: 12px;
-            padding: 16px 18px; border-radius: 20px;
-            color: rgba(255,255,255,.86); border: 1px solid transparent;
+            padding: 14px 16px; border-radius: 14px;
+            color: #2f4668; border: 1px solid transparent;
             transition: .2s ease;
         }
-        .nav-link:hover { background: rgba(255,255,255,.07); transform: translateX(2px); }
+        .nav-link:hover { background: #f3f7fe; transform: translateX(1px); }
         .nav-link.active {
-            background: linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.07));
-            border-color: rgba(255,255,255,.14);
-            color: #fff;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 12px 24px rgba(0,0,0,.12);
+            background: #eaf1ff;
+            border-color: #dbe7ff;
+            color: #1b4ea1;
+            box-shadow: none;
         }
         .nav-link-meta { display:grid; gap:4px; }
         .nav-link-title { font-weight: 800; }
-        .nav-link-copy { font-size: 12px; color: rgba(255,255,255,.62); }
-        .nav-link.active .nav-link-copy { color: rgba(255,255,255,.82); }
+        .nav-link-copy { font-size: 12px; color: #7590b1; }
+        .nav-link.active .nav-link-copy { color: #3f6fb7; }
         .nav-link span:last-child {
             width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;
-            border-radius: 12px; background: rgba(255,255,255,.07); font-size: 12px; font-weight: 800;
+            border-radius: 10px; background: #f0f4fb; font-size: 12px; font-weight: 800;
         }
-        .role-chip {
-            display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px;
-            background: rgba(255,255,255,.10); color:#fff; font-size:12px; font-weight:800; letter-spacing:.04em;
-        }
+        .role-chip { display: none; }
         .sidebar-footer {
-            margin-top: 18px; padding: 18px; border-radius: 22px;
-            background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05)); color: rgba(255,255,255,.86); font-size: 14px;
-            border: 1px solid rgba(255,255,255,.10);
+            margin-top: 12px; padding: 12px 0 0; border-radius: 0;
+            background: transparent; color: #31507a; font-size: 13px;
+            border: 0; border-top: 1px solid #e8edf6;
         }
-        .content { padding: 34px 30px; }
+        .content { padding: 0; }
+        .topbar {
+            height: 64px;
+            background: #ffffff;
+            border-bottom: 1px solid #e5ebf5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            position: sticky;
+            top: 0;
+            z-index: 30;
+        }
+        .menu-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid #d8e3f5;
+            background: #f8fbff;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #1d4fa3;
+        }
+        .menu-toggle svg { width: 18px; height: 18px; }
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .topbar-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 999px;
+            border: 1px solid #d8e3f5;
+            background: #f8fbff;
+            color: #1d4fa3;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            line-height: 1;
+        }
+        .topbar-logout {
+            border: 1px solid #d8e3f5;
+            color: #0e2344;
+            background: #f8fbff;
+            border-radius: 12px;
+            padding: 8px 12px;
+            font-weight: 800;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .content-inner { padding: 26px 30px; }
         .admin-shell { max-width: 1380px; margin: 0 auto; }
         .admin-topbar { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 24px; }
         .admin-brand h2 { margin: 0; font-size: 34px; font-weight: 800; }
@@ -272,12 +311,132 @@
         .pill-off { background:#eef2f8; color:var(--muted); }
         .muted { color:var(--muted); }
         .login-wrap {
-            min-height:100vh; display:grid; place-items:center; padding:24px;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
             background:
-                radial-gradient(circle at top, rgba(74, 144, 226, .22), transparent 26%),
-                linear-gradient(160deg, #10263a, #0d1b2a 48%, #173b55);
+                radial-gradient(circle at 14% 10%, rgba(255, 199, 0, .24), transparent 26%),
+                radial-gradient(circle at 89% 84%, rgba(0, 85, 180, .18), transparent 28%),
+                linear-gradient(160deg, #f8fafc, #eef2f7 55%, #e8edf5);
         }
-        .login-card { width:min(520px,100%); }
+        .login-card {
+            width: min(640px, 100%);
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+        .login-brand {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 26px;
+        }
+        .login-brand img {
+            width: 180px;
+            height: auto;
+            object-fit: contain;
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            box-shadow: none;
+            filter: drop-shadow(0 10px 18px rgba(0, 43, 121, .18));
+        }
+        .login-title {
+            margin: 0 0 10px;
+            font-size: clamp(34px, 4vw, 54px);
+            line-height: 1.05;
+            color: #111f3d;
+        }
+        .login-subtitle {
+            margin: 0 auto 22px;
+            max-width: 560px;
+            color: #4f5f79;
+            line-height: 1.65;
+        }
+        .login-panel {
+            background: rgba(255,255,255,.88);
+            border: 1px solid rgba(255,255,255,.96);
+            box-shadow: 0 20px 56px rgba(11, 35, 75, .15);
+            border-radius: 18px;
+            text-align: left;
+        }
+        .login-field label { color: #32445f; font-weight: 800; }
+        .login-field input {
+            border-radius: 12px;
+            border: 1px solid #b9c7de;
+            min-height: 54px;
+            background: #fbfdff;
+        }
+        .login-field input:focus {
+            border-color: #0055b4;
+            box-shadow: 0 0 0 3px rgba(0, 85, 180, .18);
+            background: #fff;
+        }
+        .login-button {
+            width: 100%;
+            border: 0;
+            min-height: 54px;
+            border-radius: 999px;
+            font-size: 21px;
+            letter-spacing: .01em;
+            color: #0f2346;
+            background: linear-gradient(90deg, #ffd100, #ffc300 55%, #ffb400);
+            box-shadow: 0 12px 24px rgba(200, 148, 0, .35);
+        }
+        .login-button:hover {
+            filter: brightness(1.04);
+            transform: translateY(-1px);
+        }
+        .login-links {
+            margin-top: 18px;
+            display: flex;
+            justify-content: center;
+            gap: 26px;
+            flex-wrap: wrap;
+        }
+        .login-links a {
+            color: #0055b4;
+            font-weight: 700;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+        .login-orb {
+            position: absolute;
+            z-index: 1;
+            border-radius: 999px;
+            background: linear-gradient(145deg, #ffd100 0%, #f2c90a 35%, #1f7dc8 100%);
+            box-shadow: 0 24px 40px rgba(0, 60, 150, .24);
+            opacity: .96;
+        }
+        .login-orb-lg {
+            width: 220px;
+            height: 220px;
+            right: calc(50% - 345px);
+            top: calc(50% - 165px);
+        }
+        .login-orb-sm {
+            width: 92px;
+            height: 92px;
+            left: calc(50% - 390px);
+            bottom: calc(50% - 230px);
+        }
+        @media (max-width: 768px) {
+            .login-brand img { width: 140px; }
+            .login-orb-lg {
+                width: 168px;
+                height: 168px;
+                right: -34px;
+                top: 210px;
+            }
+            .login-orb-sm {
+                width: 72px;
+                height: 72px;
+                left: -24px;
+                bottom: 94px;
+            }
+        }
         .toolbar { display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between; align-items:center; }
         .actions { display:flex; gap:10px; flex-wrap:wrap; }
         .section-title { margin:0 0 6px; font-size:24px; font-weight: 800; }
@@ -408,8 +567,17 @@
         }
         .repeater-card + .repeater-card { margin-top:12px; }
         .thumb {
-            width:100%; max-width:240px; border-radius:18px; border:1px solid var(--line);
-            background:#f8fafc; display:block; object-fit:cover; aspect-ratio: 16/10;
+            width: 100%;
+            max-width: 320px;
+            max-height: 220px;
+            border-radius: 14px;
+            border: 1px solid #dbe5f3;
+            background:
+                linear-gradient(180deg, #f9fbff, #f1f5fb);
+            display: block;
+            object-fit: contain;
+            aspect-ratio: auto;
+            padding: 8px;
         }
         .stat-grid { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:16px; }
         .stat-card {
@@ -467,7 +635,7 @@
             background: linear-gradient(135deg, rgba(16,37,66,.96), rgba(25,43,70,.78)), var(--hero-bg, #102542);
             color:#fff; display:grid; align-content:space-between;
         }
-        .editor-layout { display:grid; grid-template-columns: 260px minmax(0, 1fr); gap: 24px; align-items:start; }
+        .editor-layout { display:grid; grid-template-columns: 230px minmax(0, 1fr); gap: 20px; align-items:start; }
         .editor-sidebar, .editor-preview { position: sticky; top: 22px; }
         .editor-nav {
             padding: 18px;
@@ -493,10 +661,13 @@
         .editor-main { display: grid; gap: 18px; }
         .section-card {
             padding: 24px;
-            border-radius: 26px;
-            background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(247,249,253,.94));
-            border: 1px solid rgba(255,255,255,.8);
+            border-radius: 16px;
+            background: #ffffff;
+            border: 1px solid #dbe5f3;
             box-shadow: var(--shadow);
+            height: auto;
+            min-height: 0;
+            overflow: visible;
         }
         .section-card[hidden] { display: none !important; }
         .section-eyebrow {
@@ -505,6 +676,17 @@
         }
         .section-header { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:18px; }
         .section-metrics { display:flex; gap:10px; flex-wrap:wrap; }
+        .announcement-header {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 16px;
+            align-items: start;
+        }
+        .announcement-header .section-copy { max-width: 900px; margin-top: 8px; }
+        .announcement-header .section-metrics {
+            justify-content: flex-end;
+            align-items: center;
+        }
         .design-grid { display:grid; grid-template-columns: repeat(12, minmax(0,1fr)); gap: 16px; }
         .span-3 { grid-column: span 3; }
         .span-4 { grid-column: span 4; }
@@ -518,6 +700,9 @@
             border: 1px solid var(--line);
             background: #fff;
         }
+        .announcement-layout { grid-template-columns: 320px minmax(0, 1fr); }
+        .announcement-form-grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
+        .announcement-preview-wrap { margin-top: 10px; }
         .subpanel h4 { margin: 0 0 6px; font-size: 17px; }
         .subpanel p { margin: 0 0 14px; color: var(--muted); font-size: 14px; line-height: 1.5; }
         .palette-grid { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; }
@@ -546,23 +731,65 @@
             object-fit: contain;
         }
         .save-dock {
-            position: sticky; bottom: 18px; display:flex; justify-content:space-between; align-items:center; gap:14px;
-            padding: 16px 18px; border-radius: 22px; background: rgba(15,23,42,.94); color: #fff;
-            box-shadow: 0 20px 45px rgba(15,23,42,.28);
+            position: static;
+            display:flex;
+            justify-content:space-between;
+            align-items:flex-end;
+            gap:14px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            background: #ffffff;
+            color: var(--text);
+            border: 1px solid #dbe5f3;
+            box-shadow: 0 8px 20px rgba(15,23,42,.08);
+            margin-top: 20px;
+            z-index: 1;
         }
-        .save-dock p { margin:0; color: rgba(255,255,255,.74); font-size: 14px; }
+        .save-dock p { margin:0; color: var(--muted); font-size: 14px; }
+        .save-dock .field { margin-top: 8px !important; }
+        .save-dock .field label { margin-bottom: 6px; }
+        .save-dock .button-primary { min-width: 240px; }
+        @media (max-width: 1400px) {
+            .save-dock { flex-direction: column; align-items: stretch; }
+            .save-dock .button-primary { width: 100%; min-width: 0; }
+        }
         .mini-service-grid { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:12px; }
         .mini-service { padding:12px; border-radius:18px; background:#fff; border:1px solid var(--line); min-height:110px; }
         .empty-note { padding: 18px; border-radius: 18px; border: 1px dashed var(--line); color: var(--muted); background: #fbfcfe; text-align: center; }
         .form-card { padding: 22px; border-radius: 24px; background: #fff; border: 1px solid var(--line); box-shadow: var(--shadow); }
+        @media (max-width: 1500px) {
+            .design-grid { grid-template-columns: 1fr; }
+            .span-3, .span-4, .span-6, .span-8, .span-9, .span-12 { grid-column: auto; }
+        }
+        @media (max-width: 1100px) {
+            .announcement-layout { grid-template-columns: 1fr; }
+            .announcement-form-grid { grid-template-columns: 1fr; }
+            .announcement-header { grid-template-columns: 1fr; }
+            .announcement-header .section-metrics { justify-content: flex-start; }
+        }
         @media (max-width: 1320px) { .editor-layout { grid-template-columns: 1fr; } .editor-sidebar, .editor-preview { position: static; } }
         @media (max-width: 1180px) { .preview-grid { grid-template-columns: 1fr; } .stat-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } .page-hero-grid, .card-grid, .spec-grid { grid-template-columns: 1fr; } }
-        @media (max-width: 1080px) { .admin-app { grid-template-columns:1fr; } .sidebar { position: static; height: auto; } }
+        @media (max-width: 1080px) {
+            .admin-app { grid-template-columns:1fr; }
+            .sidebar {
+                position: fixed;
+                top: 64px;
+                left: 0;
+                bottom: 0;
+                width: 278px;
+                height: auto;
+                z-index: 35;
+                transform: translateX(-100%);
+                transition: transform .2s ease;
+            }
+            .admin-app.sidebar-open .sidebar { transform: translateX(0); }
+        }
         @media (max-width: 900px) {
             .grid-2, .grid-3, .grid-4, .stat-grid, .mini-service-grid, .design-grid, .palette-grid { grid-template-columns:1fr; }
             .span-3, .span-4, .span-6, .span-8, .span-9, .span-12 { grid-column: auto; }
             .admin-topbar, .toolbar, .actions, .split-header { align-items:flex-start; flex-direction:column; }
-            .content { padding: 18px; }
+            .content-inner { padding: 16px; }
+            .save-dock { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
@@ -575,62 +802,57 @@
     @php($requestedTab = (string) request('tab', ''))
     @php($isPageEdit = request()->routeIs('admin.pages.edit'))
     @php($isHistoryMode = $isPageEdit && str_starts_with($requestedTab, 'history'))
-    @php($historyUrl = $isPageEdit ? (request()->url() . '?tab=history_overview#history-root') : route('admin.dashboard'))
-    <div class="admin-app">
+    @php($homePageId = \App\Models\SitePage::query()->where('slug', 'home')->value('id'))
+    @php($historyUrl = $isPageEdit
+        ? (request()->url() . '?tab=history_overview#history-root')
+        : ($homePageId
+            ? route('admin.pages.edit', ['page' => $homePageId, 'tab' => 'history_overview']) . '#history-root'
+            : route('admin.dashboard')))
+    <div class="admin-app" x-data="{ sidebarOpen: false, sidebarCollapsed: false }" :class="{ 'sidebar-open': sidebarOpen, 'sidebar-collapsed': sidebarCollapsed }">
         <aside class="sidebar">
             <div class="brand">
-                <div class="brand-badge">Creative Control</div>
-                <h1>Studio Admin</h1>
-                <p>Panel visual para gestionar vistas, usuarios, imágenes y bloques del sitio.</p>
-            </div>
-
-            <div class="role-chip" style="margin-bottom:18px;">
-                <span>Rol</span>
-                <strong>{{ $adminUser->role ?? 'Administrador' }}</strong>
+                <h1>Correos de Bolivia</h1>
+                <p>Panel administrativo</p>
             </div>
 
             <nav class="nav-group">
                 <a class="nav-link {{ request()->routeIs('admin.dashboard') || (request()->routeIs('admin.pages.*') && !$isHistoryMode) ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
-                    <span>Diseño</span>
-                    <span>01</span>
+                    <span>Diseno</span>
+                    <span aria-hidden="true">🎨</span>
                 </a>
                 <a class="nav-link {{ $isHistoryMode ? 'active' : '' }}" href="{{ $historyUrl }}">
                     <span>Historial</span>
-                    <span>02</span>
+                    <span aria-hidden="true">🕘</span>
                 </a>
                 @if (($adminUser->role ?? 'Administrador') === 'Administrador')
                 <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">
                     <span>Usuarios</span>
-                    <span>03</span>
+                    <span aria-hidden="true">👤</span>
                 </a>
                 @endif
             </nav>
 
-            <div class="sidebar-footer">
-                <strong style="display:block; margin-bottom:8px;">Sesión activa</strong>
-                <div>{{ $adminUser->name ?? 'Administrador' }}</div>
-                <div style="margin-top:4px;">{{ $adminUser->role ?? 'Administrador' }}</div>
-            </div>
         </aside>
 
         <main class="content">
-            <div class="admin-hero-band">
-                <div>
-                    <strong>Centro de control editorial</strong>
-                    <p>Una interfaz más clara y agradable para administrar el sitio.</p>
-                </div>
-                <div class="admin-hero-metrics">
-                    <div class="metric-pill">
-                        <span>Acceso</span>
-                        <strong>{{ $adminUser->role ?? 'Administrador' }}</strong>
-                    </div>
-                    <div class="metric-pill">
-                        <span>Estado</span>
-                        <strong>{{ ($adminUser->is_active ?? true) ? 'Activo' : 'Restringido' }}</strong>
-                    </div>
+            <div class="topbar">
+                <button type="button" class="menu-toggle" @click="window.innerWidth <= 1080 ? sidebarOpen = !sidebarOpen : sidebarCollapsed = !sidebarCollapsed" aria-label="Menu">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                        <line x1="4" y1="7" x2="20" y2="7"></line>
+                        <line x1="4" y1="12" x2="20" y2="12"></line>
+                        <line x1="4" y1="17" x2="20" y2="17"></line>
+                    </svg>
+                </button>
+                <div class="topbar-actions">
+                    <form method="POST" action="{{ route('admin.logout') }}" style="margin:0;">
+                        @csrf
+                        <button type="submit" class="topbar-logout">Cerrar sesion</button>
+                    </form>
                 </div>
             </div>
-            @yield('content')
+            <div class="content-inner">
+                @yield('content')
+            </div>
         </main>
     </div>
 @endif
@@ -662,13 +884,16 @@
                 <button type="button" class="button button-danger" data-remove-row>Eliminar</button>
             </div>
             <div class="grid grid-2" style="margin-top:12px;">
-                <div class="field"><label>Título</label><input type="text" data-field="title"></div>
+                <div class="field"><label>TÃ­tulo</label><input type="text" data-field="title"></div>
                 <div class="field"><label>Icono</label><input type="text" data-field="icon" placeholder="plane, truck, mail"></div>
                 <div class="field"><label>Imagen actual</label><input type="text" data-field="iconImage"></div>
                 <div class="field"><label>Subir imagen</label><input type="file" data-field="iconImage_file" accept="image/*" data-preview-input></div>
-                <div class="field" style="grid-column:1/-1;"><label>Descripción</label><input type="text" data-field="text"></div>
+                <div class="field" style="grid-column:1/-1;"><label>DescripciÃ³n</label><input type="text" data-field="text"></div>
             </div>
-            <img class="thumb" data-preview-image style="display:none; margin-top:14px;" alt="Preview">
+            <div style="margin-top:12px;">
+                <button type="button" class="button button-secondary" @click="openPreviewFromCard($event.currentTarget)">Ver imagen</button>
+                <img class="thumb" data-preview-image data-no-inline-preview="1" style="display:none;" alt="Preview">
+            </div>
             <input type="hidden" data-field="id">
         </div>
     </template>
@@ -685,7 +910,7 @@
             <div class="grid grid-2" style="margin-top:12px;">
                 <div class="field"><label>Nombre interno</label><input type="text" data-field="title"></div>
                 <div class="field"><label>Tipo</label><select data-field="media_type" data-media-type><option value="image">Imagen</option><option value="video">Video</option></select></div>
-                <div class="field"><label>Duración (segundos)</label><input type="number" min="1" max="300" step="1" data-field="duration_seconds" value="5"></div>
+                <div class="field"><label>DuraciÃ³n (segundos)</label><input type="number" min="1" max="300" step="1" data-field="duration_seconds" value="5"></div>
                 <div class="field"><label>Archivo actual</label><input type="text" data-field="src"></div>
                 <div class="field"><label>Subir archivo</label><input type="file" data-field="media_file" accept="image/*,video/*"></div>
                 <div class="field" data-poster-field><label>Poster</label><input type="text" data-field="poster"></div>
@@ -705,14 +930,14 @@
                 <button type="button" class="button button-danger" data-remove-row>Eliminar</button>
             </div>
             <div class="grid grid-3" style="margin-top:12px;">
-                <div class="field"><label>Título</label><input type="text" data-field="title"></div>
+                <div class="field"><label>TÃ­tulo</label><input type="text" data-field="title"></div>
                 <div class="field"><label>Precio</label><input type="text" data-field="price"></div>
-                <div class="field"><label>Año o etiqueta</label><input type="text" data-field="year"></div>
+                <div class="field"><label>AÃ±o o etiqueta</label><input type="text" data-field="year"></div>
                 <div class="field"><label>Serie</label><input type="text" data-field="series"></div>
                 <div class="field"><label>Imagen actual</label><input type="text" data-field="image"></div>
                 <div class="field"><label>Subir imagen</label><input type="file" data-field="image_file" accept="image/*" data-preview-input></div>
             </div>
-            <div class="field" style="margin-top:12px;"><label>Descripción</label><textarea class="field-small" data-field="description"></textarea></div>
+            <div class="field" style="margin-top:12px;"><label>DescripciÃ³n</label><textarea class="field-small" data-field="description"></textarea></div>
             <img class="thumb" data-preview-image style="display:none; margin-top:14px;" alt="Preview">
             <input type="hidden" data-field="id">
         </div>
@@ -730,13 +955,13 @@
             <div class="grid grid-3" style="margin-top:12px;">
                 <div class="field"><label>Nombre oficina</label><input type="text" data-field="title"></div>
                 <div class="field"><label>Ciudad o etiqueta</label><input type="text" data-field="name"></div>
-                <div class="field"><label>Código depto</label><input type="text" data-field="dept" placeholder="BOL, BOC, BOS..."></div>
-                <div class="field"><label>Dirección</label><input type="text" data-field="address"></div>
+                <div class="field"><label>CÃ³digo depto</label><input type="text" data-field="dept" placeholder="BOL, BOC, BOS..."></div>
+                <div class="field"><label>DirecciÃ³n</label><input type="text" data-field="address"></div>
                 <div class="field"><label>Lun a Vie</label><input type="text" data-field="weekday_hours" placeholder="08:00 a 18:00"></div>
-                <div class="field"><label>Sábado</label><input type="text" data-field="saturday_hours" placeholder="09:00 a 13:00"></div>
-                <div class="field"><label>Teléfono</label><input type="text" data-field="phone"></div>
-                <div class="field"><label>Posición izquierda</label><input type="text" data-field="left" placeholder="29.6%"></div>
-                <div class="field"><label>Posición arriba</label><input type="text" data-field="top" placeholder="46%"></div>
+                <div class="field"><label>SÃ¡bado</label><input type="text" data-field="saturday_hours" placeholder="09:00 a 13:00"></div>
+                <div class="field"><label>TelÃ©fono</label><input type="text" data-field="phone"></div>
+                <div class="field"><label>PosiciÃ³n izquierda</label><input type="text" data-field="left" placeholder="29.6%"></div>
+                <div class="field"><label>PosiciÃ³n arriba</label><input type="text" data-field="top" placeholder="46%"></div>
                 <div class="field"><label>Google Maps URL</label><input type="text" data-field="maps_url" value="#"></div>
                 <div class="field" style="grid-column:1/-1;"><label>Horario general de respaldo</label><input type="text" data-field="hours" placeholder="Opcional para compatibilidad"></div>
             </div>
@@ -758,10 +983,10 @@
                 <div class="field"><label>Texto alternativo</label><input type="text" data-field="poster_alt" value="Comunicado institucional"></div>
                 <div class="field"><label>Imagen actual</label><input type="text" data-field="poster_image"></div>
                 <div class="field"><label>Subir imagen</label><input type="file" data-field="poster_file" accept="image/*" data-preview-input></div>
-                <div class="field"><label>Título visible</label><input type="text" data-field="poster_title"></div>
+                <div class="field"><label>TÃ­tulo visible</label><input type="text" data-field="poster_title"></div>
                 <div class="field"><label>Pie o detalle</label><input type="text" data-field="poster_caption"></div>
             </div>
-            <img class="thumb" data-preview-image style="display:none; margin-top:14px; max-width: 320px; aspect-ratio: auto;" alt="Preview">
+            <img class="thumb" data-preview-image data-no-inline-preview="1" style="display:none; margin-top:14px; max-width: 320px; aspect-ratio: auto;" alt="Preview">
             <input type="hidden" data-field="id">
         </div>
     </template>
@@ -777,11 +1002,14 @@
             </div>
             <div class="grid grid-3" style="margin-top:12px;">
                 <div class="field"><label>Nombre interno</label><input type="text" data-field="title"></div>
-                <div class="field"><label>Duración (segundos)</label><input type="number" min="1" max="300" step="1" data-field="duration_seconds" value="5"></div>
+                <div class="field"><label>DuraciÃ³n (segundos)</label><input type="number" min="1" max="300" step="1" data-field="duration_seconds" value="5"></div>
                 <div class="field"><label>Imagen actual</label><input type="text" data-field="image"></div>
                 <div class="field"><label>Subir imagen</label><input type="file" data-field="image_file" accept="image/*" data-preview-input></div>
             </div>
-            <img class="thumb" data-preview-image style="display:none; margin-top:14px; max-width: 320px; aspect-ratio: 16 / 9;" alt="Preview">
+            <div style="margin-top:12px;">
+                <button type="button" class="button button-secondary" @click="openPreviewFromCard($event.currentTarget)">Ver imagen</button>
+                <img class="thumb" data-preview-image data-no-inline-preview="1" style="display:none;" alt="Preview">
+            </div>
             <input type="hidden" data-field="id">
         </div>
     </template>
@@ -838,6 +1066,7 @@
                     const card = event.target.closest('[data-row]');
                     const preview = card ? card.querySelector('[data-preview-image]') : null;
                     if (!file || !preview) return;
+                    if (preview.dataset.noInlinePreview === '1') return;
                     const reader = new FileReader();
                     reader.onload = function (e) {
                         preview.src = e.target.result;
@@ -903,8 +1132,13 @@
         bindPreviewInput(document);
         syncHeroMediaFields(document);
         document.querySelectorAll('[data-preview-image][src]').forEach(function (img) {
+            if (img.dataset.noInlinePreview === '1') return;
             if (img.getAttribute('src')) img.style.display = 'block';
+            img.addEventListener('error', function () {
+                img.style.display = 'none';
+            });
         });
     </script>
 </body>
 </html>
+

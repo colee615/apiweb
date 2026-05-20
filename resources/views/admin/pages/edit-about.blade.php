@@ -11,39 +11,6 @@
 
 @section('content')
 <div class="admin-shell stack" x-data="{ tab: @js(request('tab', 'design_text')), go(section) { this.tab = section; } }">
-    <div class="admin-topbar">
-        <div class="admin-brand">
-            <h2>Editor Studio de {{ $page->name }}</h2>
-            <p>Administra solo el contenido propio de esta vista. El header y el footer se heredan desde Home.</p>
-        </div>
-        <div class="actions">
-            <a href="{{ route('admin.dashboard') }}" class="button button-secondary">Volver al panel</a>
-            <form method="POST" action="{{ route('admin.logout') }}">@csrf<button type="submit" class="button button-ghost">Cerrar sesion</button></form>
-        </div>
-    </div>
-
-    <div class="panel hero-panel">
-        <div class="split-header">
-            <div style="max-width:760px;">
-                <div class="section-eyebrow">Who We Are Studio</div>
-                <h1 style="margin:14px 0 10px; font-size:40px; line-height:1;">Control visual de "Quienes somos"</h1>
-                <p class="section-copy">Edita carrusel, mision, vision, historia, principios, organigrama y objetivos. La navegacion global se administra una sola vez desde Home.</p>
-            </div>
-            <div class="section-metrics">
-                <span class="pill {{ $page->is_active ? 'pill-ok' : 'pill-off' }}">{{ $page->is_active ? 'Publicada' : 'Oculta' }}</span>
-                <span class="pill pill-off">{{ count($heroGallery['items']) }} slides</span>
-                <span class="pill pill-off">{{ count($principles['items']) }} principios</span>
-                <span class="pill pill-off">{{ count($objectives['items']) }} objetivos</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="card-grid">
-        <div class="spot-card"><span>Layout global</span><strong>1</strong><p>Header y footer compartidos desde la pagina Home.</p></div>
-        <div class="spot-card"><span>Principios</span><strong>{{ count($principles['items']) }}</strong><p>Bloques institucionales listos para edicion visual.</p></div>
-        <div class="spot-card"><span>Objetivos</span><strong>{{ count($objectives['items']) }}</strong><p>Metas estrategicas activas para esta vista.</p></div>
-    </div>
-
     @if (session('status'))<div class="notice notice-success">{{ session('status') }}</div>@endif
     @if ($errors->any())<div class="notice notice-error">@foreach ($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>@endif
 

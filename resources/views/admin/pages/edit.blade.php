@@ -227,6 +227,17 @@
         x-data="{
         tab: @js(request('tab', 'design_text')),
         errorModalOpen: @js($errors->any()),
+        previewModalOpen: false,
+        previewModalSrc: '',
+        openPreviewFromCard(button) {
+            const card = button.closest('[data-row]');
+            if (!card) return;
+            const preview = card.querySelector('[data-preview-image]');
+            if (preview && preview.getAttribute('src')) {
+                this.previewModalSrc = preview.getAttribute('src');
+                this.previewModalOpen = true;
+            }
+        },
         go(section) {
             this.tab = section;
             if (window.history && window.history.replaceState) {
@@ -257,51 +268,6 @@
         }
     }"
 >
-    <div class="admin-topbar">
-        <div class="admin-brand">
-            <h2>Editor Studio de {{ $page->name }}</h2>
-            <p>Una experiencia visual más clara para diseño, contenido, medios e historial sin tocar código.</p>
-        </div>
-        <div class="actions">
-            <a href="{{ route('admin.dashboard') }}" class="button button-secondary">Volver al panel</a>
-            <form method="POST" action="{{ route('admin.logout') }}">@csrf<button type="submit" class="button button-ghost">Cerrar sesión</button></form>
-        </div>
-    </div>
-
-    <div class="panel hero-panel">
-        <div class="split-header">
-            <div style="max-width: 760px;">
-                <div class="section-eyebrow">Creative workspace</div>
-                <h1 style="margin:14px 0 10px; font-size:40px; line-height:1;">Control visual total de la página</h1>
-                <p class="section-copy">Edita encabezado, portada, servicios, productos, pie de página y estilos desde una mesa de trabajo más ordenada, elegante y preparada para gestión editorial real.</p>
-            </div>
-            <div class="section-metrics">
-                <span class="pill {{ $page->is_active ? 'pill-ok' : 'pill-off' }}">{{ $page->is_active ? 'Publicada' : 'Oculta' }}</span>
-                <span class="pill pill-off">{{ count($header['links']) }} enlaces</span>
-                <span class="pill pill-off">{{ count($services['items']) }} servicios</span>
-                <span class="pill pill-off">{{ count($market['items']) }} productos</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="card-grid">
-        <div class="spot-card">
-            <span>Enlaces</span>
-            <strong>{{ count($header['links']) }}</strong>
-            <p>Navegación principal configurada para esta página.</p>
-        </div>
-        <div class="spot-card">
-            <span>Servicios</span>
-            <strong>{{ count($services['items']) }}</strong>
-            <p>Bloques de servicios listos para edición visual.</p>
-        </div>
-        <div class="spot-card">
-            <span>Historial</span>
-            <strong>{{ $historyData['total_changes'] }}</strong>
-            <p>Cambios acumulados con trazabilidad y restauración.</p>
-        </div>
-    </div>
-
     @if (session('status'))<div class="notice notice-success">{{ session('status') }}</div>@endif
     @if ($errors->any())
         <div
@@ -332,6 +298,20 @@
             </div>
         </div>
     @endif
+    <div
+        class="admin-modal-backdrop"
+        x-cloak
+        x-show="previewModalOpen"
+        x-transition.opacity
+        @keydown.escape.window="previewModalOpen = false"
+        @click.self="previewModalOpen = false"
+    >
+        <div class="admin-modal-card" style="max-width:900px;">
+            <button type="button" class="admin-modal-close" @click="previewModalOpen = false" aria-label="Cerrar">x</button>
+            <img :src="previewModalSrc" alt="Preview" style="display:block; width:100%; height:auto; border-radius:14px; border:1px solid #dbe5f3; background:#fff;">
+        </div>
+    </div>
+
 
     <form method="POST" action="{{ route('admin.pages.update', $page) }}" class="stack" enctype="multipart/form-data">
         @csrf
@@ -424,7 +404,7 @@
 
             <div class="editor-main">
                 <section class="section-card" x-show="tab === 'announcement'">
-                    <div class="section-header">
+                    <div class="section-header announcement-header">
                         <div>
                             <div class="section-eyebrow">Startup announcement</div>
                             <h3 class="section-title">Popup de inicio</h3>
@@ -436,7 +416,7 @@
                         </div>
                     </div>
 
-                    <div class="design-grid">
+                    <div class="design-grid announcement-layout">
                         <div class="subpanel span-4">
                             <h4>Visibilidad</h4>
                             <p>Activa o desactiva el popup sin tocar código.</p>
@@ -475,7 +455,7 @@
                                                 </div>
                                                 <button type="button" class="button button-danger" data-remove-row>Eliminar</button>
                                             </div>
-                                            <div class="grid grid-2" style="margin-top:12px;">
+                                            <div class="announcement-form-grid" style="margin-top:12px;">
                                                 <div class="field"><label>Nombre interno</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
                                                 <div class="field"><label>Texto alternativo</label><input type="text" data-field="poster_alt" value="{{ $item['poster_alt'] ?? 'Comunicado institucional' }}"></div>
                                                 <div class="field"><label>Imagen actual</label><input type="text" data-field="poster_image" value="{{ $item['poster_image'] ?? '' }}"></div>
@@ -483,11 +463,14 @@
                                                 <div class="field"><label>Título visible</label><input type="text" data-field="poster_title" value="{{ $item['poster_title'] ?? '' }}"></div>
                                                 <div class="field"><label>Pie o detalle</label><input type="text" data-field="poster_caption" value="{{ $item['poster_caption'] ?? '' }}"></div>
                                             </div>
-                                            @if (!empty($item['poster_image']))
-                                                <img class="thumb" data-preview-image src="{{ $item['poster_image'] }}" style="display:block; margin-top:14px; max-width: 320px; aspect-ratio: auto;" alt="Preview">
-                                            @else
-                                                <img class="thumb" data-preview-image style="display:none; margin-top:14px; max-width: 320px; aspect-ratio: auto;" alt="Preview">
-                                            @endif
+                                            <div class="announcement-preview-wrap">
+                                                <button type="button" class="button button-secondary" @click="openPreviewFromCard($event.currentTarget)">Ver preview</button>
+                                                @if (!empty($item['poster_image']))
+                                                    <img class="thumb" data-preview-image data-no-inline-preview="1" src="{{ $item['poster_image'] }}" style="display:none;" alt="Preview">
+                                                @else
+                                                    <img class="thumb" data-preview-image data-no-inline-preview="1" style="display:none;" alt="Preview">
+                                                @endif
+                                            </div>
                                             <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                         </div>
                                     @empty
@@ -496,32 +479,6 @@
                                 </div>
                             </div>
 
-                            <div class="image-frame" style="margin-top:16px;">
-                                <strong>Compatibilidad con la versión anterior</strong>
-                                <p style="margin:0; color:#667085;">Los campos antiguos se conservan para no perder contenido guardado previamente. Si ya estás usando varios popups, puedes dejar esta base vacía.</p>
-                                <div class="grid grid-2">
-                                    <div class="field">
-                                        <label>URL imagen base</label>
-                                        <input type="text" name="announcement_modal[poster_image]" value="{{ old('announcement_modal.poster_image', $announcement['settings']['poster_image'] ?? '') }}">
-                                    </div>
-                                    <div class="field">
-                                        <label>Subir imagen base</label>
-                                        <input type="file" name="announcement_modal[poster_file]" accept="image/*">
-                                    </div>
-                                    <div class="field">
-                                        <label>Texto alternativo base</label>
-                                        <input type="text" name="announcement_modal[poster_alt]" value="{{ old('announcement_modal.poster_alt', $announcement['settings']['poster_alt'] ?? 'Comunicado institucional') }}">
-                                    </div>
-                                    <div class="field">
-                                        <label>Título base</label>
-                                        <input type="text" name="announcement_modal[poster_title]" value="{{ old('announcement_modal.poster_title', $announcement['settings']['poster_title'] ?? '') }}">
-                                    </div>
-                                </div>
-                                <div class="field">
-                                    <label>Pie base</label>
-                                    <input type="text" name="announcement_modal[poster_caption]" value="{{ old('announcement_modal.poster_caption', $announcement['settings']['poster_caption'] ?? '') }}">
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </section>
@@ -537,21 +494,6 @@
                             <span class="pill pill-off">Logo</span>
                             <span class="pill pill-off">Colores</span>
                             <span class="pill pill-off">SEO</span>
-                        </div>
-                    </div>
-
-                    <div class="spec-grid" style="margin-bottom:16px;">
-                        <div class="spec-card">
-                            <strong>Título interno</strong>
-                            <span>Recomendado: hasta 60 caracteres. Debe ser corto, reconocible y operativo para el equipo.</span>
-                        </div>
-                        <div class="spec-card">
-                            <strong>SEO</strong>
-                            <span>Título sugerido de hasta 60 caracteres. Descripción sugerida entre 120 y 160 caracteres para buscadores.</span>
-                        </div>
-                        <div class="spec-card">
-                            <strong>Logo e identidad</strong>
-                            <span>Usa logo horizontal legible y colores institucionales en formato hexadecimal, por ejemplo <code>#20539A</code>.</span>
                         </div>
                     </div>
 
@@ -826,7 +768,10 @@
                                             <div class="field"><label>Subir imagen</label><input type="file" data-field="iconImage_file" accept="image/*" data-preview-input></div>
                                             <div class="field" style="grid-column:1/-1;"><label>Descripción</label><input type="text" data-field="text" value="{{ $item['text'] ?? '' }}"></div>
                                         </div>
-                                        <img src="{{ $item['iconImage'] ?? '' }}" alt="Imagen servicio" class="thumb" data-preview-image style="{{ empty($item['iconImage']) ? 'display:none; margin-top:14px;' : 'margin-top:14px;' }}">
+                                        <div style="margin-top:12px;">
+                                            <button type="button" class="button button-secondary" @click="openPreviewFromCard($event.currentTarget)">Ver imagen</button>
+                                            <img src="{{ $item['iconImage'] ?? '' }}" alt="Imagen servicio" class="thumb" data-preview-image data-no-inline-preview="1" style="display:none;">
+                                        </div>
                                         <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                     </div>
                                 @empty
@@ -955,15 +900,6 @@
                             </div>
                         </div>
 
-                        <div class="image-frame" style="margin-top:16px;">
-                            <strong>Compatibilidad con la imagen antigua</strong>
-                            <p style="margin:0; color:#667085;">Si ya tenías una imagen base guardada, este campo se conserva como respaldo. En el frontend se usará solo si no hay slides nuevos.</p>
-                            @if (!empty($appBanner['settings']['background_image']))
-                                <img src="{{ $appBanner['settings']['background_image'] }}" alt="Banner actual" class="thumb" style="max-width: 320px;">
-                            @endif
-                            <div class="field"><label>URL imagen base</label><input type="text" name="app_banner[background_image]" value="{{ old('app_banner.background_image', $appBanner['settings']['background_image'] ?? '') }}"></div>
-                            <div class="field"><label>Subir imagen base</label><input type="file" name="app_banner[background_file]" accept="image/*"></div>
-                        </div>
                     </div>
                 </section>
 
@@ -1015,7 +951,10 @@
                                             <div class="field"><label>Subir imagen</label><input type="file" data-field="image_file" accept="image/*" data-preview-input></div>
                                         </div>
                                         <div class="field" style="margin-top:12px;"><label>Descripción</label><textarea class="field-small" data-field="description">{{ $item['description'] ?? '' }}</textarea></div>
-                                        <img src="{{ $item['image'] ?? '' }}" alt="Imagen producto" class="thumb" data-preview-image style="{{ empty($item['image']) ? 'display:none; margin-top:14px;' : 'margin-top:14px;' }}">
+                                        <div style="margin-top:12px;">
+                                            <button type="button" class="button button-secondary" @click="openPreviewFromCard($event.currentTarget)">Ver imagen</button>
+                                            <img src="{{ $item['image'] ?? '' }}" alt="Imagen producto" class="thumb" data-preview-image data-no-inline-preview="1" style="display:none;">
+                                        </div>
                                         <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                     </div>
                                 @empty
@@ -1421,20 +1360,21 @@
                     </section>
                 @endforeach
 
-                <div class="save-dock">
-                    <div style="flex:1;">
-                        <strong style="display:block; margin-bottom:4px;">Todo listo para guardar</strong>
-                        <p>El frontend publico no cambia de estructura, solo actualiza lo que el administrador controla aqui.</p>
-                        <div class="field" style="margin-top:12px;">
-                            <label>Resumen del cambio</label>
-                            <input type="text" name="change_summary" value="{{ old('change_summary') }}" placeholder="Ej: Actualice hero, servicios y footer">
-                        </div>
-                    </div>
-                    <button type="submit" class="button button-primary">Guardar cambios del diseño</button>
-                </div>
             </div>
 
+        </div>
+        <div class="save-dock">
+            <div style="flex:1;">
+                <strong style="display:block; margin-bottom:4px;">Todo listo para guardar</strong>
+                <p>El frontend publico no cambia de estructura, solo actualiza lo que el administrador controla aqui.</p>
+                <div class="field" style="margin-top:12px;">
+                    <label>Resumen del cambio</label>
+                    <input type="text" name="change_summary" value="{{ old('change_summary') }}" placeholder="Ej: Actualice hero, servicios y footer">
+                </div>
+            </div>
+            <button type="submit" class="button button-primary">Guardar cambios del diseño</button>
         </div>
     </form>
 </div>
 @endsection
+
