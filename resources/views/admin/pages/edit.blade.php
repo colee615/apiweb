@@ -1381,12 +1381,24 @@
                     <input type="text" name="change_summary" form="page-edit-form" value="{{ old('change_summary') }}" placeholder="Ej: Actualice hero, servicios y footer">
                 </div>
             </div>
-            <button type="submit" form="page-edit-form" class="button button-primary">Guardar cambios del diseño</button>
+            <button type="submit" id="save-design-button" form="page-edit-form" class="button button-primary">Guardar cambios del diseño</button>
         </div>
     </form>
 </div>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const saveButton = document.getElementById('save-design-button');
+        const form = document.getElementById('page-edit-form');
+
+        if (!saveButton || !form) return;
+
+        saveButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            form.submit();
+        });
+    });
+
     function submitRestore(url, summary) {
         const token = document.querySelector('#page-edit-form input[name="_token"]')?.value;
         if (!url || !token) return;
