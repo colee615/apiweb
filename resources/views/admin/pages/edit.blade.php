@@ -313,7 +313,7 @@
     </div>
 
 
-    <form method="POST" action="{{ route('admin.pages.update', $page) }}" class="stack" enctype="multipart/form-data">
+    <form id="page-edit-form" method="POST" action="{{ route('admin.pages.update', $page) }}" class="stack" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -370,11 +370,14 @@
                                 @if ($isCurrentVersion)
                                     <div class="button button-secondary" style="width:100%; margin-top:12px; opacity:.78; cursor:default;">Versión actual publicada</div>
                                 @else
-                                    <form method="POST" action="{{ route('admin.pages.restore', [$page, $version]) }}" style="margin-top:12px;">
-                                        @csrf
-                                        <input type="hidden" name="change_summary" value="Restauración desde la versión {{ $version->version_number }}">
-                                        <button type="submit" class="button button-secondary" style="width:100%;">Volver a esta versión</button>
-                                    </form>
+                                    <button
+                                        type="button"
+                                        class="button button-secondary"
+                                        style="width:100%; margin-top:12px;"
+                                        onclick="submitRestore('{{ route('admin.pages.restore', [$page, $version]) }}', 'Restauración desde la versión {{ $version->version_number }}')"
+                                    >
+                                        Volver a esta versión
+                                    </button>
                                 @endif
                             </div>
                         @empty
@@ -1214,11 +1217,14 @@
                                         @if ($isCurrentVersion)
                                             <div class="button button-secondary" style="width:100%; margin-top:12px; opacity:.78; cursor:default;">Versión actual publicada</div>
                                         @else
-                                            <form method="POST" action="{{ route('admin.pages.restore', [$page, $version]) }}" style="margin-top:12px;">
-                                                @csrf
-                                                <input type="hidden" name="change_summary" value="Restauración desde la versión {{ $version->version_number }}">
-                                                <button type="submit" class="button button-secondary" style="width:100%;">Volver a esta versión</button>
-                                            </form>
+                                            <button
+                                                type="button"
+                                                class="button button-secondary"
+                                                style="width:100%; margin-top:12px;"
+                                                onclick="submitRestore('{{ route('admin.pages.restore', [$page, $version]) }}', 'Restauración desde la versión {{ $version->version_number }}')"
+                                            >
+                                                Volver a esta versión
+                                            </button>
                                         @endif
                                     </div>
                                 @empty
@@ -1291,11 +1297,14 @@
                                             @if ($isCurrentVersion)
                                                 <div class="button button-secondary" style="width:100%; margin-top:12px; opacity:.78; cursor:default;">Versión actual publicada</div>
                                             @else
-                                                <form method="POST" action="{{ route('admin.pages.restore', [$page, $version]) }}" style="margin-top:12px;">
-                                                    @csrf
-                                                    <input type="hidden" name="change_summary" value="Restauración desde la versión {{ $version->version_number }} para {{ $historySection['label'] }}">
-                                                    <button type="submit" class="button button-secondary" style="width:100%;">Volver a esta versión</button>
-                                                </form>
+                                                <button
+                                                    type="button"
+                                                    class="button button-secondary"
+                                                    style="width:100%; margin-top:12px;"
+                                                    onclick="submitRestore('{{ route('admin.pages.restore', [$page, $version]) }}', 'Restauración desde la versión {{ $version->version_number }} para {{ $historySection['label'] }}')"
+                                                >
+                                                    Volver a esta versión
+                                                </button>
                                             @endif
                                         </div>
                                     @empty
@@ -1369,12 +1378,39 @@
                 <p>El frontend publico no cambia de estructura, solo actualiza lo que el administrador controla aqui.</p>
                 <div class="field" style="margin-top:12px;">
                     <label>Resumen del cambio</label>
-                    <input type="text" name="change_summary" value="{{ old('change_summary') }}" placeholder="Ej: Actualice hero, servicios y footer">
+                    <input type="text" name="change_summary" form="page-edit-form" value="{{ old('change_summary') }}" placeholder="Ej: Actualice hero, servicios y footer">
                 </div>
             </div>
-            <button type="submit" class="button button-primary">Guardar cambios del diseño</button>
+            <button type="submit" form="page-edit-form" class="button button-primary">Guardar cambios del diseño</button>
         </div>
     </form>
 </div>
+
+<script>
+    function submitRestore(url, summary) {
+        const token = document.querySelector('#page-edit-form input[name="_token"]')?.value;
+        if (!url || !token) return;
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = url;
+        form.style.display = 'none';
+
+        const csrf = document.createElement('input');
+        csrf.type = 'hidden';
+        csrf.name = '_token';
+        csrf.value = token;
+        form.appendChild(csrf);
+
+        const changeSummary = document.createElement('input');
+        changeSummary.type = 'hidden';
+        changeSummary.name = 'change_summary';
+        changeSummary.value = summary || '';
+        form.appendChild(changeSummary);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+</script>
 @endsection
 
