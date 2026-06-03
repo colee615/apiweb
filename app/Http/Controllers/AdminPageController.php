@@ -816,6 +816,7 @@ class AdminPageController extends Controller
                 return filled($item['title'] ?? $item['label'] ?? $item['name'] ?? null)
                     || filled($item['text'] ?? null)
                     || filled($item['image'] ?? null)
+                    || filled($item['poster_image'] ?? null)
                     || filled($item['media_url'] ?? null)
                     || filled($item['src'] ?? null)
                     || (($item['media_file'] ?? null) instanceof \Illuminate\Http\UploadedFile)
