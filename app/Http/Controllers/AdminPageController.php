@@ -58,6 +58,15 @@ class AdminPageController extends Controller
             ]);
         }
 
+        if ($this->isDeliveryExpressPage($page)) {
+            return view('admin.pages.edit-delivery', [
+                'page' => $page,
+                'editorData' => $this->buildDeliveryEditorData($page),
+                'versions' => $page->versions()->with(['actor', 'changeLogs'])->take(12)->get(),
+                'historyData' => $this->buildHistoryData($page),
+            ]);
+        }
+
         return view('admin.pages.edit', [
             'page' => $page,
             'editorData' => $this->buildEditorData($page),
@@ -89,6 +98,12 @@ class AdminPageController extends Controller
             'app_banner.items.*.image_file.max' => 'Cada imagen del banner debe pesar como maximo 15 MB.',
             'services.items.*.iconImage_file.max' => 'Cada icono del servicio debe pesar como maximo 15 MB.',
             'market.items.*.image_file.max' => 'Cada imagen del producto debe pesar como maximo 15 MB.',
+            'ems_intro.image_file.max' => 'La imagen principal de EMS debe pesar como maximo 15 MB.',
+            'delivery_hero.visual_image_file.max' => 'La imagen del hero de Delivery Express debe pesar como maximo 15 MB.',
+            'delivery_intro.visual_image_file.max' => 'La imagen del bloque introductorio de Delivery Express debe pesar como maximo 15 MB.',
+            'delivery_cta.app_store_badge_file.max' => 'La imagen del boton App Store debe pesar como maximo 15 MB.',
+            'delivery_cta.play_store_badge_file.max' => 'La imagen del boton Google Play debe pesar como maximo 15 MB.',
+            'delivery_cta.register_qr_file.max' => 'La imagen QR de registro debe pesar como maximo 15 MB.',
             'hero.media.*.media_file.max' => 'Cada imagen o video del carrusel principal debe pesar como maximo 15 MB.',
             'hero.media.*.poster_file.max' => 'Cada portada del carrusel principal debe pesar como maximo 15 MB.',
             'hero_gallery.items.*.media_file.max' => 'Cada imagen o video del carrusel institucional debe pesar como maximo 15 MB.',
@@ -119,6 +134,12 @@ class AdminPageController extends Controller
             'app_banner.items.*.duration_seconds' => 'duracion de un slide del banner',
             'services.items.*.iconImage_file' => 'icono del servicio',
             'market.items.*.image_file' => 'imagen del producto',
+            'ems_intro.image_file' => 'imagen principal de EMS',
+            'delivery_hero.visual_image_file' => 'imagen del hero de Delivery Express',
+            'delivery_intro.visual_image_file' => 'imagen del bloque introductorio de Delivery Express',
+            'delivery_cta.app_store_badge_file' => 'imagen del boton App Store',
+            'delivery_cta.play_store_badge_file' => 'imagen del boton Google Play',
+            'delivery_cta.register_qr_file' => 'imagen QR de registro empresarial',
             'hero.media.*.media_file' => 'archivo del carrusel principal',
             'hero.media.*.poster_file' => 'portada del video principal',
             'hero.media.*.duration_seconds' => 'duracion de un elemento del carrusel principal',
@@ -157,6 +178,12 @@ class AdminPageController extends Controller
             'app_banner.items.*.duration_seconds' => ['nullable', 'integer', 'min:1', 'max:300'],
             'services.items.*.iconImage_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'market.items.*.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'],
+            'ems_intro.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'delivery_hero.visual_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'delivery_intro.visual_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'delivery_cta.app_store_badge_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'delivery_cta.play_store_badge_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'delivery_cta.register_qr_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'footer.seal_logo_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'hero.media.*.media_file' => ['nullable', 'file', 'mimetypes:image/jpeg,image/png,image/webp,image/svg+xml,video/mp4,video/webm', 'max:15360'],
             'hero.media.*.poster_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'],
@@ -204,7 +231,9 @@ class AdminPageController extends Controller
                 ? $this->buildAboutSectionsPayload($request, $page)
                 : ($this->isNewsPage($page)
                     ? $this->buildNewsSectionsPayload($request, $page)
-                    : $this->buildSectionsPayload($request, $page)),
+                    : ($this->isDeliveryExpressPage($page)
+                        ? $this->buildDeliverySectionsPayload($request, $page)
+                        : $this->buildSectionsPayload($request, $page))),
         ];
 
         $this->editor->updatePage(
@@ -296,6 +325,49 @@ class AdminPageController extends Controller
                     'kicker' => '',
                 ]),
                 'items' => $this->sectionItems($page, 'services'),
+            ],
+            'ems_intro' => [
+                'settings' => $this->sectionSettings($page, 'ems_intro', [
+                    'eyebrow' => 'Express Mail Service',
+                    'hero_title' => 'Velocidad que conecta',
+                    'watermark_text' => 'EMS',
+                    'title' => 'Conectamos tus sueños, aceleramos tu mundo.',
+                    'highlight_text' => 'Descubre el nuevo EMS (Express Mail Service): la evolución de la mensajería urgente en Bolivia.',
+                    'paragraph_one' => '',
+                    'paragraph_two' => '',
+                    'paragraph_three' => '',
+                    'primary_button_label' => 'Solicitar servicio EMS',
+                    'primary_button_url' => '#',
+                    'visual_icon' => 'plane',
+                    'image' => '',
+                ]),
+            ],
+            'ems_benefits' => [
+                'settings' => $this->sectionSettings($page, 'ems_benefits', [
+                    'title' => 'No solo enviamos paquetes, entregamos tranquilidad.',
+                ]),
+                'items' => $this->sectionItems($page, 'ems_benefits'),
+            ],
+            'ems_national' => [
+                'settings' => $this->sectionSettings($page, 'ems_national', [
+                    'title' => 'Bolivia, más cerca que nunca.',
+                    'subtitle' => 'Conectando el corazón de Sudamérica con eficiencia y compromiso',
+                    'stat_label' => 'Tiempo de entrega nacional:',
+                    'stat_value' => '24 a 48 horas',
+                    'stat_caption' => 'En principales ciudades',
+                ]),
+                'items' => $this->sectionItems($page, 'ems_national'),
+            ],
+            'ems_international' => [
+                'settings' => $this->sectionSettings($page, 'ems_international', [
+                    'title' => 'El mundo en la palma de tu mano.',
+                    'subtitle' => 'Gracias al convenio con la Unión Postal Universal (UPU), tu envío puede llegar a cualquier rincón del planeta con la calidad y seguridad que nos caracteriza.',
+                    'highlight_text' => 'UPU',
+                    'cta_text' => '',
+                    'secondary_button_label' => 'Cotizar envío internacional',
+                    'secondary_button_url' => '#',
+                ]),
+                'items' => $this->sectionItems($page, 'ems_international'),
             ],
             'status' => [
                 'settings' => $this->sectionSettings($page, 'status', [
@@ -444,6 +516,111 @@ class AdminPageController extends Controller
         ];
     }
 
+    protected function buildDeliveryEditorData(SitePage $page): array
+    {
+        $theme = $page->theme ?? [];
+
+        return [
+            'theme' => [
+                'logo_url' => $this->normalizeAssetUrl($theme['logo_url'] ?? ''),
+                'primary_color' => $theme['primary_color'] ?? '#20539a',
+                'secondary_color' => $theme['secondary_color'] ?? '#102542',
+                'accent_color' => $theme['accent_color'] ?? '#f3b53f',
+            ],
+            'delivery_hero' => [
+                'settings' => $this->sectionSettings($page, 'delivery_hero', [
+                    'title_primary' => '',
+                    'title_secondary' => '',
+                    'eyebrow' => '',
+                    'subtitle' => '',
+                    'primary_button_label' => '',
+                    'primary_button_url' => '',
+                    'secondary_button_label' => '',
+                    'secondary_button_url' => '',
+                    'visual_icon' => '',
+                    'floating_icon' => '',
+                    'visual_image' => '',
+                ]),
+            ],
+            'delivery_intro' => [
+                'settings' => $this->sectionSettings($page, 'delivery_intro', [
+                    'title' => '',
+                    'highlight_text' => '',
+                    'paragraph_one' => '',
+                    'paragraph_two' => '',
+                    'closing_text' => '',
+                    'chip_one' => '',
+                    'chip_two' => '',
+                    'chip_three' => '',
+                    'visual_icon' => '',
+                    'visual_badge' => '',
+                    'visual_image' => '',
+                ]),
+            ],
+            'delivery_advantages' => [
+                'settings' => $this->sectionSettings($page, 'delivery_advantages', [
+                    'title' => '',
+                    'subtitle' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'delivery_advantages'),
+            ],
+            'delivery_process' => [
+                'settings' => $this->sectionSettings($page, 'delivery_process', [
+                    'title' => '',
+                    'subtitle' => '',
+                    'feature_title' => '',
+                    'feature_text' => '',
+                    'bullet_one' => '',
+                    'bullet_two' => '',
+                    'bullet_three' => '',
+                    'tracker_title' => '',
+                    'tracker_status' => '',
+                    'tracker_stage' => '',
+                    'timeline_one_title' => '',
+                    'timeline_one_time' => '',
+                    'timeline_two_title' => '',
+                    'timeline_two_time' => '',
+                    'timeline_three_title' => '',
+                    'timeline_three_time' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'delivery_process'),
+            ],
+            'delivery_info' => [
+                'settings' => $this->sectionSettings($page, 'delivery_info', [
+                    'title' => '',
+                    'subtitle' => '',
+                    'footnote' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'delivery_info'),
+            ],
+            'delivery_cta' => [
+                'settings' => $this->sectionSettings($page, 'delivery_cta', [
+                    'title' => '',
+                    'subtitle' => '',
+                    'trust_text' => '',
+                    'app_title' => '',
+                    'app_note' => '',
+                    'app_store_label' => '',
+                    'app_store_url' => '',
+                    'app_store_badge' => '',
+                    'play_store_label' => '',
+                    'play_store_url' => '',
+                    'play_store_badge' => '',
+                    'register_title' => '',
+                    'register_text' => '',
+                    'register_qr_image' => '',
+                    'contact_title' => '',
+                    'contact_whatsapp_label' => '',
+                    'contact_whatsapp_url' => '',
+                    'contact_web_label' => '',
+                    'contact_web_url' => '',
+                    'contact_phone_label' => '',
+                    'contact_phone_url' => '',
+                ]),
+            ],
+        ];
+    }
+
     protected function buildSectionsPayload(Request $request, SitePage $page): array
     {
         $form = $request->all();
@@ -514,6 +691,63 @@ class AdminPageController extends Controller
                 ];
             })),
 
+            $this->makeSectionPayload($page, 'ems_intro', 'EMS Intro', 'ems_intro', 5, [
+                'eyebrow' => $request->input('ems_intro.eyebrow'),
+                'hero_title' => $request->input('ems_intro.hero_title'),
+                'watermark_text' => $request->input('ems_intro.watermark_text'),
+                'title' => $request->input('ems_intro.title'),
+                'highlight_text' => $request->input('ems_intro.highlight_text'),
+                'paragraph_one' => $request->input('ems_intro.paragraph_one'),
+                'paragraph_two' => $request->input('ems_intro.paragraph_two'),
+                'paragraph_three' => $request->input('ems_intro.paragraph_three'),
+                'primary_button_label' => $request->input('ems_intro.primary_button_label'),
+                'primary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('ems_intro.primary_button_url')) ?? '',
+                'visual_icon' => $request->input('ems_intro.visual_icon'),
+                'image' => $this->storeUploadedImage($request, 'ems_intro.image_file', $request->input('ems_intro.image'), 'cms/ems'),
+            ]),
+
+            $this->makeSectionPayload($page, 'ems_benefits', 'EMS Beneficios', 'ems_card_grid', 6, [
+                'title' => $request->input('ems_benefits.title'),
+            ], $this->mapRepeaterItems(data_get($form, 'ems_benefits.items', []), 'ems_benefit', function ($item) {
+                return [
+                    'icon' => $item['icon'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'text' => $item['text'] ?? '',
+                    'badge' => $item['badge'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'ems_national', 'EMS Nacional', 'ems_card_grid', 7, [
+                'title' => $request->input('ems_national.title'),
+                'subtitle' => $request->input('ems_national.subtitle'),
+                'stat_label' => $request->input('ems_national.stat_label'),
+                'stat_value' => $request->input('ems_national.stat_value'),
+                'stat_caption' => $request->input('ems_national.stat_caption'),
+            ], $this->mapRepeaterItems(data_get($form, 'ems_national.items', []), 'ems_national_card', function ($item) {
+                return [
+                    'icon' => $item['icon'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'text' => $item['text'] ?? '',
+                    'badge' => $item['badge'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'ems_international', 'EMS Internacional', 'ems_card_grid', 8, [
+                'title' => $request->input('ems_international.title'),
+                'subtitle' => $request->input('ems_international.subtitle'),
+                'highlight_text' => $request->input('ems_international.highlight_text'),
+                'cta_text' => $request->input('ems_international.cta_text'),
+                'secondary_button_label' => $request->input('ems_international.secondary_button_label'),
+                'secondary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('ems_international.secondary_button_url')) ?? '',
+            ], $this->mapRepeaterItems(data_get($form, 'ems_international.items', []), 'ems_international_card', function ($item) {
+                return [
+                    'icon' => $item['icon'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'text' => $item['text'] ?? '',
+                    'badge' => $item['badge'] ?? '',
+                ];
+            })),
+
             $this->makeSectionPayload($page, 'status', 'Estado de envio', 'tracking_form', 4, [
                 'title' => $request->input('status.title', $statusSettings['title'] ?? ''),
                 'subtitle' => $request->input('status.subtitle', $statusSettings['subtitle'] ?? ''),
@@ -521,7 +755,7 @@ class AdminPageController extends Controller
                 'button_label' => $request->input('status.button_label', $statusSettings['button_label'] ?? ''),
             ]),
 
-            $this->makeSectionPayload($page, 'tools', 'Herramientas', 'tools', 5, [
+            $this->makeSectionPayload($page, 'tools', 'Herramientas', 'tools', 9, [
                 'map_title' => $request->input('tools.map_title'),
                 'map_text' => $request->input('tools.map_text'),
                 'map_button_label' => $request->input('tools.map_button_label'),
@@ -550,7 +784,7 @@ class AdminPageController extends Controller
                 ];
             })),
 
-            $this->makeSectionPayload($page, 'app_banner', 'Banner App', 'app_banner', 6, [
+            $this->makeSectionPayload($page, 'app_banner', 'Banner App', 'app_banner', 10, [
                 'title' => $request->input('app_banner.title'),
                 'text' => $request->input('app_banner.text'),
                 'app_store_label' => $request->input('app_banner.app_store_label'),
@@ -566,7 +800,7 @@ class AdminPageController extends Controller
                 ];
             })),
 
-            $this->makeSectionPayload($page, 'market', 'Market', 'product_grid', 7, [
+            $this->makeSectionPayload($page, 'market', 'Market', 'product_grid', 11, [
                 'title' => $request->input('market.title'),
                 'subtitle' => $request->input('market.subtitle'),
                 'view_all_label' => $request->input('market.view_all_label'),
@@ -582,7 +816,7 @@ class AdminPageController extends Controller
                 ];
             })),
 
-            $this->makeSectionPayload($page, 'footer', 'Pie de pagina', 'footer', 8, [
+            $this->makeSectionPayload($page, 'footer', 'Pie de pagina', 'footer', 12, [
                 'help_title' => $request->input('footer.help_title'),
                 'company_title' => $request->input('footer.company_title'),
                 'alliances_title' => $request->input('footer.alliances_title'),
@@ -604,6 +838,122 @@ class AdminPageController extends Controller
                 $this->mapFooterLinks(data_get($form, 'footer.social_links', []), 'social', 'social_link', true),
             )),
         ];
+    }
+
+    protected function buildDeliverySectionsPayload(Request $request, SitePage $page): array
+    {
+        $form = $request->all();
+
+        $sections = array_values(array_filter([
+            $this->preserveExistingSectionPayload($page, 'header', 0),
+
+            $this->makeSectionPayload($page, 'delivery_hero', 'Delivery Hero', 'delivery_hero', 1, [
+                'title_primary' => $request->input('delivery_hero.title_primary'),
+                'title_secondary' => $request->input('delivery_hero.title_secondary'),
+                'eyebrow' => $request->input('delivery_hero.eyebrow'),
+                'subtitle' => $request->input('delivery_hero.subtitle'),
+                'primary_button_label' => $request->input('delivery_hero.primary_button_label'),
+                'primary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('delivery_hero.primary_button_url')) ?? '',
+                'secondary_button_label' => $request->input('delivery_hero.secondary_button_label'),
+                'secondary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('delivery_hero.secondary_button_url')) ?? '',
+                'visual_icon' => $request->input('delivery_hero.visual_icon'),
+                'floating_icon' => $request->input('delivery_hero.floating_icon'),
+                'visual_image' => $this->storeUploadedImage($request, 'delivery_hero.visual_image_file', $request->input('delivery_hero.visual_image'), 'cms/deliveryexpress/hero'),
+            ]),
+
+            $this->makeSectionPayload($page, 'delivery_intro', 'Delivery Intro', 'delivery_intro', 2, [
+                'title' => $request->input('delivery_intro.title'),
+                'highlight_text' => $request->input('delivery_intro.highlight_text'),
+                'paragraph_one' => $request->input('delivery_intro.paragraph_one'),
+                'paragraph_two' => $request->input('delivery_intro.paragraph_two'),
+                'closing_text' => $request->input('delivery_intro.closing_text'),
+                'chip_one' => $request->input('delivery_intro.chip_one'),
+                'chip_two' => $request->input('delivery_intro.chip_two'),
+                'chip_three' => $request->input('delivery_intro.chip_three'),
+                'visual_icon' => $request->input('delivery_intro.visual_icon'),
+                'visual_badge' => $request->input('delivery_intro.visual_badge'),
+                'visual_image' => $this->storeUploadedImage($request, 'delivery_intro.visual_image_file', $request->input('delivery_intro.visual_image'), 'cms/deliveryexpress/intro'),
+            ]),
+
+            $this->makeSectionPayload($page, 'delivery_advantages', 'Delivery Ventajas', 'delivery_card_grid', 3, [
+                'title' => $request->input('delivery_advantages.title'),
+                'subtitle' => $request->input('delivery_advantages.subtitle'),
+            ], $this->mapRepeaterItems(data_get($form, 'delivery_advantages.items', []), 'delivery_advantage', function ($item) {
+                return [
+                    'icon' => $item['icon'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'text' => $item['text'] ?? '',
+                    'badge' => $item['badge'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'delivery_process', 'Delivery Proceso', 'delivery_process', 4, [
+                'title' => $request->input('delivery_process.title'),
+                'subtitle' => $request->input('delivery_process.subtitle'),
+                'feature_title' => $request->input('delivery_process.feature_title'),
+                'feature_text' => $request->input('delivery_process.feature_text'),
+                'bullet_one' => $request->input('delivery_process.bullet_one'),
+                'bullet_two' => $request->input('delivery_process.bullet_two'),
+                'bullet_three' => $request->input('delivery_process.bullet_three'),
+                'tracker_title' => $request->input('delivery_process.tracker_title'),
+                'tracker_status' => $request->input('delivery_process.tracker_status'),
+                'tracker_stage' => $request->input('delivery_process.tracker_stage'),
+                'timeline_one_title' => $request->input('delivery_process.timeline_one_title'),
+                'timeline_one_time' => $request->input('delivery_process.timeline_one_time'),
+                'timeline_two_title' => $request->input('delivery_process.timeline_two_title'),
+                'timeline_two_time' => $request->input('delivery_process.timeline_two_time'),
+                'timeline_three_title' => $request->input('delivery_process.timeline_three_title'),
+                'timeline_three_time' => $request->input('delivery_process.timeline_three_time'),
+            ], $this->mapRepeaterItems(data_get($form, 'delivery_process.items', []), 'delivery_step', function ($item) {
+                return [
+                    'icon' => $item['icon'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'text' => $item['text'] ?? '',
+                    'badge' => $item['badge'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'delivery_info', 'Delivery Informacion', 'delivery_card_grid', 5, [
+                'title' => $request->input('delivery_info.title'),
+                'subtitle' => $request->input('delivery_info.subtitle'),
+                'footnote' => $request->input('delivery_info.footnote'),
+            ], $this->mapRepeaterItems(data_get($form, 'delivery_info.items', []), 'delivery_info_card', function ($item) {
+                return [
+                    'icon' => $item['icon'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'text' => $item['text'] ?? '',
+                    'badge' => $item['badge'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'delivery_cta', 'Delivery CTA', 'delivery_cta', 6, [
+                'title' => $request->input('delivery_cta.title'),
+                'subtitle' => $request->input('delivery_cta.subtitle'),
+                'trust_text' => $request->input('delivery_cta.trust_text'),
+                'app_title' => $request->input('delivery_cta.app_title'),
+                'app_note' => $request->input('delivery_cta.app_note'),
+                'app_store_label' => $request->input('delivery_cta.app_store_label'),
+                'app_store_url' => ContentSecurity::sanitizeLinkUrl($request->input('delivery_cta.app_store_url')) ?? '',
+                'app_store_badge' => $this->storeUploadedImage($request, 'delivery_cta.app_store_badge_file', $request->input('delivery_cta.app_store_badge'), 'cms/deliveryexpress/cta'),
+                'play_store_label' => $request->input('delivery_cta.play_store_label'),
+                'play_store_url' => ContentSecurity::sanitizeLinkUrl($request->input('delivery_cta.play_store_url')) ?? '',
+                'play_store_badge' => $this->storeUploadedImage($request, 'delivery_cta.play_store_badge_file', $request->input('delivery_cta.play_store_badge'), 'cms/deliveryexpress/cta'),
+                'register_title' => $request->input('delivery_cta.register_title'),
+                'register_text' => $request->input('delivery_cta.register_text'),
+                'register_qr_image' => $this->storeUploadedImage($request, 'delivery_cta.register_qr_file', $request->input('delivery_cta.register_qr_image'), 'cms/deliveryexpress/cta'),
+                'contact_title' => $request->input('delivery_cta.contact_title'),
+                'contact_whatsapp_label' => $request->input('delivery_cta.contact_whatsapp_label'),
+                'contact_whatsapp_url' => ContentSecurity::sanitizeLinkUrl($request->input('delivery_cta.contact_whatsapp_url')) ?? '',
+                'contact_web_label' => $request->input('delivery_cta.contact_web_label'),
+                'contact_web_url' => ContentSecurity::sanitizeLinkUrl($request->input('delivery_cta.contact_web_url')) ?? '',
+                'contact_phone_label' => $request->input('delivery_cta.contact_phone_label'),
+                'contact_phone_url' => ContentSecurity::sanitizeLinkUrl($request->input('delivery_cta.contact_phone_url')) ?? '',
+            ]),
+
+            $this->preserveExistingSectionPayload($page, 'footer', 7),
+        ]));
+
+        return $sections;
     }
 
     protected function buildAboutSectionsPayload(Request $request, SitePage $page): array
@@ -945,6 +1295,39 @@ class AdminPageController extends Controller
             ->all();
     }
 
+    protected function preserveExistingSectionPayload(SitePage $page, string $key, int $sortOrder): ?array
+    {
+        $section = $page->sections->firstWhere('key', $key);
+
+        if (! $section) {
+            return null;
+        }
+
+        return [
+            'id' => $section->id,
+            'key' => $section->key,
+            'name' => $section->name,
+            'type' => $section->type,
+            'settings' => $section->settings ?? [],
+            'sort_order' => $sortOrder,
+            'is_active' => (bool) $section->is_active,
+            'items' => $section->items
+                ->sortBy('sort_order')
+                ->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'name' => $item->name,
+                        'type' => $item->type,
+                        'sort_order' => $item->sort_order,
+                        'is_active' => (bool) $item->is_active,
+                        'data' => $item->data ?? [],
+                    ];
+                })
+                ->values()
+                ->all(),
+        ];
+    }
+
     protected function sectionSettings(SitePage $page, string $key, array $defaults = []): array
     {
         $settings = $page->sections->firstWhere('key', $key)?->settings ?? [];
@@ -1048,5 +1431,10 @@ class AdminPageController extends Controller
     protected function isNewsPage(SitePage $page): bool
     {
         return $page->slug === 'noticias';
+    }
+
+    protected function isDeliveryExpressPage(SitePage $page): bool
+    {
+        return $page->slug === 'deliveryexpress';
     }
 }

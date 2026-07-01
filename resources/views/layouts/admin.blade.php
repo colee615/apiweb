@@ -898,6 +898,25 @@
         </div>
     </template>
 
+    <template id="ems-card-template">
+        <div class="repeater-card" data-row>
+            <div class="toolbar">
+                <div class="actions">
+                    <span class="drag-handle" data-drag>::</span>
+                    <strong>Nueva tarjeta EMS</strong>
+                </div>
+                <button type="button" class="button button-danger" data-remove-row>Eliminar</button>
+            </div>
+            <div class="grid grid-2" style="margin-top:12px;">
+                <div class="field"><label>Título</label><input type="text" data-field="title"></div>
+                <div class="field"><label>Icono</label><input type="text" data-field="icon" placeholder="broadcast, shield, globe..."></div>
+                <div class="field" style="grid-column:1/-1;"><label>Descripción</label><textarea class="field-small" data-field="text"></textarea></div>
+                <div class="field"><label>Badge opcional</label><input type="text" data-field="badge"></div>
+            </div>
+            <input type="hidden" data-field="id">
+        </div>
+    </template>
+
     <template id="hero-media-template">
         <div class="repeater-card" data-row>
             <div class="toolbar">
