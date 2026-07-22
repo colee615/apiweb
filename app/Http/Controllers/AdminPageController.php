@@ -1802,26 +1802,45 @@ class AdminPageController extends Controller
 
     protected function isAboutPage(SitePage $page): bool
     {
-        return $page->slug === 'quienes-somos';
+        return $page->slug === 'quienes-somos'
+            || $this->pageHasSectionKeys($page, ['hero_gallery', 'mission_vision', 'history', 'principles', 'organigram', 'objectives']);
     }
 
     protected function isNewsPage(SitePage $page): bool
     {
-        return $page->slug === 'noticias';
+        return $page->slug === 'noticias'
+            || $this->pageHasSectionKeys($page, ['featured_story', 'category_filters', 'news_grid', 'newsletter', 'pagination']);
     }
 
     protected function isDeliveryExpressPage(SitePage $page): bool
     {
-        return $page->slug === 'deliveryexpress';
+        return $page->slug === 'deliveryexpress'
+            || $this->pageHasSectionKeys($page, ['delivery_hero', 'delivery_intro', 'delivery_advantages', 'delivery_process', 'delivery_info', 'delivery_cta']);
     }
 
     protected function isEcaPage(SitePage $page): bool
     {
-        return $page->slug === 'eca';
+        return $page->slug === 'eca'
+            || $this->pageHasSectionKeys($page, ['eca_hero', 'eca_intro', 'eca_rates', 'eca_coverage', 'eca_solutions', 'eca_cta']);
     }
 
     protected function isEncomiendaPage(SitePage $page): bool
     {
-        return $page->slug === 'encomienda';
+        return $page->slug === 'encomienda'
+            || $this->pageHasSectionKeys($page, ['encomienda_hero', 'encomienda_intro', 'encomienda_features', 'encomienda_faq', 'encomienda_cta']);
+    }
+
+    protected function pageHasSectionKeys(SitePage $page, array $expectedKeys): bool
+    {
+        if (! $page->relationLoaded('sections')) {
+            $page->loadMissing('sections');
+        }
+
+        $sectionKeys = $page->sections
+            ->pluck('key')
+            ->filter()
+            ->all();
+
+        return empty(array_diff($expectedKeys, $sectionKeys));
     }
 }
