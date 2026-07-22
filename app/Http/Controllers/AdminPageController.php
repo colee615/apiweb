@@ -67,6 +67,24 @@ class AdminPageController extends Controller
             ]);
         }
 
+        if ($this->isEcaPage($page)) {
+            return view('admin.pages.edit-eca', [
+                'page' => $page,
+                'editorData' => $this->buildEcaEditorData($page),
+                'versions' => $page->versions()->with(['actor', 'changeLogs'])->take(12)->get(),
+                'historyData' => $this->buildHistoryData($page),
+            ]);
+        }
+
+        if ($this->isEncomiendaPage($page)) {
+            return view('admin.pages.edit-encomienda', [
+                'page' => $page,
+                'editorData' => $this->buildEncomiendaEditorData($page),
+                'versions' => $page->versions()->with(['actor', 'changeLogs'])->take(12)->get(),
+                'historyData' => $this->buildHistoryData($page),
+            ]);
+        }
+
         return view('admin.pages.edit', [
             'page' => $page,
             'editorData' => $this->buildEditorData($page),
@@ -104,6 +122,10 @@ class AdminPageController extends Controller
             'delivery_cta.app_store_badge_file.max' => 'La imagen del boton App Store debe pesar como maximo 15 MB.',
             'delivery_cta.play_store_badge_file.max' => 'La imagen del boton Google Play debe pesar como maximo 15 MB.',
             'delivery_cta.register_qr_file.max' => 'La imagen QR de registro debe pesar como maximo 15 MB.',
+            'eca_hero.visual_image_file.max' => 'La imagen del hero de ECA debe pesar como maximo 15 MB.',
+            'eca_cta.qr_image_file.max' => 'La imagen QR de ECA debe pesar como maximo 15 MB.',
+            'encomienda_hero.visual_image_file.max' => 'La imagen del hero de Encomienda debe pesar como maximo 15 MB.',
+            'encomienda_intro.image_file.max' => 'La imagen introductoria de Encomienda debe pesar como maximo 15 MB.',
             'hero.media.*.media_file.max' => 'Cada imagen o video del carrusel principal debe pesar como maximo 15 MB.',
             'hero.media.*.poster_file.max' => 'Cada portada del carrusel principal debe pesar como maximo 15 MB.',
             'hero_gallery.items.*.media_file.max' => 'Cada imagen o video del carrusel institucional debe pesar como maximo 15 MB.',
@@ -140,6 +162,10 @@ class AdminPageController extends Controller
             'delivery_cta.app_store_badge_file' => 'imagen del boton App Store',
             'delivery_cta.play_store_badge_file' => 'imagen del boton Google Play',
             'delivery_cta.register_qr_file' => 'imagen QR de registro empresarial',
+            'eca_hero.visual_image_file' => 'imagen del hero de ECA',
+            'eca_cta.qr_image_file' => 'imagen QR de ECA',
+            'encomienda_hero.visual_image_file' => 'imagen del hero de Encomienda',
+            'encomienda_intro.image_file' => 'imagen introductoria de Encomienda',
             'hero.media.*.media_file' => 'archivo del carrusel principal',
             'hero.media.*.poster_file' => 'portada del video principal',
             'hero.media.*.duration_seconds' => 'duracion de un elemento del carrusel principal',
@@ -184,6 +210,10 @@ class AdminPageController extends Controller
             'delivery_cta.app_store_badge_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'delivery_cta.play_store_badge_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'delivery_cta.register_qr_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'eca_hero.visual_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'eca_cta.qr_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'encomienda_hero.visual_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'encomienda_intro.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'footer.seal_logo_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'hero.media.*.media_file' => ['nullable', 'file', 'mimetypes:image/jpeg,image/png,image/webp,image/svg+xml,video/mp4,video/webm', 'max:15360'],
             'hero.media.*.poster_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'],
@@ -233,7 +263,11 @@ class AdminPageController extends Controller
                     ? $this->buildNewsSectionsPayload($request, $page)
                     : ($this->isDeliveryExpressPage($page)
                         ? $this->buildDeliverySectionsPayload($request, $page)
-                        : $this->buildSectionsPayload($request, $page))),
+                        : ($this->isEcaPage($page)
+                            ? $this->buildEcaSectionsPayload($request, $page)
+                            : ($this->isEncomiendaPage($page)
+                                ? $this->buildEncomiendaSectionsPayload($request, $page)
+                                : $this->buildSectionsPayload($request, $page))))),
         ];
 
         $this->editor->updatePage(
@@ -621,6 +655,164 @@ class AdminPageController extends Controller
         ];
     }
 
+    protected function buildEcaEditorData(SitePage $page): array
+    {
+        $theme = $page->theme ?? [];
+
+        return [
+            'theme' => [
+                'logo_url' => $this->normalizeAssetUrl($theme['logo_url'] ?? ''),
+                'primary_color' => $theme['primary_color'] ?? '#20539a',
+                'secondary_color' => $theme['secondary_color'] ?? '#102542',
+                'accent_color' => $theme['accent_color'] ?? '#fecc36',
+            ],
+            'eca_hero' => [
+                'settings' => $this->sectionSettings($page, 'eca_hero', [
+                    'badge' => '',
+                    'title_line_one_blue' => '',
+                    'title_line_one_yellow' => '',
+                    'title_line_two_yellow' => '',
+                    'title_line_three_blue' => '',
+                    'subtitle' => '',
+                    'primary_button_label' => '',
+                    'primary_button_url' => '',
+                    'secondary_button_label' => '',
+                    'secondary_button_url' => '',
+                    'visual_icon' => '',
+                    'visual_image' => '',
+                ]),
+            ],
+            'eca_intro' => [
+                'settings' => $this->sectionSettings($page, 'eca_intro', [
+                    'eyebrow' => '',
+                    'title' => '',
+                    'paragraph_one' => '',
+                    'paragraph_two' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'eca_intro'),
+            ],
+            'eca_rates' => [
+                'settings' => $this->sectionSettings($page, 'eca_rates', [
+                    'title' => '',
+                    'subtitle' => '',
+                    'note_title' => '',
+                    'note_text' => '',
+                    'primary_button_label' => '',
+                    'primary_button_url' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'eca_rates'),
+            ],
+            'eca_coverage' => [
+                'settings' => $this->sectionSettings($page, 'eca_coverage', [
+                    'title' => '',
+                    'subtitle' => '',
+                    'note_title' => '',
+                    'note_text' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'eca_coverage'),
+            ],
+            'eca_solutions' => [
+                'settings' => $this->sectionSettings($page, 'eca_solutions', [
+                    'title' => '',
+                    'subtitle' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'eca_solutions'),
+            ],
+            'eca_cta' => [
+                'settings' => $this->sectionSettings($page, 'eca_cta', [
+                    'title' => '',
+                    'text' => '',
+                    'phone_label' => '',
+                    'phone_value' => '',
+                    'email_label' => '',
+                    'email_value' => '',
+                    'address_label' => '',
+                    'address_value' => '',
+                    'footnote' => '',
+                    'qr_title' => '',
+                    'qr_text' => '',
+                    'qr_image' => '',
+                    'button_label' => '',
+                    'button_url' => '',
+                ]),
+            ],
+        ];
+    }
+
+    protected function buildEncomiendaEditorData(SitePage $page): array
+    {
+        $theme = $page->theme ?? [];
+
+        return [
+            'theme' => [
+                'logo_url' => $this->normalizeAssetUrl($theme['logo_url'] ?? ''),
+                'primary_color' => $theme['primary_color'] ?? '#0d47b5',
+                'secondary_color' => $theme['secondary_color'] ?? '#2a4268',
+                'accent_color' => $theme['accent_color'] ?? '#ffc61a',
+            ],
+            'encomienda_hero' => [
+                'settings' => $this->sectionSettings($page, 'encomienda_hero', [
+                    'badge' => '',
+                    'title_line_one_white' => '',
+                    'title_line_one_yellow' => '',
+                    'title_line_two_white' => '',
+                    'title_line_two_yellow' => '',
+                    'subtitle' => '',
+                    'primary_button_label' => '',
+                    'primary_button_url' => '',
+                    'secondary_button_label' => '',
+                    'secondary_button_url' => '',
+                    'visual_icon' => '',
+                    'visual_image' => '',
+                ]),
+            ],
+            'encomienda_intro' => [
+                'settings' => $this->sectionSettings($page, 'encomienda_intro', [
+                    'title' => '',
+                    'paragraph_one' => '',
+                    'paragraph_two' => '',
+                    'quote' => '',
+                    'image' => '',
+                    'visual_icon' => '',
+                    'badge_label' => '',
+                    'badge_value' => '',
+                    'badge_suffix' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'encomienda_intro'),
+            ],
+            'encomienda_features' => [
+                'settings' => $this->sectionSettings($page, 'encomienda_features', [
+                    'title' => '',
+                    'subtitle' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'encomienda_features'),
+            ],
+            'encomienda_faq' => [
+                'settings' => $this->sectionSettings($page, 'encomienda_faq', [
+                    'title' => '',
+                    'subtitle' => '',
+                    'tip_text' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'encomienda_faq'),
+            ],
+            'encomienda_cta' => [
+                'settings' => $this->sectionSettings($page, 'encomienda_cta', [
+                    'title' => '',
+                    'subtitle' => '',
+                    'button_one_label' => '',
+                    'button_one_url' => '',
+                    'button_two_label' => '',
+                    'button_two_url' => '',
+                    'button_three_label' => '',
+                    'button_three_url' => '',
+                    'footnote' => '',
+                    'watermark_text' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'encomienda_cta'),
+            ],
+        ];
+    }
+
     protected function buildSectionsPayload(Request $request, SitePage $page): array
     {
         $form = $request->all();
@@ -954,6 +1146,191 @@ class AdminPageController extends Controller
         ]));
 
         return $sections;
+    }
+
+    protected function buildEcaSectionsPayload(Request $request, SitePage $page): array
+    {
+        $form = $request->all();
+
+        return array_values(array_filter([
+            $this->preserveExistingSectionPayload($page, 'header', 0),
+
+            $this->makeSectionPayload($page, 'eca_hero', 'ECA Hero', 'eca_hero', 1, [
+                'badge' => $request->input('eca_hero.badge'),
+                'title_line_one_blue' => $request->input('eca_hero.title_line_one_blue'),
+                'title_line_one_yellow' => $request->input('eca_hero.title_line_one_yellow'),
+                'title_line_two_yellow' => $request->input('eca_hero.title_line_two_yellow'),
+                'title_line_three_blue' => $request->input('eca_hero.title_line_three_blue'),
+                'subtitle' => $request->input('eca_hero.subtitle'),
+                'primary_button_label' => $request->input('eca_hero.primary_button_label'),
+                'primary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('eca_hero.primary_button_url')) ?? '',
+                'secondary_button_label' => $request->input('eca_hero.secondary_button_label'),
+                'secondary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('eca_hero.secondary_button_url')) ?? '',
+                'visual_icon' => $request->input('eca_hero.visual_icon'),
+                'visual_image' => $this->storeUploadedImage($request, 'eca_hero.visual_image_file', $request->input('eca_hero.visual_image'), 'cms/eca/hero'),
+            ]),
+
+            $this->makeSectionPayload($page, 'eca_intro', 'ECA Intro', 'eca_intro', 2, [
+                'eyebrow' => $request->input('eca_intro.eyebrow'),
+                'title' => $request->input('eca_intro.title'),
+                'paragraph_one' => $request->input('eca_intro.paragraph_one'),
+                'paragraph_two' => $request->input('eca_intro.paragraph_two'),
+            ], $this->mapRepeaterItems(data_get($form, 'eca_intro.items', []), 'eca_segment', function ($item) {
+                return [
+                    'title' => $item['title'] ?? '',
+                    'icon' => $item['icon'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'eca_rates', 'ECA Tarifas', 'eca_rates', 3, [
+                'title' => $request->input('eca_rates.title'),
+                'subtitle' => $request->input('eca_rates.subtitle'),
+                'note_title' => $request->input('eca_rates.note_title'),
+                'note_text' => $request->input('eca_rates.note_text'),
+                'primary_button_label' => $request->input('eca_rates.primary_button_label'),
+                'primary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('eca_rates.primary_button_url')) ?? '',
+            ], $this->mapRepeaterItems(data_get($form, 'eca_rates.items', []), 'eca_rate_stat', function ($item) {
+                return [
+                    'value' => $item['value'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'text' => $item['text'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'eca_coverage', 'ECA Cobertura', 'eca_coverage', 4, [
+                'title' => $request->input('eca_coverage.title'),
+                'subtitle' => $request->input('eca_coverage.subtitle'),
+                'note_title' => $request->input('eca_coverage.note_title'),
+                'note_text' => $request->input('eca_coverage.note_text'),
+            ], $this->mapRepeaterItems(data_get($form, 'eca_coverage.items', []), 'eca_coverage_card', function ($item) {
+                return [
+                    'eyebrow' => $item['eyebrow'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'icon' => $item['icon'] ?? '',
+                    'row_one_label' => $item['row_one_label'] ?? '',
+                    'row_one_value' => $item['row_one_value'] ?? '',
+                    'row_two_label' => $item['row_two_label'] ?? '',
+                    'row_two_value' => $item['row_two_value'] ?? '',
+                    'row_three_label' => $item['row_three_label'] ?? '',
+                    'row_three_value' => $item['row_three_value'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'eca_solutions', 'ECA Soluciones', 'eca_solutions', 5, [
+                'title' => $request->input('eca_solutions.title'),
+                'subtitle' => $request->input('eca_solutions.subtitle'),
+            ], $this->mapRepeaterItems(data_get($form, 'eca_solutions.items', []), 'eca_solution_card', function ($item) {
+                return [
+                    'icon' => $item['icon'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'text' => $item['text'] ?? '',
+                    'badge' => $item['badge'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'eca_cta', 'ECA CTA', 'eca_cta', 6, [
+                'title' => $request->input('eca_cta.title'),
+                'text' => $request->input('eca_cta.text'),
+                'phone_label' => $request->input('eca_cta.phone_label'),
+                'phone_value' => $request->input('eca_cta.phone_value'),
+                'email_label' => $request->input('eca_cta.email_label'),
+                'email_value' => $request->input('eca_cta.email_value'),
+                'address_label' => $request->input('eca_cta.address_label'),
+                'address_value' => $request->input('eca_cta.address_value'),
+                'footnote' => $request->input('eca_cta.footnote'),
+                'qr_title' => $request->input('eca_cta.qr_title'),
+                'qr_text' => $request->input('eca_cta.qr_text'),
+                'qr_image' => $this->storeUploadedImage($request, 'eca_cta.qr_image_file', $request->input('eca_cta.qr_image'), 'cms/eca/cta'),
+                'button_label' => $request->input('eca_cta.button_label'),
+                'button_url' => ContentSecurity::sanitizeLinkUrl($request->input('eca_cta.button_url')) ?? '',
+            ]),
+
+            $this->preserveExistingSectionPayload($page, 'footer', 7),
+        ]));
+    }
+
+    protected function buildEncomiendaSectionsPayload(Request $request, SitePage $page): array
+    {
+        $form = $request->all();
+
+        return array_values(array_filter([
+            $this->preserveExistingSectionPayload($page, 'header', 0),
+
+            $this->makeSectionPayload($page, 'encomienda_hero', 'Encomienda Hero', 'encomienda_hero', 1, [
+                'badge' => $request->input('encomienda_hero.badge'),
+                'title_line_one_white' => $request->input('encomienda_hero.title_line_one_white'),
+                'title_line_one_yellow' => $request->input('encomienda_hero.title_line_one_yellow'),
+                'title_line_two_white' => $request->input('encomienda_hero.title_line_two_white'),
+                'title_line_two_yellow' => $request->input('encomienda_hero.title_line_two_yellow'),
+                'subtitle' => $request->input('encomienda_hero.subtitle'),
+                'primary_button_label' => $request->input('encomienda_hero.primary_button_label'),
+                'primary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('encomienda_hero.primary_button_url')) ?? '',
+                'secondary_button_label' => $request->input('encomienda_hero.secondary_button_label'),
+                'secondary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('encomienda_hero.secondary_button_url')) ?? '',
+                'visual_icon' => $request->input('encomienda_hero.visual_icon'),
+                'visual_image' => $this->storeUploadedImage($request, 'encomienda_hero.visual_image_file', $request->input('encomienda_hero.visual_image'), 'cms/encomienda/hero'),
+            ]),
+
+            $this->makeSectionPayload($page, 'encomienda_intro', 'Encomienda Intro', 'encomienda_intro', 2, [
+                'title' => $request->input('encomienda_intro.title'),
+                'paragraph_one' => $request->input('encomienda_intro.paragraph_one'),
+                'paragraph_two' => $request->input('encomienda_intro.paragraph_two'),
+                'quote' => $request->input('encomienda_intro.quote'),
+                'image' => $this->storeUploadedImage($request, 'encomienda_intro.image_file', $request->input('encomienda_intro.image'), 'cms/encomienda/intro'),
+                'visual_icon' => $request->input('encomienda_intro.visual_icon'),
+                'badge_label' => $request->input('encomienda_intro.badge_label'),
+                'badge_value' => $request->input('encomienda_intro.badge_value'),
+                'badge_suffix' => $request->input('encomienda_intro.badge_suffix'),
+            ], $this->mapRepeaterItems(data_get($form, 'encomienda_intro.items', []), 'encomienda_stat', function ($item) {
+                return [
+                    'value' => $item['value'] ?? '',
+                    'label' => $item['label'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'encomienda_features', 'Encomienda Features', 'encomienda_features', 3, [
+                'title' => $request->input('encomienda_features.title'),
+                'subtitle' => $request->input('encomienda_features.subtitle'),
+            ], $this->mapRepeaterItems(data_get($form, 'encomienda_features.items', []), 'encomienda_feature', function ($item) {
+                return [
+                    'icon' => $item['icon'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'text' => $item['text'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'encomienda_faq', 'Encomienda FAQ', 'encomienda_faq', 4, [
+                'title' => $request->input('encomienda_faq.title'),
+                'subtitle' => $request->input('encomienda_faq.subtitle'),
+                'tip_text' => $request->input('encomienda_faq.tip_text'),
+            ], $this->mapRepeaterItems(data_get($form, 'encomienda_faq.items', []), 'encomienda_faq_item', function ($item) {
+                return [
+                    'icon' => $item['icon'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'text' => $item['text'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'encomienda_cta', 'Encomienda CTA', 'encomienda_cta', 5, [
+                'title' => $request->input('encomienda_cta.title'),
+                'subtitle' => $request->input('encomienda_cta.subtitle'),
+                'button_one_label' => $request->input('encomienda_cta.button_one_label'),
+                'button_one_url' => ContentSecurity::sanitizeLinkUrl($request->input('encomienda_cta.button_one_url')) ?? '',
+                'button_two_label' => $request->input('encomienda_cta.button_two_label'),
+                'button_two_url' => ContentSecurity::sanitizeLinkUrl($request->input('encomienda_cta.button_two_url')) ?? '',
+                'button_three_label' => $request->input('encomienda_cta.button_three_label'),
+                'button_three_url' => ContentSecurity::sanitizeLinkUrl($request->input('encomienda_cta.button_three_url')) ?? '',
+                'footnote' => $request->input('encomienda_cta.footnote'),
+                'watermark_text' => $request->input('encomienda_cta.watermark_text'),
+            ], $this->mapRepeaterItems(data_get($form, 'encomienda_cta.items', []), 'encomienda_contact_chip', function ($item) {
+                return [
+                    'icon' => $item['icon'] ?? '',
+                    'text' => $item['text'] ?? '',
+                ];
+            })),
+
+            $this->preserveExistingSectionPayload($page, 'footer', 6),
+        ]));
     }
 
     protected function buildAboutSectionsPayload(Request $request, SitePage $page): array
@@ -1436,5 +1813,15 @@ class AdminPageController extends Controller
     protected function isDeliveryExpressPage(SitePage $page): bool
     {
         return $page->slug === 'deliveryexpress';
+    }
+
+    protected function isEcaPage(SitePage $page): bool
+    {
+        return $page->slug === 'eca';
+    }
+
+    protected function isEncomiendaPage(SitePage $page): bool
+    {
+        return $page->slug === 'encomienda';
     }
 }
