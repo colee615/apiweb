@@ -822,6 +822,71 @@
         border-radius: inherit;
         background: linear-gradient(90deg, #2f6fd1, #173968);
     }
+    .ga-rank-list--clean {
+        gap: 14px;
+    }
+    .ga-rank-list--clean .ga-rank-item {
+        padding-bottom: 12px;
+        border-bottom: 1px solid #edf2f8;
+    }
+    .ga-rank-list--clean .ga-rank-item:last-child {
+        padding-bottom: 0;
+        border-bottom: 0;
+    }
+    .ga-rank-list--clean .ga-rank-bar {
+        margin-top: 6px;
+    }
+    .ga-clean-head {
+        display: grid;
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+    .ga-clean-focus {
+        display: grid;
+        gap: 6px;
+    }
+    .ga-clean-focus span {
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+    }
+    .ga-clean-focus strong {
+        color: #10264a;
+        font-size: 28px;
+        line-height: 1.08;
+        word-break: break-word;
+    }
+    .ga-clean-focus small {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+    }
+    .ga-clean-meta {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+        padding-top: 12px;
+        border-top: 1px solid #e8eef8;
+    }
+    .ga-clean-meta-item {
+        display: grid;
+        gap: 4px;
+        min-width: 110px;
+    }
+    .ga-clean-meta-item span {
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+    }
+    .ga-clean-meta-item strong {
+        color: #10264a;
+        font-size: 22px;
+        line-height: 1;
+    }
     .ga-summary-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1191,7 +1256,7 @@
         </div>
     </section>
 
-    <div class="grid grid-3">
+    <div class="grid grid-2">
         <section class="ga-card">
             <div class="ga-section-head">
                 <div>
@@ -1201,23 +1266,26 @@
                 <span class="ga-chip">{{ number_format($topPages->sum('total')) }} vistas</span>
             </div>
 
-            <div class="ga-summary-grid">
-                <div class="ga-summary-card">
+            <div class="ga-clean-head">
+                <div class="ga-clean-focus">
                     <span>Pagina lider</span>
                     <strong>{{ $topPageLeader?->page_name ?: 'Sin datos aun' }}</strong>
+                    <small>{{ $topPageLeader?->page_path ?: 'Sin ruta identificada' }}</small>
                 </div>
-                <div class="ga-summary-card">
-                    <span>Ruta lider</span>
-                    <strong>{{ $topPageLeader?->page_path ?: 'Sin ruta' }}</strong>
-                </div>
-                <div class="ga-summary-card">
-                    <span>Volumen</span>
-                    <strong>{{ number_format($topPageLeader?->total ?? 0) }}</strong>
+                <div class="ga-clean-meta">
+                    <div class="ga-clean-meta-item">
+                        <span>Volumen</span>
+                        <strong>{{ number_format($topPageLeader?->total ?? 0) }}</strong>
+                    </div>
+                    <div class="ga-clean-meta-item">
+                        <span>Total vistas</span>
+                        <strong>{{ number_format($topPages->sum('total')) }}</strong>
+                    </div>
                 </div>
             </div>
 
             @if ($topPages->isNotEmpty())
-                <div class="ga-rank-list">
+                <div class="ga-rank-list ga-rank-list--clean">
                     @foreach ($topPages as $index => $page)
                         @php($pagePercent = min(100, round(($page->total / $maxTopPages) * 100)))
                         <div class="ga-rank-item">
@@ -1245,23 +1313,26 @@
                 <span class="ga-chip">{{ number_format($engagementTotal) }} acciones</span>
             </div>
 
-            <div class="ga-summary-grid">
-                <div class="ga-summary-card">
+            <div class="ga-clean-head">
+                <div class="ga-clean-focus">
                     <span>Seccion lider</span>
                     <strong>{{ $topInteractionLeader?->section_name ?: 'Sin datos aun' }}</strong>
+                    <small>{{ $topInteractionLeader ? 'Zona con mejor respuesta del usuario' : 'Esperando actividad en el rango' }}</small>
                 </div>
-                <div class="ga-summary-card">
-                    <span>Acciones lider</span>
-                    <strong>{{ number_format($topInteractionLeader?->total ?? 0) }}</strong>
-                </div>
-                <div class="ga-summary-card">
-                    <span>Lectura</span>
-                    <strong>{{ $topInteractionLeader ? 'Alta atencion' : 'Esperando datos' }}</strong>
+                <div class="ga-clean-meta">
+                    <div class="ga-clean-meta-item">
+                        <span>Acciones lider</span>
+                        <strong>{{ number_format($topInteractionLeader?->total ?? 0) }}</strong>
+                    </div>
+                    <div class="ga-clean-meta-item">
+                        <span>Lectura</span>
+                        <strong>{{ $topInteractionLeader ? 'Alta' : 'Esperando' }}</strong>
+                    </div>
                 </div>
             </div>
 
             @if ($topInteractions->isNotEmpty())
-                <div class="ga-rank-list">
+                <div class="ga-rank-list ga-rank-list--clean">
                     @foreach ($topInteractions as $index => $interaction)
                         @php($interactionPercent = min(100, round(($interaction->total / $maxTopInteractions) * 100)))
                         <div class="ga-rank-item">
@@ -1280,49 +1351,6 @@
             @endif
         </section>
 
-        <section class="ga-card">
-            <div class="ga-section-head">
-                <div>
-                    <h3 class="section-title">Paquetes mas buscados</h3>
-                    <p>Codigos consultados desde el tracking del frontweb dentro del rango seleccionado.</p>
-                </div>
-                <span class="ga-chip">{{ number_format($summary['tracking_searches_in_range']) }} en rango</span>
-            </div>
-
-            <div class="ga-summary-grid">
-                <div class="ga-summary-card">
-                    <span>Codigo lider</span>
-                    <strong>{{ $topTrackingLeader?->searched_term ?: 'Sin datos aun' }}</strong>
-                </div>
-                <div class="ga-summary-card">
-                    <span>Consultas</span>
-                    <strong>{{ number_format($topTrackingLeader?->total ?? 0) }}</strong>
-                </div>
-                <div class="ga-summary-card">
-                    <span>Ultima vez</span>
-                    <strong>{{ $topTrackingLeader ? \Illuminate\Support\Carbon::parse($topTrackingLeader->last_seen_at)->format('H:i') : '--:--' }}</strong>
-                </div>
-            </div>
-
-            @if ($topTrackingSearches->isNotEmpty())
-                <div class="ga-rank-list">
-                    @foreach ($topTrackingSearches as $index => $search)
-                        @php($searchPercent = min(100, round(($search->total / $maxTopTracking) * 100)))
-                        <div class="ga-rank-item">
-                            <span class="ga-rank-index">#{{ $index + 1 }}</span>
-                            <div class="ga-rank-copy">
-                                <strong>{{ $search->searched_term }}</strong>
-                                <span>Ultima vez: {{ \Illuminate\Support\Carbon::parse($search->last_seen_at)->format('d/m/Y H:i') }}</span>
-                            </div>
-                            <span class="ga-rank-value">{{ number_format($search->total) }}</span>
-                            <div class="ga-rank-bar"><div style="width: {{ max(8, $searchPercent) }}%;"></div></div>
-                        </div>
-                    @endforeach
-                </div>
-            @else
-                <div class="ga-empty">Sin busquedas registradas aun.</div>
-            @endif
-        </section>
     </div>
 
     <section class="ga-section-grid">
