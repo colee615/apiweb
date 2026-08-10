@@ -2,6 +2,14 @@
 
 @section('content')
 <div class="admin-shell stack">
+    <div class="admin-topbar">
+        <div class="admin-brand">
+            <h2>Panel de administracion</h2>
+            <p>Gestiona el contenido del sitio y entra al panel de estadisticas del frontweb.</p>
+        </div>
+        <a href="{{ route('admin.analytics') }}" class="button button-primary">Ver estadisticas</a>
+    </div>
+
     <div class="card-grid">
         <div class="spot-card">
             <span>Paginas</span>

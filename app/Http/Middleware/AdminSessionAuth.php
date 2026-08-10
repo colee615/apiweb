@@ -3,14 +3,22 @@
 namespace App\Http\Middleware;
 
 use App\Models\User;
+use App\Services\AuthSessionTracker;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class AdminSessionAuth
 {
+    public function __construct(
+        protected AuthSessionTracker $tracker
+    ) {
+    }
+
     public function handle(Request $request, Closure $next): Response
     {
+        $this->tracker->expireInactive();
+
         $userId = $request->session()->get('admin_user_id');
 
         if (! $userId) {
@@ -24,6 +32,13 @@ class AdminSessionAuth
 
             return redirect()->route('admin.login');
         }
+
+        $this->tracker->markActive(
+            $user,
+            'admin_web',
+            $request->session()->getId(),
+            $request
+        );
 
         $request->attributes->set('admin_user', $user);
 

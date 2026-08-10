@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminAuthController;
+use App\Http\Controllers\AdminAnalyticsController;
 use App\Http\Controllers\AdminPageController;
 use App\Http\Controllers\AdminUserController;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,7 @@ Route::post('/admin/logout', [AdminAuthController::class, 'destroy'])->name('adm
 
 Route::middleware('admin.session')->group(function () {
    Route::get('/admin', [AdminPageController::class, 'index'])->name('admin.dashboard');
+   Route::get('/admin/analytics', [AdminAnalyticsController::class, 'index'])->name('admin.analytics');
    Route::get('/admin/pages/{page}/edit', [AdminPageController::class, 'edit'])->name('admin.pages.edit');
    Route::put('/admin/pages/{page}', [AdminPageController::class, 'update'])->name('admin.pages.update');
    Route::post('/admin/pages/{page}/versions/{version}/restore', [AdminPageController::class, 'restore'])->name('admin.pages.restore');

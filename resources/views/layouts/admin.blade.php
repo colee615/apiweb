@@ -28,6 +28,10 @@
             --shadow: 0 16px 36px rgba(19, 45, 86, 0.08);
         }
         * { box-sizing: border-box; }
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
         body {
             margin: 0;
             font-family: "Manrope", Arial, sans-serif;
@@ -35,7 +39,15 @@
             color: var(--text);
         }
         a { color: inherit; text-decoration: none; }
-        .admin-app { min-height: 100vh; display: grid; grid-template-columns: 278px 1fr; transition: grid-template-columns .2s ease; }
+        .admin-app {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 278px 1fr;
+            transition: grid-template-columns .2s ease;
+            min-width: 0;
+            max-width: 100%;
+            overflow-x: clip;
+        }
         .admin-app.sidebar-collapsed { grid-template-columns: 84px 1fr; }
         .sidebar {
             position: sticky;
@@ -86,7 +98,11 @@
             background: transparent; color: #31507a; font-size: 13px;
             border: 0; border-top: 1px solid #e8edf6;
         }
-        .content { padding: 0; }
+        .content {
+            padding: 0;
+            min-width: 0;
+            max-width: 100%;
+        }
         .topbar {
             height: 64px;
             background: #ffffff;
@@ -140,8 +156,17 @@
             cursor: pointer;
             font-family: inherit;
         }
-        .content-inner { padding: 26px 30px; }
-        .admin-shell { max-width: 1380px; margin: 0 auto; }
+        .content-inner {
+            padding: 26px 30px;
+            min-width: 0;
+            max-width: 100%;
+        }
+        .admin-shell {
+            max-width: 1380px;
+            margin: 0 auto;
+            min-width: 0;
+            width: 100%;
+        }
         .admin-topbar { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 24px; }
         .admin-brand h2 { margin: 0; font-size: 34px; font-weight: 800; }
         .admin-brand p { margin: 8px 0 0; color: var(--muted); }
@@ -783,6 +808,12 @@
                 transition: transform .2s ease;
             }
             .admin-app.sidebar-open .sidebar { transform: translateX(0); }
+            .content,
+            .content-inner,
+            .admin-shell {
+                width: 100%;
+                max-width: 100%;
+            }
         }
         @media (max-width: 900px) {
             .grid-2, .grid-3, .grid-4, .stat-grid, .mini-service-grid, .design-grid, .palette-grid { grid-template-columns:1fr; }
@@ -790,6 +821,21 @@
             .admin-topbar, .toolbar, .actions, .split-header { align-items:flex-start; flex-direction:column; }
             .content-inner { padding: 16px; }
             .save-dock { flex-direction: column; align-items: stretch; }
+        }
+        @media (max-width: 640px) {
+            .topbar {
+                padding: 0 12px;
+            }
+            .topbar-actions {
+                gap: 8px;
+            }
+            .topbar-logout {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+            .content-inner {
+                padding: 12px;
+            }
         }
     </style>
 </head>
@@ -819,6 +865,10 @@
                 <a class="nav-link {{ request()->routeIs('admin.dashboard') || (request()->routeIs('admin.pages.*') && !$isHistoryMode) ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
                     <span>Diseno</span>
                     <span aria-hidden="true">🎨</span>
+                </a>
+                <a class="nav-link {{ request()->routeIs('admin.analytics') ? 'active' : '' }}" href="{{ route('admin.analytics') }}">
+                    <span>Estadisticas</span>
+                    <span aria-hidden="true">📈</span>
                 </a>
                 <a class="nav-link {{ $isHistoryMode ? 'active' : '' }}" href="{{ $historyUrl }}">
                     <span>Historial</span>

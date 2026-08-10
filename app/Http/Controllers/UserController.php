@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\AuthSessionTracker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -13,6 +14,11 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
 class UserController
 {
+    public function __construct(
+        protected AuthSessionTracker $tracker
+    ) {
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -170,6 +176,12 @@ class UserController
             }
 
             $this->registrarActividad($request, 'Login exitoso', 'Login exitoso para la user', $user->id);
+            $this->tracker->markActive(
+                $user,
+                'api_users',
+                hash('sha256', $token),
+                $request
+            );
 
             return response()->json([
                 'message' => 'Inicio de sesion correcto (user)',

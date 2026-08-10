@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/login', 'UserController@login')->middleware('throttle:login');
 
-Route::middleware('auth:api_users')->group(function () {
+Route::middleware(['auth:api_users', 'track.api.session'])->group(function () {
     Route::get('/site/pages', 'SitePageController@index');
     Route::post('/site/pages', 'SitePageController@store');
     Route::get('/site/pages/{page}', 'SitePageController@show');

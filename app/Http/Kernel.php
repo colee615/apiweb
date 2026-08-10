@@ -76,5 +76,6 @@ class Kernel extends HttpKernel
       'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
       'admin.session' => \App\Http\Middleware\AdminSessionAuth::class,
       'admin.role' => \App\Http\Middleware\AdminRole::class,
+      'track.api.session' => \App\Http\Middleware\TrackApiUserSession::class,
    ];
 }
