@@ -815,6 +815,44 @@
                         <div class="subpanel span-12">
                             <div class="toolbar">
                                 <div>
+                                    <h4>Franja de novedades</h4>
+                                    <p>Estos titulares alimentan la cinta superior azul del sitio. Si cargas una sola novedad se mostrará fija; con varias, correrá como ticker.</p>
+                                </div>
+                                <button type="button" class="button button-secondary" data-add-row>Agregar novedad</button>
+                            </div>
+                            <div class="grid grid-3" style="margin-bottom:14px;">
+                                <div class="field">
+                                    <label>Etiqueta de la franja</label>
+                                    <input type="text" name="header[news_ticker_label]" value="{{ old('header.news_ticker_label', $header['settings']['news_ticker_label'] ?? 'Novedades') }}" maxlength="40">
+                                    <div class="field-help">Por ejemplo: Novedades, Noticias, Avisos.</div>
+                                </div>
+                            </div>
+                            <div class="stack" data-collection data-base="header[ticker_items]" data-template="link-template">
+                                <div data-rows>
+                                    @forelse (($header['settings']['news_ticker_items'] ?? []) as $item)
+                                        <div class="repeater-card" data-row>
+                                            <div class="toolbar">
+                                                <div class="actions">
+                                                    <span class="drag-handle" data-drag>::</span>
+                                                    <strong>{{ $item['title'] ?? 'Novedad' }}</strong>
+                                                </div>
+                                                <button type="button" class="button button-danger" data-remove-row>Eliminar</button>
+                                            </div>
+                                            <div class="grid grid-2" style="margin-top:12px;">
+                                                <div class="field"><label>Titular</label><input type="text" data-field="label" value="{{ $item['title'] ?? '' }}"></div>
+                                                <div class="field"><label>URL</label><input type="text" data-field="url" value="{{ $item['url'] ?? '/noticias' }}"></div>
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <div class="empty-note">Todavía no hay novedades configuradas.</div>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="subpanel span-12">
+                            <div class="toolbar">
+                                <div>
                                     <h4>Enlaces del menu</h4>
                                     <p>Agrega, elimina y reordena. Arrastra cada tarjeta para cambiar el orden.</p>
                                 </div>

@@ -139,6 +139,9 @@ class AdminPageController extends Controller
             'news_grid.items.*.media_file.max' => 'Cada imagen o video de noticia debe pesar como maximo 15 MB.',
             'news_grid.items.*.poster_file.max' => 'Cada portada del video de noticia debe pesar como maximo 15 MB.',
             'footer.seal_logo_file.max' => 'El logo inferior del footer debe pesar como maximo 15 MB.',
+            'header.news_ticker_label.max' => 'La etiqueta de novedades no debe superar los 40 caracteres.',
+            'header.ticker_items.*.label.max' => 'Cada titular de novedades no debe superar los 180 caracteres.',
+            'header.ticker_items.*.url.max' => 'Cada URL de novedades no debe superar los 2048 caracteres.',
         ];
 
         $attributes = [
@@ -182,6 +185,9 @@ class AdminPageController extends Controller
             'news_grid.items.*.media_file' => 'archivo de una noticia',
             'news_grid.items.*.poster_file' => 'portada del video de una noticia',
             'footer.seal_logo_file' => 'logo inferior del footer',
+            'header.news_ticker_label' => 'etiqueta de novedades',
+            'header.ticker_items.*.label' => 'titular de novedad',
+            'header.ticker_items.*.url' => 'URL de novedad',
         ];
 
         $rules = [
@@ -215,6 +221,10 @@ class AdminPageController extends Controller
             'encomienda_hero.visual_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'encomienda_intro.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'footer.seal_logo_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'header.news_ticker_label' => ['nullable', 'string', 'max:40'],
+            'header.ticker_items' => ['nullable', 'array'],
+            'header.ticker_items.*.label' => ['nullable', 'string', 'max:180'],
+            'header.ticker_items.*.url' => ['nullable', 'string', 'max:2048'],
             'hero.media.*.media_file' => ['nullable', 'file', 'mimetypes:image/jpeg,image/png,image/webp,image/svg+xml,video/mp4,video/webm', 'max:15360'],
             'hero.media.*.poster_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'],
             'hero.media.*.duration_seconds' => ['nullable', 'integer', 'min:1', 'max:300'],
@@ -337,6 +347,8 @@ class AdminPageController extends Controller
                     'help_label' => '',
                     'login_label' => '',
                     'search_placeholder' => '',
+                    'news_ticker_label' => 'Novedades',
+                    'news_ticker_items' => [],
                 ]),
                 'links' => $this->sectionItems($page, 'header'),
             ],
@@ -853,6 +865,24 @@ class AdminPageController extends Controller
                 'help_label' => $request->input('header.help_label'),
                 'login_label' => $request->input('header.login_label'),
                 'search_placeholder' => $request->input('header.search_placeholder'),
+                'news_ticker_label' => $request->input('header.news_ticker_label') ?: 'Novedades',
+                'news_ticker_items' => collect(data_get($form, 'header.ticker_items', []))
+                    ->map(function ($item) {
+                        $label = trim((string) ($item['label'] ?? ''));
+                        $url = ContentSecurity::sanitizeLinkUrl($item['url'] ?? '') ?? '';
+
+                        if ($label === '') {
+                            return null;
+                        }
+
+                        return [
+                            'title' => $label,
+                            'url' => $url,
+                        ];
+                    })
+                    ->filter()
+                    ->values()
+                    ->all(),
             ], $this->mapRepeaterItems(data_get($form, 'header.links', []), 'nav_link', function ($item) {
                 return [
                     'label' => $item['label'] ?? '',
