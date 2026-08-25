@@ -76,6 +76,33 @@ class AdminPageController extends Controller
             ]);
         }
 
+        if ($this->isCorrespondenciaPage($page)) {
+            return view('admin.pages.edit-correspondencia', [
+                'page' => $page,
+                'editorData' => $this->buildCorrespondenciaEditorData($page),
+                'versions' => $page->versions()->with(['actor', 'changeLogs'])->take(12)->get(),
+                'historyData' => $this->buildHistoryData($page),
+            ]);
+        }
+
+        if ($this->isCasillasPage($page)) {
+            return view('admin.pages.edit-casillas', [
+                'page' => $page,
+                'editorData' => $this->buildCasillasEditorData($page),
+                'versions' => $page->versions()->with(['actor', 'changeLogs'])->take(12)->get(),
+                'historyData' => $this->buildHistoryData($page),
+            ]);
+        }
+
+        if ($this->isPostalshopperPage($page)) {
+            return view('admin.pages.edit-postalshopper', [
+                'page' => $page,
+                'editorData' => $this->buildPostalshopperEditorData($page),
+                'versions' => $page->versions()->with(['actor', 'changeLogs'])->take(12)->get(),
+                'historyData' => $this->buildHistoryData($page),
+            ]);
+        }
+
         if ($this->isEncomiendaPage($page)) {
             return view('admin.pages.edit-encomienda', [
                 'page' => $page,
@@ -124,6 +151,10 @@ class AdminPageController extends Controller
             'delivery_cta.register_qr_file.max' => 'La imagen QR de registro debe pesar como maximo 15 MB.',
             'eca_hero.visual_image_file.max' => 'La imagen del hero de ECA debe pesar como maximo 15 MB.',
             'eca_cta.qr_image_file.max' => 'La imagen QR de ECA debe pesar como maximo 15 MB.',
+            'correspondencia_hero.visual_image_file.max' => 'La imagen del hero de Correspondencia Agrupada debe pesar como maximo 15 MB.',
+            'correspondencia_cta.qr_image_file.max' => 'La imagen QR de Correspondencia Agrupada debe pesar como maximo 15 MB.',
+            'casillas_hero.background_image_file.max' => 'La imagen de fondo del hero de Casillas debe pesar como maximo 15 MB.',
+            'postalshopper_hero.background_image_file.max' => 'La imagen de fondo del hero de Postal Shopper debe pesar como maximo 15 MB.',
             'encomienda_hero.visual_image_file.max' => 'La imagen del hero de Encomienda debe pesar como maximo 15 MB.',
             'encomienda_intro.image_file.max' => 'La imagen introductoria de Encomienda debe pesar como maximo 15 MB.',
             'hero.media.*.media_file.max' => 'Cada imagen o video del carrusel principal debe pesar como maximo 15 MB.',
@@ -167,6 +198,10 @@ class AdminPageController extends Controller
             'delivery_cta.register_qr_file' => 'imagen QR de registro empresarial',
             'eca_hero.visual_image_file' => 'imagen del hero de ECA',
             'eca_cta.qr_image_file' => 'imagen QR de ECA',
+            'correspondencia_hero.visual_image_file' => 'imagen del hero de Correspondencia Agrupada',
+            'correspondencia_cta.qr_image_file' => 'imagen QR de Correspondencia Agrupada',
+            'casillas_hero.background_image_file' => 'imagen de fondo del hero de Casillas',
+            'postalshopper_hero.background_image_file' => 'imagen de fondo del hero de Postal Shopper',
             'encomienda_hero.visual_image_file' => 'imagen del hero de Encomienda',
             'encomienda_intro.image_file' => 'imagen introductoria de Encomienda',
             'hero.media.*.media_file' => 'archivo del carrusel principal',
@@ -218,6 +253,10 @@ class AdminPageController extends Controller
             'delivery_cta.register_qr_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'eca_hero.visual_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'eca_cta.qr_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'correspondencia_hero.visual_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'correspondencia_cta.qr_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'casillas_hero.background_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'postalshopper_hero.background_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'encomienda_hero.visual_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'encomienda_intro.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'footer.seal_logo_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
@@ -255,6 +294,26 @@ class AdminPageController extends Controller
 
         $data = $request->validate($rules, $messages, $attributes);
 
+        if ($this->isAboutPage($page)) {
+            $sectionsPayload = $this->buildAboutSectionsPayload($request, $page);
+        } elseif ($this->isNewsPage($page)) {
+            $sectionsPayload = $this->buildNewsSectionsPayload($request, $page);
+        } elseif ($this->isDeliveryExpressPage($page)) {
+            $sectionsPayload = $this->buildDeliverySectionsPayload($request, $page);
+        } elseif ($this->isEcaPage($page)) {
+            $sectionsPayload = $this->buildEcaSectionsPayload($request, $page);
+        } elseif ($this->isCorrespondenciaPage($page)) {
+            $sectionsPayload = $this->buildCorrespondenciaSectionsPayload($request, $page);
+        } elseif ($this->isCasillasPage($page)) {
+            $sectionsPayload = $this->buildCasillasSectionsPayload($request, $page);
+        } elseif ($this->isPostalshopperPage($page)) {
+            $sectionsPayload = $this->buildPostalshopperSectionsPayload($request, $page);
+        } elseif ($this->isEncomiendaPage($page)) {
+            $sectionsPayload = $this->buildEncomiendaSectionsPayload($request, $page);
+        } else {
+            $sectionsPayload = $this->buildSectionsPayload($request, $page);
+        }
+
         $payload = [
             'slug' => $data['slug'],
             'name' => $data['name'],
@@ -267,17 +326,7 @@ class AdminPageController extends Controller
                 'secondary_color' => $request->input('theme.secondary_color'),
                 'accent_color' => $request->input('theme.accent_color'),
             ],
-            'sections' => $this->isAboutPage($page)
-                ? $this->buildAboutSectionsPayload($request, $page)
-                : ($this->isNewsPage($page)
-                    ? $this->buildNewsSectionsPayload($request, $page)
-                    : ($this->isDeliveryExpressPage($page)
-                        ? $this->buildDeliverySectionsPayload($request, $page)
-                        : ($this->isEcaPage($page)
-                            ? $this->buildEcaSectionsPayload($request, $page)
-                            : ($this->isEncomiendaPage($page)
-                                ? $this->buildEncomiendaSectionsPayload($request, $page)
-                                : $this->buildSectionsPayload($request, $page))))),
+            'sections' => $sectionsPayload,
         ];
 
         $this->editor->updatePage(
@@ -825,6 +874,223 @@ class AdminPageController extends Controller
         ];
     }
 
+    protected function buildCorrespondenciaEditorData(SitePage $page): array
+    {
+        $theme = $page->theme ?? [];
+
+        return [
+            'theme' => [
+                'logo_url' => $this->normalizeAssetUrl($theme['logo_url'] ?? ''),
+                'primary_color' => $theme['primary_color'] ?? '#20539a',
+                'secondary_color' => $theme['secondary_color'] ?? '#102542',
+                'accent_color' => $theme['accent_color'] ?? '#fecc36',
+            ],
+            'correspondencia_hero' => [
+                'settings' => $this->sectionSettings($page, 'correspondencia_hero', [
+                    'badge' => '',
+                    'title_line_one_blue' => '',
+                    'title_line_one_yellow' => '',
+                    'title_line_two_yellow' => '',
+                    'title_line_three_blue' => '',
+                    'subtitle' => '',
+                    'primary_button_label' => '',
+                    'primary_button_url' => '',
+                    'secondary_button_label' => '',
+                    'secondary_button_url' => '',
+                    'visual_icon' => '',
+                    'visual_image' => '',
+                ]),
+            ],
+            'correspondencia_intro' => [
+                'settings' => $this->sectionSettings($page, 'correspondencia_intro', [
+                    'eyebrow' => '',
+                    'title' => '',
+                    'paragraph_one' => '',
+                    'paragraph_two' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'correspondencia_intro'),
+            ],
+            'correspondencia_rates' => [
+                'settings' => $this->sectionSettings($page, 'correspondencia_rates', [
+                    'title' => '',
+                    'subtitle' => '',
+                    'note_title' => '',
+                    'note_text' => '',
+                    'primary_button_label' => '',
+                    'primary_button_url' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'correspondencia_rates'),
+            ],
+            'correspondencia_coverage' => [
+                'settings' => $this->sectionSettings($page, 'correspondencia_coverage', [
+                    'title' => '',
+                    'subtitle' => '',
+                    'note_title' => '',
+                    'note_text' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'correspondencia_coverage'),
+            ],
+            'correspondencia_solutions' => [
+                'settings' => $this->sectionSettings($page, 'correspondencia_solutions', [
+                    'title' => '',
+                    'subtitle' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'correspondencia_solutions'),
+            ],
+            'correspondencia_cta' => [
+                'settings' => $this->sectionSettings($page, 'correspondencia_cta', [
+                    'title' => '',
+                    'text' => '',
+                    'phone_label' => '',
+                    'phone_value' => '',
+                    'email_label' => '',
+                    'email_value' => '',
+                    'address_label' => '',
+                    'address_value' => '',
+                    'footnote' => '',
+                    'qr_title' => '',
+                    'qr_text' => '',
+                    'qr_image' => '',
+                    'button_label' => '',
+                    'button_url' => '',
+                ]),
+            ],
+        ];
+    }
+
+    protected function buildCasillasEditorData(SitePage $page): array
+    {
+        $theme = $page->theme ?? [];
+
+        return [
+            'theme' => [
+                'logo_url' => $this->normalizeAssetUrl($theme['logo_url'] ?? ''),
+                'primary_color' => $theme['primary_color'] ?? '#0d47b5',
+                'secondary_color' => $theme['secondary_color'] ?? '#2a4268',
+                'accent_color' => $theme['accent_color'] ?? '#ffcc18',
+            ],
+            'casillas_hero' => [
+                'settings' => $this->sectionSettings($page, 'casillas_hero', [
+                    'badge' => '',
+                    'title_line_one_white' => '',
+                    'title_line_one_yellow' => '',
+                    'title_line_two_white' => '',
+                    'highlight_text' => '',
+                    'subtitle' => '',
+                    'primary_button_label' => '',
+                    'primary_button_url' => '',
+                    'secondary_button_label' => '',
+                    'secondary_button_url' => '',
+                    'background_image' => '',
+                ]),
+            ],
+            'casillas_intro' => [
+                'settings' => $this->sectionSettings($page, 'casillas_intro', [
+                    'eyebrow' => '',
+                    'title' => '',
+                    'paragraph_one' => '',
+                    'paragraph_two' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'casillas_intro'),
+            ],
+            'casillas_benefits' => [
+                'settings' => $this->sectionSettings($page, 'casillas_benefits', [
+                    'title' => '',
+                    'subtitle' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'casillas_benefits'),
+            ],
+            'casillas_sizes' => [
+                'settings' => $this->sectionSettings($page, 'casillas_sizes', [
+                    'title' => '',
+                    'subtitle' => '',
+                    'plan_label' => '',
+                    'quarterly_label' => '',
+                    'semiannual_label' => '',
+                    'annual_label' => '',
+                    'annual_badge' => '',
+                    'panel_title' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'casillas_sizes'),
+            ],
+            'casillas_requirements' => [
+                'settings' => $this->sectionSettings($page, 'casillas_requirements', [
+                    'title' => '',
+                    'subtitle' => '',
+                    'banner_title' => '',
+                    'banner_text' => '',
+                    'banner_button_label' => '',
+                    'banner_button_url' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'casillas_requirements'),
+            ],
+        ];
+    }
+
+    protected function buildPostalshopperEditorData(SitePage $page): array
+    {
+        $theme = $page->theme ?? [];
+
+        return [
+            'theme' => [
+                'logo_url' => $this->normalizeAssetUrl($theme['logo_url'] ?? ''),
+                'primary_color' => $theme['primary_color'] ?? '#0d47b5',
+                'secondary_color' => $theme['secondary_color'] ?? '#2a4268',
+                'accent_color' => $theme['accent_color'] ?? '#ffcc18',
+            ],
+            'postalshopper_hero' => [
+                'settings' => $this->sectionSettings($page, 'postalshopper_hero', [
+                    'badge' => '',
+                    'title_line_one_white' => '',
+                    'title_line_one_yellow' => '',
+                    'title_line_two_white' => '',
+                    'title_line_two_yellow' => '',
+                    'title_line_three_yellow' => '',
+                    'lead_text' => '',
+                    'subtitle' => '',
+                    'primary_button_label' => '',
+                    'primary_button_url' => '',
+                    'secondary_button_label' => '',
+                    'secondary_button_url' => '',
+                    'background_image' => '',
+                    'map_origin_country' => '',
+                    'map_origin_city' => '',
+                    'map_destination_country' => '',
+                    'map_destination_city' => '',
+                    'map_caption' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'postalshopper_hero'),
+            ],
+            'postalshopper_intro' => [
+                'settings' => $this->sectionSettings($page, 'postalshopper_intro', [
+                    'eyebrow' => '',
+                    'title' => '',
+                    'paragraph_one' => '',
+                    'paragraph_two' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'postalshopper_intro'),
+            ],
+            'postalshopper_steps' => [
+                'settings' => $this->sectionSettings($page, 'postalshopper_steps', [
+                    'title' => '',
+                    'subtitle' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'postalshopper_steps'),
+            ],
+            'postalshopper_benefits' => [
+                'settings' => $this->sectionSettings($page, 'postalshopper_benefits', [
+                    'title' => '',
+                    'subtitle' => '',
+                    'banner_title' => '',
+                    'banner_text' => '',
+                    'banner_button_label' => '',
+                    'banner_button_url' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'postalshopper_benefits'),
+            ],
+        ];
+    }
+
     protected function buildSectionsPayload(Request $request, SitePage $page): array
     {
         $form = $request->all();
@@ -1363,6 +1629,269 @@ class AdminPageController extends Controller
         ]));
     }
 
+    protected function buildCorrespondenciaSectionsPayload(Request $request, SitePage $page): array
+    {
+        $form = $request->all();
+
+        return array_values(array_filter([
+            $this->preserveExistingSectionPayload($page, 'header', 0),
+
+            $this->makeSectionPayload($page, 'correspondencia_hero', 'Correspondencia Hero', 'correspondencia_hero', 1, [
+                'badge' => $request->input('correspondencia_hero.badge'),
+                'title_line_one_blue' => $request->input('correspondencia_hero.title_line_one_blue'),
+                'title_line_one_yellow' => $request->input('correspondencia_hero.title_line_one_yellow'),
+                'title_line_two_yellow' => $request->input('correspondencia_hero.title_line_two_yellow'),
+                'title_line_three_blue' => $request->input('correspondencia_hero.title_line_three_blue'),
+                'subtitle' => $request->input('correspondencia_hero.subtitle'),
+                'primary_button_label' => $request->input('correspondencia_hero.primary_button_label'),
+                'primary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('correspondencia_hero.primary_button_url')) ?? '',
+                'secondary_button_label' => $request->input('correspondencia_hero.secondary_button_label'),
+                'secondary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('correspondencia_hero.secondary_button_url')) ?? '',
+                'visual_icon' => $request->input('correspondencia_hero.visual_icon'),
+                'visual_image' => $this->storeUploadedImage($request, 'correspondencia_hero.visual_image_file', $request->input('correspondencia_hero.visual_image'), 'cms/correspondencia/hero'),
+            ]),
+
+            $this->makeSectionPayload($page, 'correspondencia_intro', 'Correspondencia Intro', 'correspondencia_intro', 2, [
+                'eyebrow' => $request->input('correspondencia_intro.eyebrow'),
+                'title' => $request->input('correspondencia_intro.title'),
+                'paragraph_one' => $request->input('correspondencia_intro.paragraph_one'),
+                'paragraph_two' => $request->input('correspondencia_intro.paragraph_two'),
+            ], $this->mapRepeaterItems(data_get($form, 'correspondencia_intro.items', []), 'correspondencia_segment', function ($item) {
+                return [
+                    'title' => $item['title'] ?? '',
+                    'icon' => $item['icon'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'correspondencia_rates', 'Correspondencia Tarifas', 'correspondencia_rates', 3, [
+                'title' => $request->input('correspondencia_rates.title'),
+                'subtitle' => $request->input('correspondencia_rates.subtitle'),
+                'note_title' => $request->input('correspondencia_rates.note_title'),
+                'note_text' => $request->input('correspondencia_rates.note_text'),
+                'primary_button_label' => $request->input('correspondencia_rates.primary_button_label'),
+                'primary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('correspondencia_rates.primary_button_url')) ?? '',
+            ], $this->mapRepeaterItems(data_get($form, 'correspondencia_rates.items', []), 'correspondencia_rate_stat', function ($item) {
+                return [
+                    'value' => $item['value'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'text' => $item['text'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'correspondencia_coverage', 'Correspondencia Cobertura', 'correspondencia_coverage', 4, [
+                'title' => $request->input('correspondencia_coverage.title'),
+                'subtitle' => $request->input('correspondencia_coverage.subtitle'),
+                'note_title' => $request->input('correspondencia_coverage.note_title'),
+                'note_text' => $request->input('correspondencia_coverage.note_text'),
+            ], $this->mapRepeaterItems(data_get($form, 'correspondencia_coverage.items', []), 'correspondencia_coverage_card', function ($item) {
+                return [
+                    'eyebrow' => $item['eyebrow'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'icon' => $item['icon'] ?? '',
+                    'row_one_label' => $item['row_one_label'] ?? '',
+                    'row_one_value' => $item['row_one_value'] ?? '',
+                    'row_two_label' => $item['row_two_label'] ?? '',
+                    'row_two_value' => $item['row_two_value'] ?? '',
+                    'row_three_label' => $item['row_three_label'] ?? '',
+                    'row_three_value' => $item['row_three_value'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'correspondencia_solutions', 'Correspondencia Soluciones', 'correspondencia_solutions', 5, [
+                'title' => $request->input('correspondencia_solutions.title'),
+                'subtitle' => $request->input('correspondencia_solutions.subtitle'),
+            ], $this->mapRepeaterItems(data_get($form, 'correspondencia_solutions.items', []), 'correspondencia_solution_card', function ($item) {
+                return [
+                    'icon' => $item['icon'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'text' => $item['text'] ?? '',
+                    'badge' => $item['badge'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'correspondencia_cta', 'Correspondencia CTA', 'correspondencia_cta', 6, [
+                'title' => $request->input('correspondencia_cta.title'),
+                'text' => $request->input('correspondencia_cta.text'),
+                'phone_label' => $request->input('correspondencia_cta.phone_label'),
+                'phone_value' => $request->input('correspondencia_cta.phone_value'),
+                'email_label' => $request->input('correspondencia_cta.email_label'),
+                'email_value' => $request->input('correspondencia_cta.email_value'),
+                'address_label' => $request->input('correspondencia_cta.address_label'),
+                'address_value' => $request->input('correspondencia_cta.address_value'),
+                'footnote' => $request->input('correspondencia_cta.footnote'),
+                'qr_title' => $request->input('correspondencia_cta.qr_title'),
+                'qr_text' => $request->input('correspondencia_cta.qr_text'),
+                'qr_image' => $this->storeUploadedImage($request, 'correspondencia_cta.qr_image_file', $request->input('correspondencia_cta.qr_image'), 'cms/correspondencia/cta'),
+                'button_label' => $request->input('correspondencia_cta.button_label'),
+                'button_url' => ContentSecurity::sanitizeLinkUrl($request->input('correspondencia_cta.button_url')) ?? '',
+            ]),
+
+            $this->preserveExistingSectionPayload($page, 'footer', 7),
+        ]));
+    }
+
+    protected function buildCasillasSectionsPayload(Request $request, SitePage $page): array
+    {
+        $form = $request->all();
+
+        return array_values(array_filter([
+            $this->preserveExistingSectionPayload($page, 'header', 0),
+
+            $this->makeSectionPayload($page, 'casillas_hero', 'Casillas Hero', 'casillas_hero', 1, [
+                'badge' => $request->input('casillas_hero.badge'),
+                'title_line_one_white' => $request->input('casillas_hero.title_line_one_white'),
+                'title_line_one_yellow' => $request->input('casillas_hero.title_line_one_yellow'),
+                'title_line_two_white' => $request->input('casillas_hero.title_line_two_white'),
+                'highlight_text' => $request->input('casillas_hero.highlight_text'),
+                'subtitle' => $request->input('casillas_hero.subtitle'),
+                'primary_button_label' => $request->input('casillas_hero.primary_button_label'),
+                'primary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('casillas_hero.primary_button_url')) ?? '',
+                'secondary_button_label' => $request->input('casillas_hero.secondary_button_label'),
+                'secondary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('casillas_hero.secondary_button_url')) ?? '',
+                'background_image' => $this->storeUploadedImage($request, 'casillas_hero.background_image_file', $request->input('casillas_hero.background_image'), 'cms/casillas/hero'),
+            ]),
+
+            $this->makeSectionPayload($page, 'casillas_intro', 'Casillas Intro', 'casillas_intro', 2, [
+                'eyebrow' => $request->input('casillas_intro.eyebrow'),
+                'title' => $request->input('casillas_intro.title'),
+                'paragraph_one' => $request->input('casillas_intro.paragraph_one'),
+                'paragraph_two' => $request->input('casillas_intro.paragraph_two'),
+            ], $this->mapRepeaterItems(data_get($form, 'casillas_intro.items', []), 'casillas_stat', function ($item) {
+                return [
+                    'value' => $item['value'] ?? '',
+                    'label' => $item['label'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'casillas_benefits', 'Casillas Beneficios', 'casillas_benefits', 3, [
+                'title' => $request->input('casillas_benefits.title'),
+                'subtitle' => $request->input('casillas_benefits.subtitle'),
+            ], $this->mapRepeaterItems(data_get($form, 'casillas_benefits.items', []), 'casillas_benefit_card', function ($item) {
+                return [
+                    'icon' => $item['icon'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'text' => $item['text'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'casillas_sizes', 'Casillas Tamanos', 'casillas_sizes', 4, [
+                'title' => $request->input('casillas_sizes.title'),
+                'subtitle' => $request->input('casillas_sizes.subtitle'),
+                'plan_label' => $request->input('casillas_sizes.plan_label'),
+                'quarterly_label' => $request->input('casillas_sizes.quarterly_label'),
+                'semiannual_label' => $request->input('casillas_sizes.semiannual_label'),
+                'annual_label' => $request->input('casillas_sizes.annual_label'),
+                'annual_badge' => $request->input('casillas_sizes.annual_badge'),
+                'panel_title' => $request->input('casillas_sizes.panel_title'),
+            ], $this->mapRepeaterItems(data_get($form, 'casillas_sizes.items', []), 'casillas_size_card', function ($item) {
+                return [
+                    'icon' => $item['icon'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'badge' => $item['badge'] ?? '',
+                    'category' => $item['category'] ?? '',
+                    'text' => $item['text'] ?? '',
+                    'dimensions' => $item['dimensions'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'casillas_requirements', 'Casillas Requisitos', 'casillas_requirements', 5, [
+                'title' => $request->input('casillas_requirements.title'),
+                'subtitle' => $request->input('casillas_requirements.subtitle'),
+                'banner_title' => $request->input('casillas_requirements.banner_title'),
+                'banner_text' => $request->input('casillas_requirements.banner_text'),
+                'banner_button_label' => $request->input('casillas_requirements.banner_button_label'),
+                'banner_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('casillas_requirements.banner_button_url')) ?? '',
+            ], $this->mapRepeaterItems(data_get($form, 'casillas_requirements.items', []), 'casillas_requirement_card', function ($item) {
+                return [
+                    'icon' => $item['icon'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'row_one' => $item['row_one'] ?? '',
+                    'row_two' => $item['row_two'] ?? '',
+                    'row_three' => $item['row_three'] ?? '',
+                    'row_four' => $item['row_four'] ?? '',
+                    'row_five' => $item['row_five'] ?? '',
+                ];
+            })),
+
+            $this->preserveExistingSectionPayload($page, 'footer', 6),
+        ]));
+    }
+
+    protected function buildPostalshopperSectionsPayload(Request $request, SitePage $page): array
+    {
+        $form = $request->all();
+
+        return array_values(array_filter([
+            $this->preserveExistingSectionPayload($page, 'header', 0),
+
+            $this->makeSectionPayload($page, 'postalshopper_hero', 'Postal Shopper Hero', 'postalshopper_hero', 1, [
+                'badge' => $request->input('postalshopper_hero.badge'),
+                'title_line_one_white' => $request->input('postalshopper_hero.title_line_one_white'),
+                'title_line_one_yellow' => $request->input('postalshopper_hero.title_line_one_yellow'),
+                'title_line_two_white' => $request->input('postalshopper_hero.title_line_two_white'),
+                'title_line_two_yellow' => $request->input('postalshopper_hero.title_line_two_yellow'),
+                'title_line_three_yellow' => $request->input('postalshopper_hero.title_line_three_yellow'),
+                'lead_text' => $request->input('postalshopper_hero.lead_text'),
+                'subtitle' => $request->input('postalshopper_hero.subtitle'),
+                'primary_button_label' => $request->input('postalshopper_hero.primary_button_label'),
+                'primary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('postalshopper_hero.primary_button_url')) ?? '',
+                'secondary_button_label' => $request->input('postalshopper_hero.secondary_button_label'),
+                'secondary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('postalshopper_hero.secondary_button_url')) ?? '',
+                'background_image' => $this->storeUploadedImage($request, 'postalshopper_hero.background_image_file', $request->input('postalshopper_hero.background_image'), 'cms/postalshopper/hero'),
+                'map_origin_country' => $request->input('postalshopper_hero.map_origin_country'),
+                'map_origin_city' => $request->input('postalshopper_hero.map_origin_city'),
+                'map_destination_country' => $request->input('postalshopper_hero.map_destination_country'),
+                'map_destination_city' => $request->input('postalshopper_hero.map_destination_city'),
+                'map_caption' => $request->input('postalshopper_hero.map_caption'),
+            ], $this->mapRepeaterItems(data_get($form, 'postalshopper_hero.items', []), 'postalshopper_hero_stat', function ($item) {
+                return [
+                    'value' => $item['value'] ?? '',
+                    'label' => $item['label'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'postalshopper_intro', 'Postal Shopper Intro', 'postalshopper_intro', 2, [
+                'eyebrow' => $request->input('postalshopper_intro.eyebrow'),
+                'title' => $request->input('postalshopper_intro.title'),
+                'paragraph_one' => $request->input('postalshopper_intro.paragraph_one'),
+                'paragraph_two' => $request->input('postalshopper_intro.paragraph_two'),
+            ], $this->mapRepeaterItems(data_get($form, 'postalshopper_intro.items', []), 'postalshopper_market_chip', function ($item) {
+                return [
+                    'label' => $item['label'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'postalshopper_steps', 'Postal Shopper Pasos', 'postalshopper_steps', 3, [
+                'title' => $request->input('postalshopper_steps.title'),
+                'subtitle' => $request->input('postalshopper_steps.subtitle'),
+            ], $this->mapRepeaterItems(data_get($form, 'postalshopper_steps.items', []), 'postalshopper_step_card', function ($item) {
+                return [
+                    'step' => $item['step'] ?? '',
+                    'icon' => $item['icon'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'text' => $item['text'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'postalshopper_benefits', 'Postal Shopper Beneficios', 'postalshopper_benefits', 4, [
+                'title' => $request->input('postalshopper_benefits.title'),
+                'subtitle' => $request->input('postalshopper_benefits.subtitle'),
+                'banner_title' => $request->input('postalshopper_benefits.banner_title'),
+                'banner_text' => $request->input('postalshopper_benefits.banner_text'),
+                'banner_button_label' => $request->input('postalshopper_benefits.banner_button_label'),
+                'banner_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('postalshopper_benefits.banner_button_url')) ?? '',
+            ], $this->mapRepeaterItems(data_get($form, 'postalshopper_benefits.items', []), 'postalshopper_benefit_card', function ($item) {
+                return [
+                    'icon' => $item['icon'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'text' => $item['text'] ?? '',
+                ];
+            })),
+
+            $this->preserveExistingSectionPayload($page, 'footer', 5),
+        ]));
+    }
+
     protected function buildAboutSectionsPayload(Request $request, SitePage $page): array
     {
         $form = $request->all();
@@ -1858,6 +2387,24 @@ class AdminPageController extends Controller
     {
         return $page->slug === 'encomienda'
             || $this->pageHasSectionKeys($page, ['encomienda_hero', 'encomienda_intro', 'encomienda_features', 'encomienda_faq', 'encomienda_cta']);
+    }
+
+    protected function isCorrespondenciaPage(SitePage $page): bool
+    {
+        return $page->slug === 'correspondencia-agrupada'
+            || $this->pageHasSectionKeys($page, ['correspondencia_hero', 'correspondencia_intro', 'correspondencia_rates', 'correspondencia_coverage', 'correspondencia_solutions', 'correspondencia_cta']);
+    }
+
+    protected function isCasillasPage(SitePage $page): bool
+    {
+        return $page->slug === 'casillas'
+            || $this->pageHasSectionKeys($page, ['casillas_hero', 'casillas_intro', 'casillas_benefits', 'casillas_sizes', 'casillas_requirements']);
+    }
+
+    protected function isPostalshopperPage(SitePage $page): bool
+    {
+        return $page->slug === 'postalshopper'
+            || $this->pageHasSectionKeys($page, ['postalshopper_hero', 'postalshopper_intro', 'postalshopper_steps', 'postalshopper_benefits']);
     }
 
     protected function pageHasSectionKeys(SitePage $page, array $expectedKeys): bool
