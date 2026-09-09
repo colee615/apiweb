@@ -938,6 +938,7 @@
                 <div class="field"><label>Icono</label><input type="text" data-field="icon" placeholder="plane, truck, mail"></div>
                 <div class="field"><label>Imagen actual</label><input type="text" data-field="iconImage"></div>
                 <div class="field"><label>Subir imagen</label><input type="file" data-field="iconImage_file" accept="image/*" data-preview-input></div>
+                <div class="field" style="grid-column:1/-1;"><label>Link de redirección</label><input type="text" data-field="url" placeholder="/ems, /casillas o https://..."></div>
                 <div class="field" style="grid-column:1/-1;"><label>DescripciÃ³n</label><input type="text" data-field="text"></div>
             </div>
             <div style="margin-top:12px;">

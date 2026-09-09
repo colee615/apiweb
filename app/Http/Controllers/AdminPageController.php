@@ -142,6 +142,7 @@ class AdminPageController extends Controller
             'app_banner.background_file.max' => 'La imagen base del banner debe pesar como maximo 15 MB.',
             'app_banner.items.*.image_file.max' => 'Cada imagen del banner debe pesar como maximo 15 MB.',
             'services.items.*.iconImage_file.max' => 'Cada icono del servicio debe pesar como maximo 15 MB.',
+            'services.items.*.url.max' => 'La URL del servicio no debe superar los 2048 caracteres.',
             'market.items.*.image_file.max' => 'Cada imagen del producto debe pesar como maximo 15 MB.',
             'ems_intro.image_file.max' => 'La imagen principal de EMS debe pesar como maximo 15 MB.',
             'delivery_hero.visual_image_file.max' => 'La imagen del hero de Delivery Express debe pesar como maximo 15 MB.',
@@ -189,6 +190,7 @@ class AdminPageController extends Controller
             'app_banner.items.*.image_file' => 'imagen de un slide del banner',
             'app_banner.items.*.duration_seconds' => 'duracion de un slide del banner',
             'services.items.*.iconImage_file' => 'icono del servicio',
+            'services.items.*.url' => 'URL del servicio',
             'market.items.*.image_file' => 'imagen del producto',
             'ems_intro.image_file' => 'imagen principal de EMS',
             'delivery_hero.visual_image_file' => 'imagen del hero de Delivery Express',
@@ -244,6 +246,7 @@ class AdminPageController extends Controller
             'app_banner.items.*.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'],
             'app_banner.items.*.duration_seconds' => ['nullable', 'integer', 'min:1', 'max:300'],
             'services.items.*.iconImage_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'services.items.*.url' => ['nullable', 'string', 'max:2048'],
             'market.items.*.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'],
             'ems_intro.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'delivery_hero.visual_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
@@ -1176,6 +1179,7 @@ class AdminPageController extends Controller
                     'iconImage' => $this->storeRepeaterImage($item, 'iconImage_file', 'iconImage', 'cms/services'),
                     'title' => $item['title'] ?? '',
                     'text' => $item['text'] ?? '',
+                    'url' => ContentSecurity::sanitizeLinkUrl($item['url'] ?? '') ?? '',
                 ];
             })),
 
