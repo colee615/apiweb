@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 return new class extends Migration
 {
@@ -102,13 +103,28 @@ return new class extends Migration
             ],
             [
                 'site_page_id' => $pageId,
+                'key' => 'important_notices',
+                'name' => 'Avisos importantes',
+                'type' => 'important_notices',
+                'settings' => json_encode([
+                    'title' => 'Avisos importantes',
+                    'view_all_label' => 'Ver todos',
+                    'view_all_url' => '/noticias',
+                ]),
+                'sort_order' => 2,
+                'is_active' => true,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'site_page_id' => $pageId,
                 'key' => 'category_filters',
                 'name' => 'Filtros de categoria',
                 'type' => 'category_filters',
                 'settings' => json_encode([
                     'search_placeholder' => 'Buscar noticias...',
                 ]),
-                'sort_order' => 2,
+                'sort_order' => 3,
                 'is_active' => true,
                 'created_at' => $now,
                 'updated_at' => $now,
@@ -123,7 +139,7 @@ return new class extends Migration
                     'subtitle' => 'Actualidad institucional, filatelia, comunicados y prensa.',
                     'cta_label' => 'Leer mas',
                 ]),
-                'sort_order' => 3,
+                'sort_order' => 4,
                 'is_active' => true,
                 'created_at' => $now,
                 'updated_at' => $now,
@@ -141,7 +157,7 @@ return new class extends Migration
                     'button_label' => 'Unirse',
                     'legal_text' => 'Al suscribirte, aceptas recibir comunicaciones de Correos de Bolivia.',
                 ]),
-                'sort_order' => 4,
+                'sort_order' => 5,
                 'is_active' => true,
                 'created_at' => $now,
                 'updated_at' => $now,
@@ -154,7 +170,7 @@ return new class extends Migration
                 'settings' => json_encode([
                     'load_more_label' => 'Cargar mas noticias',
                 ]),
-                'sort_order' => 5,
+                'sort_order' => 6,
                 'is_active' => true,
                 'created_at' => $now,
                 'updated_at' => $now,
@@ -162,6 +178,7 @@ return new class extends Migration
         ]);
 
         $featuredId = DB::table('site_sections')->where('site_page_id', $pageId)->where('key', 'featured_story')->value('id');
+        $noticesId = DB::table('site_sections')->where('site_page_id', $pageId)->where('key', 'important_notices')->value('id');
         $filtersId = DB::table('site_sections')->where('site_page_id', $pageId)->where('key', 'category_filters')->value('id');
         $gridId = DB::table('site_sections')->where('site_page_id', $pageId)->where('key', 'news_grid')->value('id');
         $paginationId = DB::table('site_sections')->where('site_page_id', $pageId)->where('key', 'pagination')->value('id');
@@ -172,8 +189,11 @@ return new class extends Migration
             'type' => 'featured_story_item',
             'data' => json_encode([
                 'badge' => 'Destacado',
+                'slug' => 'tecnologia-rastreo-tiempo-real',
+                'location' => 'La Paz',
                 'title' => 'Correos de Bolivia implementa nueva tecnologia de rastreo en tiempo real',
                 'excerpt' => 'La Agencia Boliviana de Correos anuncia la modernizacion de su sistema de seguimiento, permitiendo a los usuarios rastrear sus envios con precision milimetrica y recibir notificaciones instantaneas.',
+                'body' => "Correos de Bolivia avanza en la modernizacion de sus servicios con nuevas herramientas de seguimiento y atencion ciudadana.\n\nLa institucion fortalece sus procesos internos para ofrecer informacion mas clara, tiempos de respuesta oportunos y mayor seguridad en el traslado de correspondencia y encomiendas.\n\nEstas acciones forman parte de una agenda de transformacion orientada a conectar mejor a las familias, empresas e instituciones del pais.",
                 'category' => 'Institucional',
                 'image' => 'https://images.unsplash.com/photo-1516321165247-4aa89a48be28?auto=format&fit=crop&w=1400&q=80',
                 'article_url' => '#',
@@ -183,6 +203,29 @@ return new class extends Migration
             'created_at' => $now,
             'updated_at' => $now,
         ]);
+
+        foreach ([
+            ['Mantenimiento programado', 'Nuestros sistemas estaran en mantenimiento este sabado.', '24 abr. 2025', 'danger', '#'],
+            ['Horarios especiales', 'Atencion al publico por feriado nacional.', '22 abr. 2025', 'info', '#'],
+            ['Nuevos puntos de atencion', 'Inauguramos una nueva agencia para estar mas cerca.', '20 abr. 2025', 'success', '#'],
+        ] as $index => $notice) {
+            DB::table('site_section_items')->insert([
+                'site_section_id' => $noticesId,
+                'name' => $notice[0],
+                'type' => 'important_notice',
+                'data' => json_encode([
+                    'title' => $notice[0],
+                    'text' => $notice[1],
+                    'date' => $notice[2],
+                    'tone' => $notice[3],
+                    'url' => $notice[4],
+                ]),
+                'sort_order' => $index,
+                'is_active' => true,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+        }
 
         foreach ([
             ['Institucional', '#', true],
@@ -221,8 +264,11 @@ return new class extends Migration
                 'data' => json_encode([
                     'date' => $item[0],
                     'category' => $item[1],
+                    'slug' => Str::slug($item[2]),
+                    'location' => 'La Paz',
                     'title' => $item[2],
                     'excerpt' => $item[3],
+                    'body' => $item[3] . "\n\nLa accion forma parte del trabajo institucional de Correos de Bolivia para ampliar cobertura, mejorar la experiencia de usuario y consolidar servicios postales mas eficientes.\n\nLa entidad continuara informando a la poblacion sobre nuevas medidas, horarios y servicios habilitados.",
                     'image' => $item[4],
                     'article_url' => '#',
                 ]),

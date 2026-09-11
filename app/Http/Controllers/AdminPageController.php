@@ -22,7 +22,12 @@ class AdminPageController extends Controller
 
     public function index(): View
     {
-        $pages = SitePage::withCount('sections')
+        $pages = SitePage::withCount([
+            'sections',
+            'sections as ems_sections_count' => function ($query) {
+                $query->where('key', 'like', 'ems_%');
+            },
+        ])
             ->orderBy('name')
             ->get();
 
@@ -156,8 +161,10 @@ class AdminPageController extends Controller
             'correspondencia_cta.qr_image_file.max' => 'La imagen QR de Correspondencia Agrupada debe pesar como maximo 15 MB.',
             'casillas_hero.background_image_file.max' => 'La imagen de fondo del hero de Casillas debe pesar como maximo 15 MB.',
             'postalshopper_hero.background_image_file.max' => 'La imagen de fondo del hero de Postal Shopper debe pesar como maximo 15 MB.',
+            'postalshopper_intro.items.*.logo_file.max' => 'Cada logo de tienda debe pesar como maximo 15 MB.',
             'encomienda_hero.visual_image_file.max' => 'La imagen del hero de Encomienda debe pesar como maximo 15 MB.',
             'encomienda_intro.image_file.max' => 'La imagen introductoria de Encomienda debe pesar como maximo 15 MB.',
+            'footer.social_links.*.image_file.max' => 'Cada icono social del footer debe pesar como maximo 15 MB.',
             'hero.media.*.media_file.max' => 'Cada imagen o video del carrusel principal debe pesar como maximo 15 MB.',
             'hero.media.*.poster_file.max' => 'Cada portada del carrusel principal debe pesar como maximo 15 MB.',
             'hero_gallery.items.*.media_file.max' => 'Cada imagen o video del carrusel institucional debe pesar como maximo 15 MB.',
@@ -204,8 +211,10 @@ class AdminPageController extends Controller
             'correspondencia_cta.qr_image_file' => 'imagen QR de Correspondencia Agrupada',
             'casillas_hero.background_image_file' => 'imagen de fondo del hero de Casillas',
             'postalshopper_hero.background_image_file' => 'imagen de fondo del hero de Postal Shopper',
+            'postalshopper_intro.items.*.logo_file' => 'logo de tienda de Postal Shopper',
             'encomienda_hero.visual_image_file' => 'imagen del hero de Encomienda',
             'encomienda_intro.image_file' => 'imagen introductoria de Encomienda',
+            'footer.social_links.*.image_file' => 'icono social del footer',
             'hero.media.*.media_file' => 'archivo del carrusel principal',
             'hero.media.*.poster_file' => 'portada del video principal',
             'hero.media.*.duration_seconds' => 'duracion de un elemento del carrusel principal',
@@ -260,9 +269,11 @@ class AdminPageController extends Controller
             'correspondencia_cta.qr_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'casillas_hero.background_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'postalshopper_hero.background_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'postalshopper_intro.items.*.logo_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'encomienda_hero.visual_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'encomienda_intro.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'footer.seal_logo_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'footer.social_links.*.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'header.news_ticker_label' => ['nullable', 'string', 'max:40'],
             'header.ticker_items' => ['nullable', 'array'],
             'header.ticker_items.*.label' => ['nullable', 'string', 'max:180'],
@@ -580,6 +591,14 @@ class AdminPageController extends Controller
                     'button_label' => 'Leer noticia completa',
                 ]),
                 'items' => $this->sectionItems($page, 'featured_story'),
+            ],
+            'important_notices' => [
+                'settings' => $this->sectionSettings($page, 'important_notices', [
+                    'title' => 'Avisos importantes',
+                    'view_all_label' => 'Ver todos',
+                    'view_all_url' => '/noticias',
+                ]),
+                'items' => $this->sectionItems($page, 'important_notices'),
             ],
             'category_filters' => [
                 'settings' => $this->sectionSettings($page, 'category_filters', [
@@ -1862,6 +1881,7 @@ class AdminPageController extends Controller
             ], $this->mapRepeaterItems(data_get($form, 'postalshopper_intro.items', []), 'postalshopper_market_chip', function ($item) {
                 return [
                     'label' => $item['label'] ?? '',
+                    'logo' => $this->storeRepeaterImage($item, 'logo_file', 'logo', 'cms/postalshopper/logos'),
                 ];
             })),
 
@@ -2008,8 +2028,11 @@ class AdminPageController extends Controller
 
                 return [
                     'badge' => $item['badge'] ?? '',
+                    'slug' => $item['slug'] ?? '',
+                    'location' => $item['location'] ?? '',
                     'title' => $item['title'] ?? '',
                     'excerpt' => $item['excerpt'] ?? '',
+                    'body' => $item['body'] ?? '',
                     'category' => $item['category'] ?? '',
                     'media_type' => $mediaType,
                     'media_url' => $mediaUrl ?: $this->normalizeAssetUrl($item['image'] ?? ''),
@@ -2021,7 +2044,21 @@ class AdminPageController extends Controller
                 ];
             })),
 
-            $this->makeSectionPayload($page, 'category_filters', 'Filtros de categoria', 'category_filters', 1, [
+            $this->makeSectionPayload($page, 'important_notices', 'Avisos importantes', 'important_notices', 1, [
+                'title' => $request->input('important_notices.title') ?: 'Avisos importantes',
+                'view_all_label' => $request->input('important_notices.view_all_label') ?: 'Ver todos',
+                'view_all_url' => ContentSecurity::sanitizeLinkUrl($request->input('important_notices.view_all_url')) ?? '/noticias',
+            ], $this->mapRepeaterItems(data_get($form, 'important_notices.items', []), 'important_notice', function ($item) {
+                return [
+                    'title' => $item['title'] ?? '',
+                    'text' => $item['text'] ?? '',
+                    'date' => $item['date'] ?? '',
+                    'tone' => $item['tone'] ?? 'info',
+                    'url' => ContentSecurity::sanitizeLinkUrl($item['url'] ?? '') ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'category_filters', 'Filtros de categoria', 'category_filters', 2, [
                 'search_placeholder' => $request->input('category_filters.search_placeholder'),
             ], $this->mapRepeaterItems(data_get($form, 'category_filters.items', []), 'news_category', function ($item) {
                 return [
@@ -2031,7 +2068,7 @@ class AdminPageController extends Controller
                 ];
             })),
 
-            $this->makeSectionPayload($page, 'news_grid', 'Grid de noticias', 'news_grid', 2, [
+            $this->makeSectionPayload($page, 'news_grid', 'Grid de noticias', 'news_grid', 3, [
                 'title' => $request->input('news_grid.title'),
                 'subtitle' => $request->input('news_grid.subtitle'),
                 'cta_label' => $request->input('news_grid.cta_label'),
@@ -2042,8 +2079,11 @@ class AdminPageController extends Controller
                 return [
                     'date' => $item['date'] ?? '',
                     'category' => $item['category'] ?? '',
+                    'slug' => $item['slug'] ?? '',
+                    'location' => $item['location'] ?? '',
                     'title' => $item['title'] ?? '',
                     'excerpt' => $item['excerpt'] ?? '',
+                    'body' => $item['body'] ?? '',
                     'media_type' => $mediaType,
                     'media_url' => $mediaUrl ?: $this->normalizeAssetUrl($item['image'] ?? ''),
                     'image' => $mediaType === 'image'
@@ -2054,7 +2094,7 @@ class AdminPageController extends Controller
                 ];
             })),
 
-            $this->makeSectionPayload($page, 'newsletter', 'Boletin', 'newsletter', 3, [
+            $this->makeSectionPayload($page, 'newsletter', 'Boletin', 'newsletter', 4, [
                 'badge' => $request->input('newsletter.badge'),
                 'title' => $request->input('newsletter.title'),
                 'text' => $request->input('newsletter.text'),
@@ -2063,7 +2103,7 @@ class AdminPageController extends Controller
                 'legal_text' => $request->input('newsletter.legal_text'),
             ]),
 
-            $this->makeSectionPayload($page, 'pagination', 'Paginacion', 'pagination', 4, [
+            $this->makeSectionPayload($page, 'pagination', 'Paginacion', 'pagination', 5, [
                 'load_more_label' => $request->input('pagination.load_more_label'),
             ], $this->mapRepeaterItems(data_get($form, 'pagination.items', []), 'news_page', function ($item) {
                 return [
@@ -2221,6 +2261,7 @@ class AdminPageController extends Controller
 
                 if ($withAria) {
                     $data['aria_label'] = $item['aria_label'] ?? $item['label'] ?? '';
+                    $data['image'] = $this->storeRepeaterImage($item, 'image_file', 'image', 'cms/footer/social');
                 }
 
                 return [

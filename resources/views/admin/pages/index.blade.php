@@ -1,6 +1,12 @@
 ﻿@extends('layouts.admin')
 
 @section('content')
+@php
+    $homePage = $pages->firstWhere('slug', 'home');
+    $hasEmsEditor = $homePage && (int) ($homePage->ems_sections_count ?? 0) > 0;
+    $publishedCount = $pages->where('is_active', true)->count() + ($hasEmsEditor && $homePage->is_active ? 1 : 0);
+@endphp
+
 <div class="admin-shell stack">
     <div class="admin-topbar">
         <div class="admin-brand">
@@ -13,7 +19,7 @@
     <div class="card-grid">
         <div class="spot-card">
             <span>Paginas</span>
-            <strong>{{ $pages->count() }}</strong>
+            <strong>{{ $pages->count() + ($hasEmsEditor ? 1 : 0) }}</strong>
             <p>Vistas disponibles para administrar desde el panel.</p>
         </div>
         <div class="spot-card">
@@ -34,7 +40,7 @@
                 <strong style="font-size:20px;">Vistas disponibles</strong>
                 <p>Selecciona una pagina para abrir el editor.</p>
             </div>
-            <span class="table-note">{{ $pages->where('is_active', true)->count() }} publicadas</span>
+            <span class="table-note">{{ $publishedCount }} publicadas</span>
         </div>
         <div class="panel-body">
             <table class="page-table">
@@ -48,6 +54,15 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @if ($hasEmsEditor)
+                        <tr>
+                            <td><strong>EMS</strong><br><span class="muted">Express Mail Service | Correos de Bolivia</span></td>
+                            <td>ems</td>
+                            <td>{{ $homePage->ems_sections_count }}</td>
+                            <td><span class="pill {{ $homePage->is_active ? 'pill-ok' : 'pill-off' }}">{{ $homePage->is_active ? 'Activa' : 'Inactiva' }}</span></td>
+                            <td><a href="{{ route('admin.pages.edit', $homePage) }}?tab=ems" class="button button-primary">Abrir editor</a></td>
+                        </tr>
+                    @endif
                     @foreach ($pages as $page)
                         <tr>
                             <td><strong>{{ $page->name }}</strong><br><span class="muted">{{ $page->meta_title ?: 'Sin titulo SEO' }}</span></td>

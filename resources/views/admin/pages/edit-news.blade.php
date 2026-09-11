@@ -2,6 +2,7 @@
 
 @php
     $featuredStory = $editorData['featured_story'];
+    $importantNotices = $editorData['important_notices'];
     $categoryFilters = $editorData['category_filters'];
     $newsGrid = $editorData['news_grid'];
     $newsletter = $editorData['newsletter'];
@@ -25,6 +26,7 @@
                     <div class="editor-nav-list">
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'design_text' }" @click="go('design_text')"><strong>Diseno</strong><span>SEO y tema visual</span></button>
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'featured' }" @click="go('featured')"><strong>Destacado</strong><span>Hero principal</span></button>
+                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'notices' }" @click="go('notices')"><strong>Avisos</strong><span>Panel lateral destacado</span></button>
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'filters' }" @click="go('filters')"><strong>Filtros</strong><span>Categorias y busqueda</span></button>
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'grid' }" @click="go('grid')"><strong>Grid</strong><span>Tarjetas de noticias</span></button>
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'newsletter' }" @click="go('newsletter')"><strong>Boletin</strong><span>Suscripcion y paginacion</span></button>
@@ -99,6 +101,8 @@
                                             <div class="field"><label>Badge</label><input type="text" data-field="badge" value="{{ $item['badge'] ?? '' }}"></div>
                                             <div class="field"><label>Categoria</label><input type="text" data-field="category" value="{{ $item['category'] ?? '' }}"></div>
                                             <div class="field"><label>URL noticia</label><input type="text" data-field="article_url" value="{{ $item['article_url'] ?? '' }}"></div>
+                                            <div class="field"><label>Slug detalle</label><input type="text" data-field="slug" value="{{ $item['slug'] ?? '' }}" placeholder="mi-noticia"></div>
+                                            <div class="field"><label>Ubicacion</label><input type="text" data-field="location" value="{{ $item['location'] ?? '' }}" placeholder="La Paz"></div>
                                             <div class="field" style="grid-column:1 / -1;"><label>Titulo</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
                                             <div class="field">
                                                 <label>Tipo de medio</label>
@@ -115,6 +119,49 @@
                                             <div class="field"><label>Subir portada del video</label><input type="file" data-field="poster_file" accept="image/*"></div>
                                         </div>
                                         <div class="field" style="margin-top:12px;"><label>Resumen</label><textarea class="field-small" data-field="excerpt">{{ $item['excerpt'] ?? '' }}</textarea></div>
+                                        <div class="field" style="margin-top:12px;"><label>Cuerpo de noticia</label><textarea class="field-small" data-field="body">{{ $item['body'] ?? '' }}</textarea></div>
+                                        <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section-card" x-show="tab === 'notices'">
+                    <div class="section-header">
+                        <div><div class="section-eyebrow">Portada editorial</div><h3 class="section-title">Avisos importantes</h3><p class="section-copy">Estos avisos aparecen al lado de la noticia destacada, con estado visual y enlace opcional.</p></div>
+                        <span class="pill pill-off">{{ count($importantNotices['items']) }} aviso(s)</span>
+                    </div>
+                    <div class="subpanel">
+                        <div class="grid grid-3">
+                            <div class="field"><label>Titulo del panel</label><input type="text" name="important_notices[title]" value="{{ old('important_notices.title', $importantNotices['settings']['title'] ?? 'Avisos importantes') }}"></div>
+                            <div class="field"><label>Texto Ver todos</label><input type="text" name="important_notices[view_all_label]" value="{{ old('important_notices.view_all_label', $importantNotices['settings']['view_all_label'] ?? 'Ver todos') }}"></div>
+                            <div class="field"><label>URL Ver todos</label><input type="text" name="important_notices[view_all_url]" value="{{ old('important_notices.view_all_url', $importantNotices['settings']['view_all_url'] ?? '/noticias') }}"></div>
+                        </div>
+                    </div>
+                    <div class="subpanel">
+                        <div class="toolbar"><div><h4>Listado de avisos</h4></div><button type="button" class="button button-secondary" data-add-row>Agregar aviso</button></div>
+                        <div class="stack" data-collection data-base="important_notices[items]" data-template="notice-template">
+                            <div data-rows>
+                                @foreach ($importantNotices['items'] as $item)
+                                    <div class="repeater-card" data-row>
+                                        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Aviso' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
+                                        <div class="grid grid-4" style="margin-top:12px;">
+                                            <div class="field" style="grid-column:1 / span 2;"><label>Titulo</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
+                                            <div class="field"><label>Fecha</label><input type="text" data-field="date" value="{{ $item['date'] ?? '' }}"></div>
+                                            <div class="field">
+                                                <label>Estado visual</label>
+                                                <select data-field="tone">
+                                                    <option value="danger" {{ ($item['tone'] ?? '') === 'danger' ? 'selected' : '' }}>Rojo / urgente</option>
+                                                    <option value="info" {{ ($item['tone'] ?? 'info') === 'info' ? 'selected' : '' }}>Azul / informativo</option>
+                                                    <option value="success" {{ ($item['tone'] ?? '') === 'success' ? 'selected' : '' }}>Verde / positivo</option>
+                                                    <option value="warning" {{ ($item['tone'] ?? '') === 'warning' ? 'selected' : '' }}>Advertencia</option>
+                                                </select>
+                                            </div>
+                                            <div class="field" style="grid-column:1 / -1;"><label>Texto</label><input type="text" data-field="text" value="{{ $item['text'] ?? '' }}"></div>
+                                            <div class="field" style="grid-column:1 / -1;"><label>URL</label><input type="text" data-field="url" value="{{ $item['url'] ?? '' }}"></div>
+                                        </div>
                                         <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                     </div>
                                 @endforeach
@@ -173,6 +220,8 @@
                                             <div class="field"><label>Fecha</label><input type="text" data-field="date" value="{{ $item['date'] ?? '' }}"></div>
                                             <div class="field"><label>Categoria</label><input type="text" data-field="category" value="{{ $item['category'] ?? '' }}"></div>
                                             <div class="field"><label>URL noticia</label><input type="text" data-field="article_url" value="{{ $item['article_url'] ?? '' }}"></div>
+                                            <div class="field"><label>Slug detalle</label><input type="text" data-field="slug" value="{{ $item['slug'] ?? '' }}" placeholder="mi-noticia"></div>
+                                            <div class="field"><label>Ubicacion</label><input type="text" data-field="location" value="{{ $item['location'] ?? '' }}" placeholder="La Paz"></div>
                                             <div class="field" style="grid-column:1 / -1;"><label>Titulo</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
                                             <div class="field">
                                                 <label>Tipo de medio</label>
@@ -189,6 +238,7 @@
                                             <div class="field"><label>Subir portada del video</label><input type="file" data-field="poster_file" accept="image/*"></div>
                                         </div>
                                         <div class="field" style="margin-top:12px;"><label>Extracto</label><textarea class="field-small" data-field="excerpt">{{ $item['excerpt'] ?? '' }}</textarea></div>
+                                        <div class="field" style="margin-top:12px;"><label>Cuerpo de noticia</label><textarea class="field-small" data-field="body">{{ $item['body'] ?? '' }}</textarea></div>
                                         <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                     </div>
                                 @endforeach
@@ -261,6 +311,8 @@
             <div class="field"><label>Badge</label><input type="text" data-field="badge"></div>
             <div class="field"><label>Categoria</label><input type="text" data-field="category"></div>
             <div class="field"><label>URL noticia</label><input type="text" data-field="article_url"></div>
+            <div class="field"><label>Slug detalle</label><input type="text" data-field="slug" placeholder="mi-noticia"></div>
+            <div class="field"><label>Ubicacion</label><input type="text" data-field="location" placeholder="La Paz"></div>
             <div class="field" style="grid-column:1 / -1;"><label>Titulo</label><input type="text" data-field="title"></div>
             <div class="field">
                 <label>Tipo de medio</label>
@@ -277,6 +329,29 @@
             <div class="field"><label>Subir portada del video</label><input type="file" data-field="poster_file" accept="image/*"></div>
         </div>
         <div class="field" style="margin-top:12px;"><label>Resumen</label><textarea class="field-small" data-field="excerpt"></textarea></div>
+        <div class="field" style="margin-top:12px;"><label>Cuerpo de noticia</label><textarea class="field-small" data-field="body"></textarea></div>
+        <input type="hidden" data-field="id">
+    </div>
+</template>
+
+<template id="notice-template">
+    <div class="repeater-card" data-row>
+        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Aviso</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
+        <div class="grid grid-4" style="margin-top:12px;">
+            <div class="field" style="grid-column:1 / span 2;"><label>Titulo</label><input type="text" data-field="title"></div>
+            <div class="field"><label>Fecha</label><input type="text" data-field="date"></div>
+            <div class="field">
+                <label>Estado visual</label>
+                <select data-field="tone">
+                    <option value="danger">Rojo / urgente</option>
+                    <option value="info" selected>Azul / informativo</option>
+                    <option value="success">Verde / positivo</option>
+                    <option value="warning">Advertencia</option>
+                </select>
+            </div>
+            <div class="field" style="grid-column:1 / -1;"><label>Texto</label><input type="text" data-field="text"></div>
+            <div class="field" style="grid-column:1 / -1;"><label>URL</label><input type="text" data-field="url"></div>
+        </div>
         <input type="hidden" data-field="id">
     </div>
 </template>
@@ -300,6 +375,8 @@
             <div class="field"><label>Fecha</label><input type="text" data-field="date"></div>
             <div class="field"><label>Categoria</label><input type="text" data-field="category"></div>
             <div class="field"><label>URL noticia</label><input type="text" data-field="article_url"></div>
+            <div class="field"><label>Slug detalle</label><input type="text" data-field="slug" placeholder="mi-noticia"></div>
+            <div class="field"><label>Ubicacion</label><input type="text" data-field="location" placeholder="La Paz"></div>
             <div class="field" style="grid-column:1 / -1;"><label>Titulo</label><input type="text" data-field="title"></div>
             <div class="field">
                 <label>Tipo de medio</label>
@@ -316,6 +393,7 @@
             <div class="field"><label>Subir portada del video</label><input type="file" data-field="poster_file" accept="image/*"></div>
         </div>
         <div class="field" style="margin-top:12px;"><label>Extracto</label><textarea class="field-small" data-field="excerpt"></textarea></div>
+        <div class="field" style="margin-top:12px;"><label>Cuerpo de noticia</label><textarea class="field-small" data-field="body"></textarea></div>
         <input type="hidden" data-field="id">
     </div>
 </template>

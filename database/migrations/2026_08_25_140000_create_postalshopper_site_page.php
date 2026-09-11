@@ -201,7 +201,7 @@ return new class extends Migration
                 'site_section_id' => $introId,
                 'name' => $item,
                 'type' => 'postalshopper_market_chip',
-                'data' => json_encode(['label' => $item], JSON_UNESCAPED_UNICODE),
+                'data' => json_encode(['label' => $item, 'logo' => ''], JSON_UNESCAPED_UNICODE),
                 'sort_order' => $index,
                 'is_active' => true,
                 'created_at' => $now,

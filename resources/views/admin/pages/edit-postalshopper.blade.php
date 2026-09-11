@@ -107,8 +107,10 @@
                             @foreach (old('postalshopper_intro.items', $intro['items'] ?? []) as $item)
                                 <div class="repeater-card" data-row>
                                     <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['label'] ?? 'Chip' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
-                                    <div class="grid grid-1" style="margin-top:12px;">
+                                    <div class="grid grid-2" style="margin-top:12px;">
                                         <div class="field"><label>Label</label><input type="text" data-field="label" value="{{ $item['label'] ?? '' }}"></div>
+                                        <div class="field"><label>Logo actual</label><input type="text" data-field="logo" value="{{ $item['logo'] ?? '' }}" placeholder="/storage/cms/postalshopper/logos/logo.svg"></div>
+                                        <div class="field"><label>Subir logo</label><input type="file" data-field="logo_file" accept="image/*" data-preview-input></div>
                                     </div>
                                     <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                 </div>
@@ -199,8 +201,10 @@
         <template id="postalshopper-chip-template">
             <div class="repeater-card" data-row>
                 <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Chip</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
-                <div class="grid grid-1" style="margin-top:12px;">
+                <div class="grid grid-2" style="margin-top:12px;">
                     <div class="field"><label>Label</label><input type="text" data-field="label"></div>
+                    <div class="field"><label>Logo actual</label><input type="text" data-field="logo" placeholder="/storage/cms/postalshopper/logos/logo.svg"></div>
+                    <div class="field"><label>Subir logo</label><input type="file" data-field="logo_file" accept="image/*" data-preview-input></div>
                 </div>
                 <input type="hidden" data-field="id">
             </div>

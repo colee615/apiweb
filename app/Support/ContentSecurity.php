@@ -6,6 +6,7 @@ class ContentSecurity
 {
     public const ASSET_KEYS = [
         'logo_url',
+        'logo',
         'background_image',
         'iconImage',
         'image',

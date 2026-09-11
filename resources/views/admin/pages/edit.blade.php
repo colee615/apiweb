@@ -1381,6 +1381,15 @@
                                             <div class="field"><label>Texto corto</label><input type="text" data-field="label" value="{{ $link['label'] ?? '' }}"></div>
                                             <div class="field"><label>Nombre accesible</label><input type="text" data-field="aria_label" value="{{ $link['aria_label'] ?? '' }}"></div>
                                             <div class="field"><label>URL</label><input type="text" data-field="url" value="{{ $link['url'] ?? '#' }}"></div>
+                                            <div class="field"><label>Imagen actual</label><input type="text" data-field="image" value="{{ $link['image'] ?? '' }}"></div>
+                                            <div class="field"><label>Subir icono</label><input type="file" data-field="image_file" accept="image/*" data-preview-input></div>
+                                        </div>
+                                        <div style="margin-top:12px;">
+                                            @if (! empty($link['image']))
+                                                <img class="thumb" data-preview-image src="{{ $link['image'] }}" style="display:block; max-width: 88px; aspect-ratio: 1 / 1; object-fit: contain;" alt="Icono social">
+                                            @else
+                                                <img class="thumb" data-preview-image style="display:none; max-width: 88px; aspect-ratio: 1 / 1; object-fit: contain;" alt="Icono social">
+                                            @endif
                                         </div>
                                         <input type="hidden" data-field="id" value="{{ $link['id'] ?? '' }}">
                                     </div>
