@@ -2029,6 +2029,7 @@ class AdminPageController extends Controller
                 return [
                     'badge' => $item['badge'] ?? '',
                     'slug' => $item['slug'] ?? '',
+                    'date' => $item['date'] ?? '',
                     'location' => $item['location'] ?? '',
                     'title' => $item['title'] ?? '',
                     'excerpt' => $item['excerpt'] ?? '',

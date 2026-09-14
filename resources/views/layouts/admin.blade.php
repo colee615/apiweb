@@ -201,6 +201,7 @@
         }
         .field textarea { min-height: 120px; resize: vertical; }
         .field textarea.field-small { min-height: 90px; }
+        .field textarea.field-article-body { min-height: 220px; line-height: 1.65; }
         .field-help {
             margin-top: 8px;
             font-size: 12px;

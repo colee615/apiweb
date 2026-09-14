@@ -102,6 +102,7 @@
                                             <div class="field"><label>Categoria</label><input type="text" data-field="category" value="{{ $item['category'] ?? '' }}"></div>
                                             <div class="field"><label>URL noticia</label><input type="text" data-field="article_url" value="{{ $item['article_url'] ?? '' }}"></div>
                                             <div class="field"><label>Slug detalle</label><input type="text" data-field="slug" value="{{ $item['slug'] ?? '' }}" placeholder="mi-noticia"></div>
+                                            <div class="field"><label>Fecha</label><input type="text" data-field="date" value="{{ $item['date'] ?? '' }}" placeholder="septiembre 11, 2026"></div>
                                             <div class="field"><label>Ubicacion</label><input type="text" data-field="location" value="{{ $item['location'] ?? '' }}" placeholder="La Paz"></div>
                                             <div class="field" style="grid-column:1 / -1;"><label>Titulo</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
                                             <div class="field">
@@ -119,7 +120,7 @@
                                             <div class="field"><label>Subir portada del video</label><input type="file" data-field="poster_file" accept="image/*"></div>
                                         </div>
                                         <div class="field" style="margin-top:12px;"><label>Resumen</label><textarea class="field-small" data-field="excerpt">{{ $item['excerpt'] ?? '' }}</textarea></div>
-                                        <div class="field" style="margin-top:12px;"><label>Cuerpo de noticia</label><textarea class="field-small" data-field="body">{{ $item['body'] ?? '' }}</textarea></div>
+                                        <div class="field" style="margin-top:12px;"><label>Cuerpo de noticia</label><textarea class="field-article-body" data-field="body" placeholder="Escribe el texto completo. Para separar parrafos, deja una linea en blanco entre bloques.">{{ $item['body'] ?? '' }}</textarea><div class="field-help">Cada linea en blanco se mostrara como un nuevo parrafo en el detalle de la noticia.</div></div>
                                         <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                     </div>
                                 @endforeach
@@ -238,7 +239,7 @@
                                             <div class="field"><label>Subir portada del video</label><input type="file" data-field="poster_file" accept="image/*"></div>
                                         </div>
                                         <div class="field" style="margin-top:12px;"><label>Extracto</label><textarea class="field-small" data-field="excerpt">{{ $item['excerpt'] ?? '' }}</textarea></div>
-                                        <div class="field" style="margin-top:12px;"><label>Cuerpo de noticia</label><textarea class="field-small" data-field="body">{{ $item['body'] ?? '' }}</textarea></div>
+                                        <div class="field" style="margin-top:12px;"><label>Cuerpo de noticia</label><textarea class="field-article-body" data-field="body" placeholder="Escribe el texto completo. Para separar parrafos, deja una linea en blanco entre bloques.">{{ $item['body'] ?? '' }}</textarea><div class="field-help">Cada linea en blanco se mostrara como un nuevo parrafo en el detalle de la noticia.</div></div>
                                         <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                     </div>
                                 @endforeach
@@ -312,6 +313,7 @@
             <div class="field"><label>Categoria</label><input type="text" data-field="category"></div>
             <div class="field"><label>URL noticia</label><input type="text" data-field="article_url"></div>
             <div class="field"><label>Slug detalle</label><input type="text" data-field="slug" placeholder="mi-noticia"></div>
+            <div class="field"><label>Fecha</label><input type="text" data-field="date" placeholder="septiembre 11, 2026"></div>
             <div class="field"><label>Ubicacion</label><input type="text" data-field="location" placeholder="La Paz"></div>
             <div class="field" style="grid-column:1 / -1;"><label>Titulo</label><input type="text" data-field="title"></div>
             <div class="field">
@@ -329,7 +331,7 @@
             <div class="field"><label>Subir portada del video</label><input type="file" data-field="poster_file" accept="image/*"></div>
         </div>
         <div class="field" style="margin-top:12px;"><label>Resumen</label><textarea class="field-small" data-field="excerpt"></textarea></div>
-        <div class="field" style="margin-top:12px;"><label>Cuerpo de noticia</label><textarea class="field-small" data-field="body"></textarea></div>
+        <div class="field" style="margin-top:12px;"><label>Cuerpo de noticia</label><textarea class="field-article-body" data-field="body" placeholder="Escribe el texto completo. Para separar parrafos, deja una linea en blanco entre bloques."></textarea><div class="field-help">Cada linea en blanco se mostrara como un nuevo parrafo en el detalle de la noticia.</div></div>
         <input type="hidden" data-field="id">
     </div>
 </template>
@@ -393,7 +395,7 @@
             <div class="field"><label>Subir portada del video</label><input type="file" data-field="poster_file" accept="image/*"></div>
         </div>
         <div class="field" style="margin-top:12px;"><label>Extracto</label><textarea class="field-small" data-field="excerpt"></textarea></div>
-        <div class="field" style="margin-top:12px;"><label>Cuerpo de noticia</label><textarea class="field-small" data-field="body"></textarea></div>
+        <div class="field" style="margin-top:12px;"><label>Cuerpo de noticia</label><textarea class="field-article-body" data-field="body" placeholder="Escribe el texto completo. Para separar parrafos, deja una linea en blanco entre bloques."></textarea><div class="field-help">Cada linea en blanco se mostrara como un nuevo parrafo en el detalle de la noticia.</div></div>
         <input type="hidden" data-field="id">
     </div>
 </template>
