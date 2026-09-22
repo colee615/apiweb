@@ -108,6 +108,15 @@ class AdminPageController extends Controller
             ]);
         }
 
+        if ($this->isApplicationsPage($page)) {
+            return view('admin.pages.edit-applications', [
+                'page' => $page,
+                'editorData' => $this->buildApplicationsEditorData($page),
+                'versions' => $page->versions()->with(['actor', 'changeLogs'])->take(12)->get(),
+                'historyData' => $this->buildHistoryData($page),
+            ]);
+        }
+
         if ($this->isEncomiendaPage($page)) {
             return view('admin.pages.edit-encomienda', [
                 'page' => $page,
@@ -146,6 +155,8 @@ class AdminPageController extends Controller
             'announcement_modal.items.*.poster_file.max' => 'Cada imagen del popup debe pesar como maximo 15 MB.',
             'app_banner.background_file.max' => 'La imagen base del banner debe pesar como maximo 15 MB.',
             'app_banner.items.*.image_file.max' => 'Cada imagen del banner debe pesar como maximo 15 MB.',
+            'applications.background_file.max' => 'La imagen de fondo de aplicaciones debe pesar como maximo 15 MB.',
+            'applications.items.*.image_file.max' => 'La imagen de una aplicacion debe pesar como maximo 15 MB.',
             'services.items.*.iconImage_file.max' => 'Cada icono del servicio debe pesar como maximo 15 MB.',
             'services.items.*.url.max' => 'La URL del servicio no debe superar los 2048 caracteres.',
             'market.items.*.image_file.max' => 'Cada imagen del producto debe pesar como maximo 15 MB.',
@@ -195,6 +206,8 @@ class AdminPageController extends Controller
             'announcement_modal.items.*.poster_file' => 'imagen de un popup',
             'app_banner.background_file' => 'imagen base del banner',
             'app_banner.items.*.image_file' => 'imagen de un slide del banner',
+            'applications.background_file' => 'imagen de fondo de aplicaciones',
+            'applications.items.*.image_file' => 'imagen de una aplicacion',
             'app_banner.items.*.duration_seconds' => 'duracion de un slide del banner',
             'services.items.*.iconImage_file' => 'icono del servicio',
             'services.items.*.url' => 'URL del servicio',
@@ -306,6 +319,26 @@ class AdminPageController extends Controller
             $rules['news_grid.items.*.poster_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'];
         }
 
+        if ($this->isApplicationsPage($page)) {
+            $rules['applications.background_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'];
+            $rules['applications.items'] = ['nullable', 'array'];
+            $rules['applications.items.*.name'] = ['nullable', 'string', 'max:160'];
+            $rules['applications.items.*.type'] = ['nullable', 'string', 'max:80'];
+            $rules['applications.items.*.category'] = ['nullable', 'string', 'max:80'];
+            $rules['applications.items.*.description'] = ['nullable', 'string', 'max:500'];
+            $rules['applications.items.*.icon'] = ['nullable', 'string', 'max:80'];
+            $rules['applications.items.*.preview'] = ['nullable', 'string', 'max:80'];
+            $rules['applications.items.*.preview_label'] = ['nullable', 'string', 'max:120'];
+            $rules['applications.items.*.preview_title'] = ['nullable', 'string', 'max:160'];
+            $rules['applications.items.*.color'] = ['nullable', 'string', 'max:30'];
+            $rules['applications.items.*.action'] = ['nullable', 'string', 'max:80'];
+            $rules['applications.items.*.url'] = ['nullable', 'string', 'max:2048'];
+            $rules['applications.items.*.image_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'];
+            $rules['applications_highlights.items'] = ['nullable', 'array'];
+            $rules['applications_highlights.items.*.icon'] = ['nullable', 'string', 'max:80'];
+            $rules['applications_highlights.items.*.title'] = ['nullable', 'string', 'max:180'];
+        }
+
         $data = $request->validate($rules, $messages, $attributes);
 
         if ($this->isAboutPage($page)) {
@@ -322,6 +355,8 @@ class AdminPageController extends Controller
             $sectionsPayload = $this->buildCasillasSectionsPayload($request, $page);
         } elseif ($this->isPostalshopperPage($page)) {
             $sectionsPayload = $this->buildPostalshopperSectionsPayload($request, $page);
+        } elseif ($this->isApplicationsPage($page)) {
+            $sectionsPayload = $this->buildApplicationsSectionsPayload($request, $page);
         } elseif ($this->isEncomiendaPage($page)) {
             $sectionsPayload = $this->buildEncomiendaSectionsPayload($request, $page);
         } else {
@@ -377,6 +412,64 @@ class AdminPageController extends Controller
         return redirect()
             ->route('admin.pages.edit', $page)
             ->with('status', 'Se restauro la version seleccionada correctamente.');
+    }
+
+    protected function buildApplicationsEditorData(SitePage $page): array
+    {
+        $theme = $page->theme ?? [];
+
+        return [
+            'theme' => [
+                'logo_url' => $this->normalizeAssetUrl($theme['logo_url'] ?? ''),
+                'primary_color' => $theme['primary_color'] ?? '#20539a',
+                'secondary_color' => $theme['secondary_color'] ?? '#2f3f5c',
+                'accent_color' => $theme['accent_color'] ?? '#fecc36',
+            ],
+            'header' => [
+                'settings' => $this->sectionSettings($page, 'header', [
+                    'language_primary' => '',
+                    'language_secondary' => '',
+                    'accessibility_label' => '',
+                    'help_label' => '',
+                    'login_label' => '',
+                    'search_placeholder' => '',
+                    'news_ticker_label' => 'Novedades',
+                ]),
+                'ticker_items' => $this->sectionSettings($page, 'header', [])['news_ticker_items'] ?? [],
+                'links' => $this->sectionItems($page, 'header'),
+            ],
+            'applications' => [
+                'settings' => $this->sectionSettings($page, 'applications', [
+                    'hero_eyebrow' => 'HERRAMIENTAS DIGITALES',
+                    'hero_title' => 'Aplicaciones y',
+                    'hero_title_accent' => 'Sistemas',
+                    'hero_text' => '',
+                    'catalog_eyebrow' => 'TODO EN UN SOLO LUGAR',
+                    'catalog_title' => 'Tus herramientas digitales',
+                    'search_placeholder' => 'Buscar aplicaciones o sistemas...',
+                    'support_eyebrow' => '¿NECESITAS AYUDA?',
+                    'support_title' => 'Estamos para orientarte',
+                    'support_text' => '',
+                    'support_button_label' => 'Contáctanos',
+                    'support_button_url' => '/contacto',
+                    'background_image' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'applications'),
+            ],
+            'applications_highlights' => [
+                'items' => $this->sectionItems($page, 'applications_highlights'),
+            ],
+            'footer' => [
+                'settings' => $this->sectionSettings($page, 'footer', [
+                    'seal_logo' => '',
+                ]),
+                'help_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'help')),
+                'company_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'company')),
+                'alliances_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'alliances')),
+                'international_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'international')),
+                'social_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'social')),
+            ],
+        ];
     }
 
     protected function buildEditorData(SitePage $page): array
@@ -1110,6 +1203,102 @@ class AdminPageController extends Controller
                 ]),
                 'items' => $this->sectionItems($page, 'postalshopper_benefits'),
             ],
+        ];
+    }
+
+    protected function buildApplicationsSectionsPayload(Request $request, SitePage $page): array
+    {
+        $form = $request->all();
+
+        return [
+            $this->makeSectionPayload($page, 'header', 'Encabezado', 'header', 0, [
+                'language_primary' => $request->input('header.language_primary'),
+                'language_secondary' => $request->input('header.language_secondary'),
+                'accessibility_label' => $request->input('header.accessibility_label'),
+                'help_label' => $request->input('header.help_label'),
+                'login_label' => $request->input('header.login_label'),
+                'search_placeholder' => $request->input('header.search_placeholder'),
+                'news_ticker_label' => $request->input('header.news_ticker_label') ?: 'Novedades',
+                'news_ticker_items' => collect(data_get($form, 'header.ticker_items', []))
+                    ->map(function ($item) {
+                        $label = trim((string) ($item['label'] ?? ''));
+                        $url = ContentSecurity::sanitizeLinkUrl($item['url'] ?? '') ?? '';
+
+                        if ($label === '') {
+                            return null;
+                        }
+
+                        return ['title' => $label, 'url' => $url];
+                    })
+                    ->filter()
+                    ->values()
+                    ->all(),
+            ], $this->mapRepeaterItems(data_get($form, 'header.links', []), 'nav_link', function ($item) {
+                return [
+                    'label' => $item['label'] ?? '',
+                    'url' => ContentSecurity::sanitizeLinkUrl($item['url'] ?? '') ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'applications', 'Aplicaciones y Sistemas', 'applications_grid', 1, [
+                'hero_eyebrow' => $request->input('applications.hero_eyebrow'),
+                'hero_title' => $request->input('applications.hero_title'),
+                'hero_title_accent' => $request->input('applications.hero_title_accent'),
+                'hero_text' => $request->input('applications.hero_text'),
+                'catalog_eyebrow' => $request->input('applications.catalog_eyebrow'),
+                'catalog_title' => $request->input('applications.catalog_title'),
+                'search_placeholder' => $request->input('applications.search_placeholder'),
+                'support_eyebrow' => $request->input('applications.support_eyebrow'),
+                'support_title' => $request->input('applications.support_title'),
+                'support_text' => $request->input('applications.support_text'),
+                'support_button_label' => $request->input('applications.support_button_label'),
+                'support_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('applications.support_button_url')) ?? '',
+                'background_image' => $this->storeUploadedImage($request, 'applications.background_file', $request->input('applications.background_image'), 'cms/applications'),
+            ], $this->mapRepeaterItems(data_get($form, 'applications.items', []), 'application', function ($item) {
+                return [
+                    'name' => $item['name'] ?? '',
+                    'type' => $item['type'] ?? '',
+                    'category' => $item['category'] ?? 'Otros',
+                    'description' => $item['description'] ?? '',
+                    'icon' => $item['icon'] ?? 'grid',
+                    'preview' => $item['preview'] ?? 'default',
+                    'preview_label' => $item['preview_label'] ?? ($item['name'] ?? ''),
+                    'preview_title' => $item['preview_title'] ?? ($item['name'] ?? ''),
+                    'color' => $item['color'] ?? '#20539a',
+                    'action' => $item['action'] ?? 'Ingresar',
+                    'url' => ContentSecurity::sanitizeLinkUrl($item['url'] ?? '') ?? '',
+                    'image' => $this->storeRepeaterImage($item, 'image_file', 'image', 'cms/applications'),
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'applications_highlights', 'Beneficios digitales', 'highlight_grid', 2, [], $this->mapRepeaterItems(data_get($form, 'applications_highlights.items', []), 'application_highlight', function ($item) {
+                return [
+                    'icon' => $item['icon'] ?? 'spark',
+                    'title' => $item['title'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'footer', 'Pie de pagina', 'footer', 3, [
+                'help_title' => $request->input('footer.help_title'),
+                'company_title' => $request->input('footer.company_title'),
+                'alliances_title' => $request->input('footer.alliances_title'),
+                'international_title' => $request->input('footer.international_title'),
+                'contact_title' => $request->input('footer.contact_title'),
+                'social_title' => $request->input('footer.social_title'),
+                'social_text' => $request->input('footer.social_text'),
+                'address' => trim(($request->input('footer.address_line_1') ?? '') . '|' . ($request->input('footer.address_line_2') ?? ''), '|'),
+                'phone' => trim(($request->input('footer.phone_line_1') ?? '') . '|' . ($request->input('footer.phone_line_2') ?? ''), '|'),
+                'email' => $request->input('footer.email'),
+                'seal_logo' => $this->storeUploadedImage($request, 'footer.seal_logo_file', $request->input('footer.seal_logo'), 'cms/footer'),
+                'copyright' => $request->input('footer.copyright'),
+                'legal_text' => $request->input('footer.legal_text'),
+            ], array_merge(
+                $this->mapFooterLinks(data_get($form, 'footer.help_links', []), 'help', 'help_link'),
+                $this->mapFooterLinks(data_get($form, 'footer.company_links', []), 'company', 'company_link'),
+                $this->mapFooterLinks(data_get($form, 'footer.alliances_links', []), 'alliances', 'alliance_link'),
+                $this->mapFooterLinks(data_get($form, 'footer.international_links', []), 'international', 'international_link'),
+                $this->mapFooterLinks(data_get($form, 'footer.social_links', []), 'social', 'social_link', true),
+            )),
         ];
     }
 
@@ -2327,12 +2516,18 @@ class AdminPageController extends Controller
 
         return $section->items
             ->map(function ($item) {
-                return $this->normalizeAssetFields(array_merge([
-                    'id' => $item->id,
-                    'name' => $item->name,
-                    'type' => $item->type,
-                    'sort_order' => $item->sort_order,
-                ], $item->data ?? []));
+                // `data` may contain a frontend identifier (for example
+                // "trackingbo"), but the editor's hidden `id` field must
+                // always contain the numeric primary key of the database row.
+                return $this->normalizeAssetFields(array_merge(
+                    $item->data ?? [],
+                    [
+                        'id' => $item->id,
+                        'name' => $item->name,
+                        'type' => $item->type,
+                        'sort_order' => $item->sort_order,
+                    ]
+                ));
             })
             ->values()
             ->all();
@@ -2451,6 +2646,12 @@ class AdminPageController extends Controller
     {
         return $page->slug === 'postalshopper'
             || $this->pageHasSectionKeys($page, ['postalshopper_hero', 'postalshopper_intro', 'postalshopper_steps', 'postalshopper_benefits']);
+    }
+
+    protected function isApplicationsPage(SitePage $page): bool
+    {
+        return in_array($page->slug, ['misaplicaciones', 'misaplicaicones'], true)
+            || $this->pageHasSectionKeys($page, ['applications', 'applications_highlights']);
     }
 
     protected function pageHasSectionKeys(SitePage $page, array $expectedKeys): bool

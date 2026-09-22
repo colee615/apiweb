@@ -137,9 +137,20 @@ class SitePageEditor
         foreach ($items as $itemIndex => $itemPayload) {
             $itemId = $itemPayload['id'] ?? null;
 
-            $item = $itemId
-                ? $section->items()->where('id', $itemId)->first()
-                : new SiteSectionItem(['site_section_id' => $section->id]);
+            // Older editor forms used the frontend identifier stored in
+            // data.id (for example "trackingbo") as the hidden item id.
+            // Never compare that value with the bigint primary-key column.
+            if ($itemId !== null && ctype_digit((string) $itemId)) {
+                $item = $section->items()->whereKey((int) $itemId)->first();
+            } elseif (is_string($itemId) && trim($itemId) !== '') {
+                $item = $section->items()
+                    ->whereJsonContains('data->id', $itemId)
+                    ->first();
+            } else {
+                $item = null;
+            }
+
+            $item ??= new SiteSectionItem(['site_section_id' => $section->id]);
 
             if (! $item) {
                 continue;
