@@ -117,6 +117,15 @@ class AdminPageController extends Controller
             ]);
         }
 
+        if ($this->isTramitesPage($page)) {
+            return view('admin.pages.edit-tramites', [
+                'page' => $page,
+                'editorData' => $this->buildTramitesEditorData($page),
+                'versions' => $page->versions()->with(['actor', 'changeLogs'])->take(12)->get(),
+                'historyData' => $this->buildHistoryData($page),
+            ]);
+        }
+
         if ($this->isEncomiendaPage($page)) {
             return view('admin.pages.edit-encomienda', [
                 'page' => $page,
@@ -157,6 +166,8 @@ class AdminPageController extends Controller
             'app_banner.items.*.image_file.max' => 'Cada imagen del banner debe pesar como maximo 15 MB.',
             'applications.background_file.max' => 'La imagen de fondo de aplicaciones debe pesar como maximo 15 MB.',
             'applications.items.*.image_file.max' => 'La imagen de una aplicacion debe pesar como maximo 15 MB.',
+            'tramites.items.*.file.max' => 'El archivo del trámite debe pesar como máximo 15 MB.',
+            'tramites.items.*.files.*.max' => 'Cada archivo de Información Postal debe pesar como máximo 15 MB.',
             'services.items.*.iconImage_file.max' => 'Cada icono del servicio debe pesar como maximo 15 MB.',
             'services.items.*.url.max' => 'La URL del servicio no debe superar los 2048 caracteres.',
             'market.items.*.image_file.max' => 'Cada imagen del producto debe pesar como maximo 15 MB.',
@@ -208,6 +219,8 @@ class AdminPageController extends Controller
             'app_banner.items.*.image_file' => 'imagen de un slide del banner',
             'applications.background_file' => 'imagen de fondo de aplicaciones',
             'applications.items.*.image_file' => 'imagen de una aplicacion',
+            'tramites.items.*.file' => 'archivo del trámite',
+            'tramites.items.*.files.*' => 'archivo adjunto de Información Postal',
             'app_banner.items.*.duration_seconds' => 'duracion de un slide del banner',
             'services.items.*.iconImage_file' => 'icono del servicio',
             'services.items.*.url' => 'URL del servicio',
@@ -339,6 +352,22 @@ class AdminPageController extends Controller
             $rules['applications_highlights.items.*.title'] = ['nullable', 'string', 'max:180'];
         }
 
+        if ($this->isTramitesPage($page)) {
+            $rules['tramites.eyebrow'] = ['nullable', 'string', 'max:100'];
+            $rules['tramites.title'] = ['required', 'string', 'max:180'];
+            $rules['tramites.description'] = ['nullable', 'string', 'max:1000'];
+            $rules['tramites.search_placeholder'] = ['nullable', 'string', 'max:180'];
+            $rules['tramites.empty_text'] = ['nullable', 'string', 'max:300'];
+            $rules['tramites.items'] = ['nullable', 'array'];
+            $rules['tramites.items.*.title'] = ['nullable', 'string', 'max:220'];
+            $rules['tramites.items.*.description'] = ['nullable', 'string', 'max:1000'];
+            $rules['tramites.items.*.url'] = ['nullable', 'string', 'max:2048'];
+            $rules['tramites.items.*.category'] = ['nullable', 'string', 'max:120'];
+            $rules['tramites.items.*.file'] = ['nullable', 'file', 'max:15360'];
+            $rules['tramites.items.*.files'] = ['nullable', 'array', 'max:20'];
+            $rules['tramites.items.*.files.*'] = ['file', 'max:15360'];
+        }
+
         $data = $request->validate($rules, $messages, $attributes);
 
         if ($this->isAboutPage($page)) {
@@ -357,6 +386,8 @@ class AdminPageController extends Controller
             $sectionsPayload = $this->buildPostalshopperSectionsPayload($request, $page);
         } elseif ($this->isApplicationsPage($page)) {
             $sectionsPayload = $this->buildApplicationsSectionsPayload($request, $page);
+        } elseif ($this->isTramitesPage($page)) {
+            $sectionsPayload = $this->buildTramitesSectionsPayload($request, $page);
         } elseif ($this->isEncomiendaPage($page)) {
             $sectionsPayload = $this->buildEncomiendaSectionsPayload($request, $page);
         } else {
@@ -370,10 +401,10 @@ class AdminPageController extends Controller
             'meta_description' => $data['meta_description'] ?? null,
             'is_active' => $request->boolean('is_active'),
             'theme' => [
-                'logo_url' => $this->storeUploadedImage($request, 'theme.logo_file', $request->input('theme.logo_url'), 'cms/theme'),
-                'primary_color' => $request->input('theme.primary_color'),
-                'secondary_color' => $request->input('theme.secondary_color'),
-                'accent_color' => $request->input('theme.accent_color'),
+                'logo_url' => $this->storeUploadedImage($request, 'theme.logo_file', $request->input('theme.logo_url', data_get($page->theme, 'logo_url')), 'cms/theme'),
+                'primary_color' => $request->input('theme.primary_color', data_get($page->theme, 'primary_color')),
+                'secondary_color' => $request->input('theme.secondary_color', data_get($page->theme, 'secondary_color')),
+                'accent_color' => $request->input('theme.accent_color', data_get($page->theme, 'accent_color')),
             ],
             'sections' => $sectionsPayload,
         ];
@@ -468,6 +499,47 @@ class AdminPageController extends Controller
                 'alliances_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'alliances')),
                 'international_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'international')),
                 'social_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'social')),
+            ],
+        ];
+    }
+
+    protected function buildTramitesEditorData(SitePage $page): array
+    {
+        $theme = $page->theme ?? [];
+
+        return [
+            'theme' => [
+                'logo_url' => $this->normalizeAssetUrl($theme['logo_url'] ?? ''),
+                'primary_color' => $theme['primary_color'] ?? '#20539a',
+                'secondary_color' => $theme['secondary_color'] ?? '#2f3f5c',
+                'accent_color' => $theme['accent_color'] ?? '#fecc36',
+            ],
+            'header' => [
+                'settings' => $this->sectionSettings($page, 'header', [
+                    'language_primary' => '',
+                    'language_secondary' => '',
+                    'accessibility_label' => '',
+                    'help_label' => '',
+                    'login_label' => '',
+                    'search_placeholder' => '',
+                    'news_ticker_label' => 'Novedades',
+                ]),
+                'ticker_items' => $this->sectionSettings($page, 'header', [])['news_ticker_items'] ?? [],
+                'links' => $this->sectionItems($page, 'header'),
+            ],
+            'tramites' => [
+                'settings' => $this->sectionSettings($page, 'tramites', [
+                    'eyebrow' => 'SERVICIOS POSTALES',
+                    'title' => 'Información Postal',
+                    'description' => '',
+                    'search_placeholder' => 'Buscar un trámite...',
+                    'empty_text' => 'No encontramos trámites con esos criterios.',
+                ]),
+                'items' => $this->sectionItems($page, 'tramites'),
+            ],
+            'footer' => [
+                'settings' => $this->sectionSettings($page, 'footer', []),
+                'links' => $this->sectionItems($page, 'footer'),
             ],
         ];
     }
@@ -1299,6 +1371,103 @@ class AdminPageController extends Controller
                 $this->mapFooterLinks(data_get($form, 'footer.international_links', []), 'international', 'international_link'),
                 $this->mapFooterLinks(data_get($form, 'footer.social_links', []), 'social', 'social_link', true),
             )),
+        ];
+    }
+
+    protected function buildTramitesSectionsPayload(Request $request, SitePage $page): array
+    {
+        $form = $request->all();
+        $existingHeader = $this->preserveExistingSectionPayload($page, 'header', 0);
+        $existingFooter = $this->preserveExistingSectionPayload($page, 'footer', 2);
+        $items = collect(data_get($form, 'tramites.items', []))
+            ->filter(function ($item) {
+                return filled($item['title'] ?? null)
+                    || filled($item['description'] ?? null)
+                    || filled($item['url'] ?? null)
+                    || filled($item['src'] ?? null)
+                    || filled($item['attachments_json'] ?? null)
+                    || ! empty($item['files'] ?? [])
+                    || (($item['file'] ?? null) instanceof \Illuminate\Http\UploadedFile);
+            })
+            ->values()
+            ->map(function ($item, $index) {
+                $src = $this->storeRepeaterAsset($item, 'file', 'src', 'cms/tramites');
+                $fileName = trim((string) ($item['file_name'] ?? ''));
+                $fileMime = trim((string) ($item['file_mime'] ?? ''));
+                $fileExtension = trim((string) ($item['file_extension'] ?? ''));
+
+                if (($item['file'] ?? null) instanceof \Illuminate\Http\UploadedFile) {
+                    $fileName = $item['file']->getClientOriginalName();
+                    $fileMime = $item['file']->getMimeType() ?: $item['file']->getClientMimeType();
+                    $fileExtension = strtolower($item['file']->getClientOriginalExtension());
+                }
+
+                $attachments = json_decode((string) ($item['attachments_json'] ?? ''), true);
+                $attachments = is_array($attachments) ? array_values(array_filter($attachments, 'is_array')) : [];
+                if (! empty($item['clear_attachments'])) {
+                    $attachments = [];
+                }
+                if (($item['file'] ?? null) instanceof \Illuminate\Http\UploadedFile) {
+                    $attachments[] = [
+                        'src' => $src,
+                        'file_name' => $fileName,
+                        'file_mime' => $fileMime,
+                        'file_extension' => $fileExtension,
+                    ];
+                } elseif (empty($attachments) && $src) {
+                    $attachments[] = [
+                        'src' => $src,
+                        'file_name' => $fileName,
+                        'file_mime' => $fileMime,
+                        'file_extension' => $fileExtension,
+                    ];
+                }
+
+                foreach ((array) ($item['files'] ?? []) as $uploadedFile) {
+                    if (! $uploadedFile instanceof \Illuminate\Http\UploadedFile) {
+                        continue;
+                    }
+
+                    $path = $uploadedFile->store('cms/tramites', 'public');
+                    $attachments[] = [
+                        'src' => $this->normalizeAssetUrl(Storage::disk('public')->url($path)),
+                        'file_name' => $uploadedFile->getClientOriginalName(),
+                        'file_mime' => $uploadedFile->getMimeType() ?: $uploadedFile->getClientMimeType(),
+                        'file_extension' => strtolower($uploadedFile->getClientOriginalExtension()),
+                    ];
+                }
+
+                return [
+                    'id' => $item['id'] ?? null,
+                    'name' => $item['title'] ?? '',
+                    'type' => 'tramite',
+                    'sort_order' => $index,
+                    'is_active' => true,
+                    'data' => [
+                        'title' => $item['title'] ?? '',
+                        'description' => $item['description'] ?? '',
+                        'category' => $item['category'] ?? '',
+                        'url' => ContentSecurity::sanitizeLinkUrl($item['url'] ?? '') ?? '',
+                        'src' => $src,
+                        'file_name' => $fileName,
+                        'file_mime' => $fileMime,
+                        'file_extension' => $fileExtension,
+                        'attachments' => array_values($attachments),
+                    ],
+                ];
+            })
+            ->all();
+
+        return [
+            $existingHeader ?: $this->makeSectionPayload($page, 'header', 'Encabezado', 'header', 0, [], []),
+            $this->makeSectionPayload($page, 'tramites', 'Información Postal', 'tramites_grid', 1, [
+                'eyebrow' => $request->input('tramites.eyebrow'),
+                'title' => $request->input('tramites.title'),
+                'description' => $request->input('tramites.description'),
+                'search_placeholder' => $request->input('tramites.search_placeholder'),
+                'empty_text' => $request->input('tramites.empty_text'),
+            ], $items),
+            $existingFooter ?: $this->makeSectionPayload($page, 'footer', 'Pie de página', 'footer', 2, [], []),
         ];
     }
 
@@ -2652,6 +2821,12 @@ class AdminPageController extends Controller
     {
         return in_array($page->slug, ['misaplicaciones', 'misaplicaicones'], true)
             || $this->pageHasSectionKeys($page, ['applications', 'applications_highlights']);
+    }
+
+    protected function isTramitesPage(SitePage $page): bool
+    {
+        return in_array($page->slug, ['tramites', 'informacion-postal'], true)
+            || $this->pageHasSectionKeys($page, ['tramites']);
     }
 
     protected function pageHasSectionKeys(SitePage $page, array $expectedKeys): bool

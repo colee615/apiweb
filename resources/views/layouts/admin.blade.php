@@ -1114,7 +1114,9 @@
             const baseName = collection.getAttribute('data-base');
             collection.querySelectorAll('[data-row]').forEach(function (row, index) {
                 row.querySelectorAll('[data-field]').forEach(function (field) {
-                    field.name = `${baseName}[${index}][${field.getAttribute('data-field')}]`;
+                    const fieldKey = field.getAttribute('data-field');
+                    const multipleSuffix = fieldKey === 'files' ? '[]' : '';
+                    field.name = `${baseName}[${index}][${fieldKey}]${multipleSuffix}`;
                 });
             });
         }
