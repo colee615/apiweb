@@ -34,6 +34,164 @@ class AdminPageController extends Controller
         return view('admin.pages.index', compact('pages'));
     }
 
+    public function editGlobalSettings(): View
+    {
+        $page = SitePage::query()->where('slug', 'home')->firstOrFail();
+        $page->load([
+            'sections' => fn ($query) => $query->orderBy('sort_order'),
+            'sections.items' => fn ($query) => $query->orderBy('sort_order'),
+        ]);
+
+        return view('admin.pages.edit-global', [
+            'page' => $page,
+            'editorData' => $this->buildEditorData($page),
+        ]);
+    }
+
+    public function updateGlobalSettings(Request $request): RedirectResponse
+    {
+        $page = SitePage::query()->where('slug', 'home')->firstOrFail();
+        $page->load('sections.items');
+
+        $request->validate([
+            'theme.logo_url' => ['nullable', 'string', 'max:2048'],
+            'theme.logo_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'theme.primary_color' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'theme.secondary_color' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'theme.accent_color' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'announcement_modal.items' => ['nullable', 'array'],
+            'announcement_modal.items.*.poster_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'],
+            'header.ticker_items' => ['nullable', 'array'],
+            'header.links' => ['nullable', 'array'],
+            'footer.help_links' => ['nullable', 'array'],
+            'footer.company_links' => ['nullable', 'array'],
+            'footer.alliances_links' => ['nullable', 'array'],
+            'footer.international_links' => ['nullable', 'array'],
+            'footer.social_links' => ['nullable', 'array'],
+            'footer.seal_logo_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'footer.social_links.*.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'change_summary' => ['nullable', 'string', 'max:1000'],
+        ], [
+            'required' => 'Completa el campo :attribute.',
+            'regex' => 'El campo :attribute debe usar un color hexadecimal como #20539A.',
+            'image' => 'El archivo de :attribute debe ser una imagen válida.',
+            'mimes' => 'La imagen de :attribute debe ser JPG, PNG, WEBP o SVG.',
+            'max.file' => 'La imagen de :attribute es demasiado pesada. El máximo es 15 MB.',
+        ], [
+            'theme.primary_color' => 'color principal',
+            'theme.secondary_color' => 'color secundario',
+            'theme.accent_color' => 'color de acento',
+            'theme.logo_file' => 'logo del sitio',
+            'footer.seal_logo_file' => 'logo inferior del pie de página',
+        ]);
+
+        $form = $request->all();
+        $existingSections = $this->existingSectionsPayload($page);
+        $sectionsPayload = array_values(array_filter(
+            $existingSections,
+            fn (array $section) => ! in_array($section['key'] ?? null, ['announcement_modal', 'header', 'footer'], true)
+        ));
+
+        $announcementSection = $page->sections->firstWhere('key', 'announcement_modal');
+        $headerSection = $page->sections->firstWhere('key', 'header');
+        $footerSection = $page->sections->firstWhere('key', 'footer');
+
+        $announcementItems = $this->mapRepeaterItems(data_get($form, 'announcement_modal.items', []), 'announcement_slide', function ($item) {
+            return [
+                'title' => $item['title'] ?? '',
+                'poster_image' => $this->storeRepeaterImage($item, 'poster_file', 'poster_image', 'cms/announcement'),
+                'poster_alt' => $item['poster_alt'] ?? '',
+                'poster_title' => $item['poster_title'] ?? '',
+                'poster_caption' => $item['poster_caption'] ?? '',
+            ];
+        });
+        $announcementSettings = [
+            'enabled' => $request->boolean('announcement_modal.enabled'),
+            'show_once' => $request->boolean('announcement_modal.show_once'),
+            'storage_key' => $request->input('announcement_modal.storage_key') ?: 'cb-home-announcement',
+            'poster_image' => '',
+            'poster_alt' => '',
+            'poster_title' => '',
+            'poster_caption' => '',
+        ];
+
+        $sectionsPayload[] = $this->makeSectionPayload($page, 'announcement_modal', 'Popup de inicio', 'announcement_modal', $announcementSection?->sort_order ?? 0, $announcementSettings, $announcementItems);
+
+        $sectionsPayload[] = $this->makeSectionPayload($page, 'header', 'Encabezado', 'header', $headerSection?->sort_order ?? 1, [
+            'language_primary' => $request->input('header.language_primary'),
+            'language_secondary' => $request->input('header.language_secondary'),
+            'accessibility_label' => $request->input('header.accessibility_label'),
+            'help_label' => $request->input('header.help_label'),
+            'login_label' => $request->input('header.login_label'),
+            'search_placeholder' => $request->input('header.search_placeholder'),
+            'news_ticker_label' => $request->input('header.news_ticker_label') ?: 'Novedades',
+            'news_ticker_items' => collect(data_get($form, 'header.ticker_items', []))
+                ->map(function ($item) {
+                    $label = trim((string) ($item['label'] ?? ''));
+
+                    if ($label === '') {
+                        return null;
+                    }
+
+                    return [
+                        'title' => $label,
+                        'url' => ContentSecurity::sanitizeLinkUrl($item['url'] ?? '') ?? '',
+                    ];
+                })
+                ->filter()
+                ->values()
+                ->all(),
+        ], $this->mapRepeaterItems(data_get($form, 'header.links', []), 'nav_link', function ($item) {
+            return [
+                'label' => $item['label'] ?? '',
+                'url' => ContentSecurity::sanitizeLinkUrl($item['url'] ?? '') ?? '',
+            ];
+        }));
+
+        $sectionsPayload[] = $this->makeSectionPayload($page, 'footer', 'Pie de página', 'footer', $footerSection?->sort_order ?? 12, [
+            'help_title' => $request->input('footer.help_title'),
+            'company_title' => $request->input('footer.company_title'),
+            'alliances_title' => $request->input('footer.alliances_title'),
+            'international_title' => $request->input('footer.international_title'),
+            'contact_title' => $request->input('footer.contact_title'),
+            'social_title' => $request->input('footer.social_title'),
+            'social_text' => $request->input('footer.social_text'),
+            'address' => trim(($request->input('footer.address_line_1') ?? '') . '|' . ($request->input('footer.address_line_2') ?? ''), '|'),
+            'phone' => trim(($request->input('footer.phone_line_1') ?? '') . '|' . ($request->input('footer.phone_line_2') ?? ''), '|'),
+            'email' => $request->input('footer.email'),
+            'seal_logo' => $this->storeUploadedImage($request, 'footer.seal_logo_file', $request->input('footer.seal_logo'), 'cms/footer'),
+            'copyright' => $request->input('footer.copyright'),
+            'legal_text' => $request->input('footer.legal_text'),
+        ], array_merge(
+            $this->mapFooterLinks(data_get($form, 'footer.help_links', []), 'help', 'help_link'),
+            $this->mapFooterLinks(data_get($form, 'footer.company_links', []), 'company', 'company_link'),
+            $this->mapFooterLinks(data_get($form, 'footer.alliances_links', []), 'alliances', 'alliance_link'),
+            $this->mapFooterLinks(data_get($form, 'footer.international_links', []), 'international', 'international_link'),
+            $this->mapFooterLinks(data_get($form, 'footer.social_links', []), 'social', 'social_link', true),
+        ));
+
+        $this->editor->updatePage($page, [
+            'slug' => $page->slug,
+            'name' => $page->name,
+            'meta_title' => $page->meta_title,
+            'meta_description' => $page->meta_description,
+            'is_active' => $page->is_active,
+            'theme' => [
+                'logo_url' => $this->storeUploadedImage($request, 'theme.logo_file', $request->input('theme.logo_url', data_get($page->theme, 'logo_url')), 'cms/theme'),
+                'primary_color' => $request->input('theme.primary_color'),
+                'secondary_color' => $request->input('theme.secondary_color'),
+                'accent_color' => $request->input('theme.accent_color'),
+            ],
+            'sections' => $sectionsPayload,
+        ], $request->attributes->get('admin_user'), [
+            'change_summary' => $request->input('change_summary'),
+        ]);
+
+        return redirect()
+            ->route('admin.global.edit')
+            ->with('status', 'La configuración global se actualizó correctamente.');
+    }
+
     public function edit(SitePage $page): View
     {
         $page->load([
@@ -44,6 +202,15 @@ class AdminPageController extends Controller
                 $query->orderBy('sort_order');
             },
         ]);
+
+        if (str_starts_with((string) request('tab', ''), 'history')) {
+            return view('admin.pages.history', [
+                'page' => $page,
+                'pages' => SitePage::orderBy('name')->get(['id', 'name']),
+                'versions' => $page->versions()->with(['actor', 'changeLogs'])->take(12)->get(),
+                'historyData' => $this->buildHistoryData($page),
+            ]);
+        }
 
         if ($this->isAboutPage($page)) {
             return view('admin.pages.edit-about', [
@@ -135,6 +302,14 @@ class AdminPageController extends Controller
             ]);
         }
 
+        if ($page->slug !== 'home') {
+            return view('admin.pages.edit-generic', [
+                'page' => $page,
+                'versions' => $page->versions()->with(['actor', 'changeLogs'])->take(12)->get(),
+                'historyData' => $this->buildHistoryData($page),
+            ]);
+        }
+
         return view('admin.pages.edit', [
             'page' => $page,
             'editorData' => $this->buildEditorData($page),
@@ -146,7 +321,7 @@ class AdminPageController extends Controller
     public function update(Request $request, SitePage $page): RedirectResponse
     {
         $messages = [
-            'required' => 'Completa el campooooo :attribute.',
+            'required' => 'Completa el campo :attribute.',
             'string' => 'El campo :attribute debe ser texto.',
             'integer' => 'El campo :attribute debe ser un numero entero.',
             'boolean' => 'El campo :attribute debe ser un valor valido.',
@@ -166,6 +341,8 @@ class AdminPageController extends Controller
             'app_banner.items.*.image_file.max' => 'Cada imagen del banner debe pesar como maximo 15 MB.',
             'applications.background_file.max' => 'La imagen de fondo de aplicaciones debe pesar como maximo 15 MB.',
             'applications.items.*.image_file.max' => 'La imagen de una aplicacion debe pesar como maximo 15 MB.',
+            'applications.items.*.download_file.max' => 'El instalador de una aplicacion debe pesar como maximo 35 MB.',
+            'applications.items.*.download_file.extensions' => 'El instalador debe ser un archivo APK, AAB o ZIP.',
             'tramites.items.*.file.max' => 'El archivo del trámite debe pesar como máximo 15 MB.',
             'tramites.items.*.files.*.max' => 'Cada archivo de Información Postal debe pesar como máximo 15 MB.',
             'services.items.*.iconImage_file.max' => 'Cada icono del servicio debe pesar como maximo 15 MB.',
@@ -219,6 +396,7 @@ class AdminPageController extends Controller
             'app_banner.items.*.image_file' => 'imagen de un slide del banner',
             'applications.background_file' => 'imagen de fondo de aplicaciones',
             'applications.items.*.image_file' => 'imagen de una aplicacion',
+            'applications.items.*.download_file' => 'instalador de una aplicacion',
             'tramites.items.*.file' => 'archivo del trámite',
             'tramites.items.*.files.*' => 'archivo adjunto de Información Postal',
             'app_banner.items.*.duration_seconds' => 'duracion de un slide del banner',
@@ -336,7 +514,7 @@ class AdminPageController extends Controller
             $rules['applications.background_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'];
             $rules['applications.items'] = ['nullable', 'array'];
             $rules['applications.items.*.name'] = ['nullable', 'string', 'max:160'];
-            $rules['applications.items.*.type'] = ['nullable', 'string', 'max:80'];
+            $rules['applications.items.*.resource_type'] = ['nullable', Rule::in(['web', 'app'])];
             $rules['applications.items.*.category'] = ['nullable', 'string', 'max:80'];
             $rules['applications.items.*.description'] = ['nullable', 'string', 'max:500'];
             $rules['applications.items.*.icon'] = ['nullable', 'string', 'max:80'];
@@ -346,6 +524,10 @@ class AdminPageController extends Controller
             $rules['applications.items.*.color'] = ['nullable', 'string', 'max:30'];
             $rules['applications.items.*.action'] = ['nullable', 'string', 'max:80'];
             $rules['applications.items.*.url'] = ['nullable', 'string', 'max:2048'];
+            $rules['applications.items.*.play_store_url'] = ['nullable', 'string', 'max:2048'];
+            $rules['applications.items.*.download_url'] = ['nullable', 'string', 'max:2048'];
+            $rules['applications.items.*.download_name'] = ['nullable', 'string', 'max:255'];
+            $rules['applications.items.*.download_file'] = ['nullable', 'file', 'extensions:apk,aab,zip', 'max:35840'];
             $rules['applications.items.*.image_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'];
             $rules['applications_highlights.items'] = ['nullable', 'array'];
             $rules['applications_highlights.items.*.icon'] = ['nullable', 'string', 'max:80'];
@@ -390,8 +572,40 @@ class AdminPageController extends Controller
             $sectionsPayload = $this->buildTramitesSectionsPayload($request, $page);
         } elseif ($this->isEncomiendaPage($page)) {
             $sectionsPayload = $this->buildEncomiendaSectionsPayload($request, $page);
+        } elseif ($page->slug !== 'home') {
+            $sectionsPayload = $this->existingSectionsPayload($page);
         } else {
             $sectionsPayload = $this->buildSectionsPayload($request, $page);
+        }
+
+        // Shared presentation and the entry popup are edited only from Configuración global.
+        // Regular page editors always preserve those records.
+        $page->loadMissing('sections.items');
+        $sharedSectionKeys = ['announcement_modal', 'header', 'footer'];
+        $existingSharedSections = $page->sections->whereIn('key', $sharedSectionKeys);
+        $sectionsPayload = array_values(array_filter(
+            $sectionsPayload,
+            fn (array $section) => ! in_array($section['key'] ?? null, $sharedSectionKeys, true)
+        ));
+
+        foreach ($existingSharedSections as $existingSection) {
+            $sectionsPayload[] = [
+                'id' => $existingSection->id,
+                'key' => $existingSection->key,
+                'name' => $existingSection->name,
+                'type' => $existingSection->type,
+                'settings' => $existingSection->settings ?? [],
+                'sort_order' => $existingSection->sort_order,
+                'is_active' => $existingSection->is_active,
+                'items' => $existingSection->items->map(fn ($item) => [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'type' => $item->type,
+                    'sort_order' => $item->sort_order,
+                    'is_active' => $item->is_active,
+                    'data' => $item->data ?? [],
+                ])->all(),
+            ];
         }
 
         $payload = [
@@ -400,12 +614,7 @@ class AdminPageController extends Controller
             'meta_title' => $data['meta_title'] ?? null,
             'meta_description' => $data['meta_description'] ?? null,
             'is_active' => $request->boolean('is_active'),
-            'theme' => [
-                'logo_url' => $this->storeUploadedImage($request, 'theme.logo_file', $request->input('theme.logo_url', data_get($page->theme, 'logo_url')), 'cms/theme'),
-                'primary_color' => $request->input('theme.primary_color', data_get($page->theme, 'primary_color')),
-                'secondary_color' => $request->input('theme.secondary_color', data_get($page->theme, 'secondary_color')),
-                'accent_color' => $request->input('theme.accent_color', data_get($page->theme, 'accent_color')),
-            ],
+            'theme' => $page->theme ?? [],
             'sections' => $sectionsPayload,
         ];
 
@@ -418,7 +627,7 @@ class AdminPageController extends Controller
 
         return redirect()
             ->route('admin.pages.edit', $page)
-            ->with('status', 'Diseno y contenidos actualizados correctamente.');
+            ->with('status', 'Diseño y contenidos actualizados correctamente.');
     }
 
     public function restore(Request $request, SitePage $page, SitePageVersion $version): RedirectResponse
@@ -442,12 +651,42 @@ class AdminPageController extends Controller
 
         return redirect()
             ->route('admin.pages.edit', $page)
-            ->with('status', 'Se restauro la version seleccionada correctamente.');
+            ->with('status', 'Se restauró la versión seleccionada correctamente.');
+    }
+
+    protected function sharedTheme(SitePage $page): array
+    {
+        if ($page->slug === 'home') {
+            return $page->theme ?? [];
+        }
+
+        return SitePage::query()->where('slug', 'home')->value('theme') ?? ($page->theme ?? []);
+    }
+
+    protected function existingSectionsPayload(SitePage $page): array
+    {
+        return $page->sections()->with('items')->orderBy('sort_order')->get()->map(fn ($section) => [
+            'id' => $section->id,
+            'key' => $section->key,
+            'name' => $section->name,
+            'type' => $section->type,
+            'settings' => $section->settings ?? [],
+            'sort_order' => $section->sort_order,
+            'is_active' => $section->is_active,
+            'items' => $section->items->map(fn ($item) => [
+                'id' => $item->id,
+                'name' => $item->name,
+                'type' => $item->type,
+                'sort_order' => $item->sort_order,
+                'is_active' => $item->is_active,
+                'data' => $item->data ?? [],
+            ])->all(),
+        ])->all();
     }
 
     protected function buildApplicationsEditorData(SitePage $page): array
     {
-        $theme = $page->theme ?? [];
+        $theme = $this->sharedTheme($page);
 
         return [
             'theme' => [
@@ -505,7 +744,7 @@ class AdminPageController extends Controller
 
     protected function buildTramitesEditorData(SitePage $page): array
     {
-        $theme = $page->theme ?? [];
+        $theme = $this->sharedTheme($page);
 
         return [
             'theme' => [
@@ -546,7 +785,7 @@ class AdminPageController extends Controller
 
     protected function buildEditorData(SitePage $page): array
     {
-        $theme = $page->theme ?? [];
+        $theme = $this->sharedTheme($page);
 
         return [
             'theme' => [
@@ -558,7 +797,7 @@ class AdminPageController extends Controller
             'announcement_modal' => [
                 'settings' => $this->sectionSettings($page, 'announcement_modal', [
                     'enabled' => false,
-                    'show_once' => false,
+                    'show_once' => true,
                     'storage_key' => 'cb-home-announcement',
                     'poster_image' => '',
                     'poster_alt' => '',
@@ -680,7 +919,7 @@ class AdminPageController extends Controller
 
     protected function buildAboutEditorData(SitePage $page): array
     {
-        $theme = $page->theme ?? [];
+        $theme = $this->sharedTheme($page);
 
         return [
             'theme' => [
@@ -742,7 +981,7 @@ class AdminPageController extends Controller
 
     protected function buildNewsEditorData(SitePage $page): array
     {
-        $theme = $page->theme ?? [];
+        $theme = $this->sharedTheme($page);
 
         return [
             'theme' => [
@@ -800,7 +1039,7 @@ class AdminPageController extends Controller
 
     protected function buildDeliveryEditorData(SitePage $page): array
     {
-        $theme = $page->theme ?? [];
+        $theme = $this->sharedTheme($page);
 
         return [
             'theme' => [
@@ -905,7 +1144,7 @@ class AdminPageController extends Controller
 
     protected function buildEcaEditorData(SitePage $page): array
     {
-        $theme = $page->theme ?? [];
+        $theme = $this->sharedTheme($page);
 
         return [
             'theme' => [
@@ -989,7 +1228,7 @@ class AdminPageController extends Controller
 
     protected function buildEncomiendaEditorData(SitePage $page): array
     {
-        $theme = $page->theme ?? [];
+        $theme = $this->sharedTheme($page);
 
         return [
             'theme' => [
@@ -1063,7 +1302,7 @@ class AdminPageController extends Controller
 
     protected function buildCorrespondenciaEditorData(SitePage $page): array
     {
-        $theme = $page->theme ?? [];
+        $theme = $this->sharedTheme($page);
 
         return [
             'theme' => [
@@ -1147,7 +1386,7 @@ class AdminPageController extends Controller
 
     protected function buildCasillasEditorData(SitePage $page): array
     {
-        $theme = $page->theme ?? [];
+        $theme = $this->sharedTheme($page);
 
         return [
             'theme' => [
@@ -1216,7 +1455,7 @@ class AdminPageController extends Controller
 
     protected function buildPostalshopperEditorData(SitePage $page): array
     {
-        $theme = $page->theme ?? [];
+        $theme = $this->sharedTheme($page);
 
         return [
             'theme' => [
@@ -1327,9 +1566,15 @@ class AdminPageController extends Controller
                 'support_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('applications.support_button_url')) ?? '',
                 'background_image' => $this->storeUploadedImage($request, 'applications.background_file', $request->input('applications.background_image'), 'cms/applications'),
             ], $this->mapRepeaterItems(data_get($form, 'applications.items', []), 'application', function ($item) {
+                $resourceType = ($item['resource_type'] ?? 'web') === 'app' ? 'app' : 'web';
+                $downloadFile = $item['download_file'] ?? null;
+                $downloadName = $downloadFile instanceof \Illuminate\Http\UploadedFile
+                    ? $downloadFile->getClientOriginalName()
+                    : ($item['download_name'] ?? '');
+
                 return [
                     'name' => $item['name'] ?? '',
-                    'type' => $item['type'] ?? '',
+                    'resource_type' => $resourceType,
                     'category' => $item['category'] ?? 'Otros',
                     'description' => $item['description'] ?? '',
                     'icon' => $item['icon'] ?? 'grid',
@@ -1339,6 +1584,9 @@ class AdminPageController extends Controller
                     'color' => $item['color'] ?? '#20539a',
                     'action' => $item['action'] ?? 'Ingresar',
                     'url' => ContentSecurity::sanitizeLinkUrl($item['url'] ?? '') ?? '',
+                    'play_store_url' => ContentSecurity::sanitizeLinkUrl($item['play_store_url'] ?? '') ?? '',
+                    'download_url' => $this->storeRepeaterAsset($item, 'download_file', 'download_url', 'cms/applications/downloads'),
+                    'download_name' => $downloadName,
                     'image' => $this->storeRepeaterImage($item, 'image_file', 'image', 'cms/applications'),
                 ];
             })),

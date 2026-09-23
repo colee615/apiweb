@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 
 @php
     $announcement = $editorData['announcement_modal'];
@@ -17,229 +17,6 @@
     $historySections = $historyData['history_sections'];
     $address = explode('|', $footer['settings']['address'] ?? '|');
     $phone = explode('|', $footer['settings']['phone'] ?? '|');
-    $currentVersionNumber = $page->latest_version ?? optional($versions->first())->version_number;
-    $historySectionLabels = collect($historySections)->pluck('label', 'key')->all();
-    $historySectionLabels['general'] = 'General';
-    $historyActionLabels = [
-        'created' => 'Creacion',
-        'updated' => 'Actualizacion',
-        'deleted' => 'Eliminacion',
-        'restored' => 'Restauración',
-    ];
-    $historyFieldLabels = [
-        'slug' => 'Slug',
-        'name' => 'Nombre',
-        'title' => 'Título',
-        'subtitle' => 'Subtítulo',
-        'text' => 'Texto',
-        'description' => 'Descripción',
-        'label' => 'Etiqueta',
-        'placeholder' => 'Placeholder',
-        'button_label' => 'Texto del botón',
-        'tracking_title' => 'Título de rastreo',
-        'tracking_text' => 'Texto de rastreo',
-        'tracking_label' => 'Etiqueta de rastreo',
-        'tracking_placeholder' => 'Placeholder de rastreo',
-        'tracking_button' => 'Botón de rastreo',
-        'eyebrow' => 'Etiqueta superior',
-        'hero_title' => 'Título protagonista',
-        'watermark_text' => 'Marca de agua',
-        'highlight_text' => 'Texto destacado',
-        'paragraph_one' => 'Párrafo 1',
-        'paragraph_two' => 'Párrafo 2',
-        'paragraph_three' => 'Párrafo 3',
-        'primary_button_label' => 'Texto del botón principal',
-        'primary_button_url' => 'Enlace del botón principal',
-        'secondary_button_label' => 'Texto del botón secundario',
-        'secondary_button_url' => 'Enlace del botón secundario',
-        'visual_icon' => 'Icono visual',
-        'cta_text' => 'Texto de llamada a la acción',
-        'stat_label' => 'Etiqueta de métrica',
-        'stat_value' => 'Valor de métrica',
-        'stat_caption' => 'Leyenda de métrica',
-        'badge' => 'Insignia',
-        'view_all_label' => 'Texto de ver todo',
-        'view_all_url' => 'Enlace de ver todo',
-        'app_store_label' => 'Texto App Store',
-        'play_store_label' => 'Texto Google Play',
-        'app_store_url' => 'Enlace App Store',
-        'play_store_url' => 'Enlace Google Play',
-        'map_title' => 'Título del mapa',
-        'map_text' => 'Texto del mapa',
-        'map_button_label' => 'Botón del mapa',
-        'maps_url' => 'Google Maps URL',
-        'weekday_hours' => 'Horario de lunes a viernes',
-        'saturday_hours' => 'Horario de sábado',
-        'calculator_title' => 'Título de calculadora',
-        'calculator_text' => 'Texto de calculadora',
-        'origin_label' => 'Etiqueta de origen',
-        'origin_placeholder' => 'Placeholder de origen',
-        'destination_label' => 'Etiqueta de destino',
-        'destination_placeholder' => 'Placeholder de destino',
-        'weight_label' => 'Etiqueta de peso',
-        'weight_placeholder' => 'Placeholder de peso',
-        'calculate_button_label' => 'Botón de calcular',
-        'help_label' => 'Ayuda / contacto',
-        'login_label' => 'Inicio de sesión',
-        'search_placeholder' => 'Placeholder de búsqueda',
-        'language_primary' => 'Idioma principal',
-        'language_secondary' => 'Idioma secundario',
-        'accessibility_label' => 'Etiqueta de accesibilidad',
-        'url' => 'Enlace',
-        'src' => 'Imagen o archivo',
-        'poster' => 'Portada',
-        'poster_image' => 'Imagen principal',
-        'poster_title' => 'Título del popup',
-        'poster_caption' => 'Pie del popup',
-        'icon' => 'Icono',
-        'iconImage' => 'Imagen del icono',
-        'image' => 'Imagen',
-        'background_image' => 'Imagen de fondo',
-        'price' => 'Precio',
-        'year' => 'Año',
-        'series' => 'Serie',
-        'dept' => 'Código de departamento',
-        'group' => 'Grupo',
-        'media_type' => 'Tipo de medio',
-        'phone' => 'Teléfono',
-        'email' => 'Correo',
-        'address' => 'Dirección',
-        'seal_logo' => 'Logo inferior del footer',
-        'copyright' => 'Copyright',
-        'legal_text' => 'Texto legal',
-        'help_title' => 'Título de ayuda',
-        'company_title' => 'Título de empresa',
-        'contact_title' => 'Título de contacto',
-        'social_title' => 'Título de redes',
-        'social_text' => 'Texto de redes',
-        'logo_url' => 'Logo',
-        'primary_color' => 'Color principal',
-        'secondary_color' => 'Color secundario',
-        'accent_color' => 'Color de acento',
-        'enabled' => 'Visibilidad',
-        'show_once' => 'Mostrar solo una vez',
-        'storage_key' => 'Clave de control',
-        'settings' => 'Configuración',
-        'data' => 'Contenido',
-        'theme' => 'Identidad visual',
-        'page_meta' => 'Configuración general',
-        'is_active' => 'Estado',
-        'sort_order' => 'Orden',
-        'type' => 'Tipo',
-        'key' => 'Clave',
-        'left' => 'Posición izquierda',
-        'top' => 'Posición superior',
-    ];
-    $historyIgnoredKeys = ['id', 'page_id', 'section_id', 'item_id', 'created_at', 'updated_at'];
-    $historyAssetFields = ['src', 'poster', 'poster_image', 'iconImage', 'image', 'background_image', 'logo_url', 'seal_logo'];
-    $isAssocHistoryArray = function (array $value): bool {
-        return array_keys($value) !== range(0, count($value) - 1);
-    };
-    $formatHistoryPath = function (array $segments) use ($historyFieldLabels) {
-        $labels = collect($segments)
-            ->filter(fn ($segment) => filled($segment))
-            ->map(function ($segment) use ($historyFieldLabels) {
-                if (is_int($segment)) {
-                    return 'Elemento ' . ($segment + 1);
-                }
-
-                if (is_string($segment) && str_starts_with($segment, '#')) {
-                    return 'Elemento ' . substr($segment, 1);
-                }
-
-                return $historyFieldLabels[$segment] ?? ucfirst(str_replace('_', ' ', (string) $segment));
-            })
-            ->values()
-            ->all();
-
-        return implode(' > ', $labels);
-    };
-    $describeHistoryValue = function ($value, array $segments = []) use ($historyAssetFields) {
-        $field = end($segments) ?: null;
-
-        if ($value === null || $value === '') {
-            return 'Sin valor';
-        }
-
-        if (is_bool($value)) {
-            return $value ? 'Activo' : 'Inactivo';
-        }
-
-        if (is_array($value)) {
-            return count($value) . ' elemento(s)';
-        }
-
-        $text = trim((string) $value);
-
-        if (in_array($field, $historyAssetFields, true) || filter_var($text, FILTER_VALIDATE_URL)) {
-            $path = parse_url($text, PHP_URL_PATH) ?: $text;
-            $filename = basename($path);
-            return $filename ? 'Archivo: ' . $filename : 'Archivo o recurso vinculado';
-        }
-
-        return \Illuminate\Support\Str::limit($text, 160);
-    };
-    $buildHistoryDiff = function ($before, $after, array $segments = []) use (&$buildHistoryDiff, $historyIgnoredKeys, $isAssocHistoryArray, $formatHistoryPath, $describeHistoryValue, $historyAssetFields) {
-        $changes = [];
-
-        if (is_array($before) || is_array($after)) {
-            $beforeArray = is_array($before) ? $before : [];
-            $afterArray = is_array($after) ? $after : [];
-
-            if ($isAssocHistoryArray($beforeArray ?: $afterArray)) {
-                $keys = collect(array_keys($beforeArray))
-                    ->merge(array_keys($afterArray))
-                    ->unique()
-                    ->reject(fn ($key) => in_array($key, $historyIgnoredKeys, true))
-                    ->values();
-
-                foreach ($keys as $key) {
-                    $changes = array_merge(
-                        $changes,
-                        $buildHistoryDiff($beforeArray[$key] ?? null, $afterArray[$key] ?? null, [...$segments, $key])
-                    );
-                }
-
-                return $changes;
-            }
-
-            $max = max(count($beforeArray), count($afterArray));
-
-            for ($index = 0; $index < $max; $index++) {
-                $changes = array_merge(
-                    $changes,
-                    $buildHistoryDiff($beforeArray[$index] ?? null, $afterArray[$index] ?? null, [...$segments, $index])
-                );
-            }
-
-            return $changes;
-        }
-
-        if ($before === $after) {
-            return [];
-        }
-
-        $field = end($segments) ?: null;
-        $isAsset = in_array($field, $historyAssetFields, true);
-        $changeType = 'Actualizado';
-
-        if (($before === null || $before === '') && ($after !== null && $after !== '')) {
-            $changeType = 'Agregado';
-        } elseif (($after === null || $after === '') && ($before !== null && $before !== '')) {
-            $changeType = 'Eliminado';
-        } elseif ($isAsset) {
-            $changeType = 'Imagen o archivo reemplazado';
-        } elseif (is_string($before) || is_string($after)) {
-            $changeType = 'Texto actualizado';
-        }
-
-        return [[
-            'label' => $formatHistoryPath($segments),
-            'type' => $changeType,
-            'before' => $describeHistoryValue($before, $segments),
-            'after' => $describeHistoryValue($after, $segments),
-        ]];
-    };
 @endphp
 
 @section('content')
@@ -261,31 +38,10 @@
         },
         go(section) {
             this.tab = section;
-            if (window.history && window.history.replaceState) {
-                const url = new URL(window.location.href);
-                url.searchParams.set('tab', section);
-                if (section.startsWith('history')) {
-                    url.hash = 'history-root';
-                } else {
-                    url.hash = '';
-                }
-                window.history.replaceState({}, '', url.toString());
-            }
-
-            if (section.startsWith('history')) {
-                this.$nextTick(() => {
-                    const target = document.getElementById('history-root');
-                    if (target) {
-                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                });
-                return;
-            }
-
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        },
-        isHistoryTab() {
-            return this.tab.startsWith('history');
+            const url = new URL(window.location.href);
+            url.searchParams.set('tab', section);
+            url.hash = '';
+            window.history.replaceState({}, '', url);
         }
     }"
 >
@@ -334,106 +90,39 @@
     </div>
 
 
-    <form id="page-edit-form" method="POST" action="{{ route('admin.pages.update', $page) }}" class="stack" enctype="multipart/form-data">
+    @include('admin.pages.partials.header')
+
+    <form id="page-edit-form" method="POST" action="{{ route('admin.pages.update', $page) }}" class="stack" data-editor-form enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
         <div class="editor-layout">
             <aside class="editor-sidebar">
-                <div class="editor-nav" x-show="!isHistoryTab()">
-                    <h3>Secciones de diseño</h3>
-                    <p>En este modo solo ves herramientas de edición. El historial queda separado en su propio submenú.</p>
+                <div class="editor-nav">
+                    <h3>Secciones</h3>
+                    <p>Selecciona el bloque que quieres editar.</p>
 
                     <div class="editor-nav-list">
-                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'announcement' }" @click="go('announcement')"><strong>Popup de inicio</strong><span>Imagen institucional al abrir</span></button>
-                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'design_text' }" @click="go('design_text')"><strong>Diseño</strong><span>Textos, logo y enlaces</span></button>
+                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'design_text' }" @click="go('design_text')"><strong>Información de Home</strong><span>Nombre, dirección y SEO</span></button>
+                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'tools' }" @click="go('tools')"><strong>Herramientas</strong><span>Rastreo y calculadora</span></button>
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'backgrounds' }" @click="go('backgrounds')"><strong>Fondos</strong><span>Carrusel de imágenes o videos</span></button>
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'services' }" @click="go('services')"><strong>Servicios</strong><span>Agregar, quitar y ordenar</span></button>
-                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'ems' }" @click="go('ems')"><strong>Landing EMS</strong><span>Bloques promocionales administrables</span></button>
+                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'ems' }" @click="go('ems')"><strong>EMS</strong><span>Bloques promocionales administrables</span></button>
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'banner' }" @click="go('banner')"><strong>Banner</strong><span>Imagen directa del bloque app</span></button>
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'market' }" @click="go('market')"><strong>Filatelia</strong><span>Productos y colecciones</span></button>
-                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'footer' }" @click="go('footer')"><strong>Footer</strong><span>Textos, URL y logo</span></button>
                     </div>
                 </div>
 
-                <div class="editor-nav" style="margin-top:18px;" x-show="isHistoryTab()">
-                    <h3>Historial</h3>
-                    <p>Cada guardado genera una versión con usuario, fecha y resumen del cambio.</p>
-
-                    <div class="stack" style="gap:12px;">
-                        @forelse ($versions as $version)
-                            @php($isCurrentVersion = (int) $version->version_number === (int) $currentVersionNumber)
-                            <div class="repeater-card" style="padding:14px;">
-                                <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
-                                    <div>
-                                        <strong>Versión {{ $version->version_number }}</strong>
-                                        <div style="font-size:12px; color:#6b7280; margin-top:4px;">
-                                            {{ $historyActionLabels[$version->action] ?? ucfirst($version->action) }} · {{ optional($version->created_at)->format('d/m/Y H:i') }}
-                                        </div>
-                                    </div>
-                                    <span class="pill {{ $version->action === 'restored' ? 'pill-ok' : 'pill-off' }}">
-                                        {{ $historyActionLabels[$version->action] ?? ucfirst($version->action) }}
-                                    </span>
-                                </div>
-                                @if ($isCurrentVersion)
-                                    <div style="margin-top:10px;">
-                                        <span class="pill pill-ok">Versión actual</span>
-                                    </div>
-                                @endif
-
-                                <div style="margin-top:10px; font-size:13px; color:#4b5563;">
-                                    <div><strong>Responsable:</strong> {{ $version->created_by_name ?: 'Sistema' }}</div>
-                                    @if ($version->change_summary)
-                                        <div style="margin-top:6px;"><strong>Resumen editorial:</strong> {{ $version->change_summary }}</div>
-                                    @endif
-                                    <div style="margin-top:6px;"><strong>Cambios incluidos:</strong> {{ $version->changeLogs->count() }}</div>
-                                </div>
-
-                                @if ($isCurrentVersion)
-                                    <div class="button button-secondary" style="width:100%; margin-top:12px; opacity:.78; cursor:default;">Versión actual publicada</div>
-                                @else
-                                    <button
-                                        type="button"
-                                        class="button button-secondary"
-                                        style="width:100%; margin-top:12px;"
-                                        onclick="submitRestore('{{ route('admin.pages.restore', [$page, $version]) }}', 'Restauración desde la versión {{ $version->version_number }}')"
-                                    >
-                                        Volver a esta versión
-                                    </button>
-                                @endif
-                            </div>
-                        @empty
-                            <div class="empty-note">Todavía no hay versiones registradas.</div>
-                        @endforelse
-                    </div>
-                </div>
-                <div class="editor-nav" style="margin-top:18px;" x-show="isHistoryTab()">
-                    <h3>Historial por sección</h3>
-                    <p>Submenús separados para navegar el historial completo de cada parte del sitio.</p>
-
-                    <div class="editor-nav-list">
-                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'history_overview' }" @click="go('history_overview')">
-                            <strong>Resumen general</strong>
-                            <span>{{ $historyData['total_changes'] }} cambios registrados</span>
-                        </button>
-                        @foreach ($historySections as $historySection)
-                            @continue($historySection['key'] === 'general')
-                            <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'history_{{ $historySection['key'] }}' }" @click="go('history_{{ $historySection['key'] }}')">
-                                <strong>{{ $historySection['label'] }}</strong>
-                                <span>{{ $historySection['count'] }} eventos</span>
-                            </button>
-                        @endforeach
-                    </div>
-                </div>
             </aside>
 
             <div class="editor-main">
+                @if (false)
                 <section class="section-card" x-show="tab === 'announcement'">
                     <div class="section-header announcement-header">
                         <div>
-                            <div class="section-eyebrow">Startup announcement</div>
+                            <div class="section-eyebrow">Aviso de inicio</div>
                             <h3 class="section-title">Popup de inicio</h3>
-                            <p class="section-copy">Carga uno o varios afiches institucionales. Si solo existe uno, se mostrará como pieza única; si agregas varios, el frontend los mostrará como una secuencia elegante.</p>
+                            <p class="section-copy">Carga uno o varios afiches institucionales. Si solo existe uno, se mostrará como pieza única; si agregas varios, el sitio web los mostrará como una secuencia elegante.</p>
                         </div>
                         <div class="section-metrics">
                             <span class="pill {{ count($announcement['items'] ?? []) ? 'pill-ok' : 'pill-off' }}">{{ count($announcement['items'] ?? []) ? count($announcement['items']) . ' popup(s)' : 'Sin popups' }}</span>
@@ -452,8 +141,9 @@
                                 </label>
                                 <label style="display:flex; gap:10px; align-items:center; font-weight:700;">
                                     <input type="checkbox" name="announcement_modal[show_once]" value="1" {{ !empty($announcement['settings']['show_once']) ? 'checked' : '' }}>
-                                    Mostrar solo una vez por navegador
+                                    Mostrar solo una vez por sesión
                                 </label>
+                                <p class="field-help">Al cerrar completamente la pestaña o el navegador, el aviso podrá mostrarse nuevamente en la siguiente sesión.</p>
                                 <div class="field">
                                     <label>Clave de control</label>
                                     <input type="text" name="announcement_modal[storage_key]" value="{{ old('announcement_modal.storage_key', $announcement['settings']['storage_key'] ?? 'cb-home-announcement') }}">
@@ -507,12 +197,13 @@
                         </div>
                     </div>
                 </section>
+                @endif
 
                 <section class="section-card" x-show="tab === 'ems'">
                     <div class="section-header">
                         <div>
-                            <div class="section-eyebrow">EMS showcase</div>
-                            <h3 class="section-title">Landing EMS administrable</h3>
+                            <div class="section-eyebrow">Servicio EMS</div>
+                            <h3 class="section-title">Contenido de EMS</h3>
                             <p class="section-copy">Este bloque concentra la narrativa visual del servicio EMS: cabecera, beneficios, cobertura nacional y alcance internacional.</p>
                         </div>
                         <div class="section-metrics">
@@ -534,8 +225,8 @@
                             <div class="field" style="grid-column:1/-1;"><label>Párrafo 2</label><textarea class="field-small" name="ems_intro[paragraph_two]">{{ old('ems_intro.paragraph_two', $emsIntro['settings']['paragraph_two'] ?? '') }}</textarea></div>
                             <div class="field" style="grid-column:1/-1;"><label>Párrafo 3</label><textarea class="field-small" name="ems_intro[paragraph_three]">{{ old('ems_intro.paragraph_three', $emsIntro['settings']['paragraph_three'] ?? '') }}</textarea></div>
                             <div class="field"><label>Texto del botón</label><input type="text" name="ems_intro[primary_button_label]" value="{{ old('ems_intro.primary_button_label', $emsIntro['settings']['primary_button_label'] ?? '') }}"></div>
-                            <div class="field"><label>URL del botón</label><input type="text" name="ems_intro[primary_button_url]" value="{{ old('ems_intro.primary_button_url', $emsIntro['settings']['primary_button_url'] ?? '') }}"></div>
-                            <div class="field"><label>Icono visual</label><input type="text" name="ems_intro[visual_icon]" value="{{ old('ems_intro.visual_icon', $emsIntro['settings']['visual_icon'] ?? '') }}" placeholder="plane, globe, box..."></div>
+                            <div class="field"><label>Enlace del botón</label><input type="text" name="ems_intro[primary_button_url]" value="{{ old('ems_intro.primary_button_url', $emsIntro['settings']['primary_button_url'] ?? '') }}"></div>
+                            <div class="field"><label>Ícono del bloque</label><input type="text" name="ems_intro[visual_icon]" value="{{ old('ems_intro.visual_icon', $emsIntro['settings']['visual_icon'] ?? '') }}" placeholder="plane, globe, box..."></div>
                             <div class="field"><label>Imagen actual</label><input type="text" name="ems_intro[image]" value="{{ old('ems_intro.image', $emsIntro['settings']['image'] ?? '') }}"></div>
                             <div class="field"><label>Subir imagen</label><input type="file" name="ems_intro[image_file]" accept="image/*"></div>
                         </div>
@@ -570,9 +261,9 @@
                                         </div>
                                         <div class="grid grid-2" style="margin-top:12px;">
                                             <div class="field"><label>Título</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
-                                            <div class="field"><label>Icono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
+                                            <div class="field"><label>Ícono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
                                             <div class="field" style="grid-column:1/-1;"><label>Descripción</label><textarea class="field-small" data-field="text">{{ $item['text'] ?? '' }}</textarea></div>
-                                            <div class="field"><label>Badge opcional</label><input type="text" data-field="badge" value="{{ $item['badge'] ?? '' }}"></div>
+                                            <div class="field"><label>Etiqueta opcional</label><input type="text" data-field="badge" value="{{ $item['badge'] ?? '' }}"></div>
                                         </div>
                                         <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                     </div>
@@ -611,9 +302,9 @@
                                         </div>
                                         <div class="grid grid-2" style="margin-top:12px;">
                                             <div class="field"><label>Título</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
-                                            <div class="field"><label>Icono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
+                                            <div class="field"><label>Ícono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
                                             <div class="field" style="grid-column:1/-1;"><label>Descripción</label><textarea class="field-small" data-field="text">{{ $item['text'] ?? '' }}</textarea></div>
-                                            <div class="field"><label>Badge opcional</label><input type="text" data-field="badge" value="{{ $item['badge'] ?? '' }}"></div>
+                                            <div class="field"><label>Etiqueta opcional</label><input type="text" data-field="badge" value="{{ $item['badge'] ?? '' }}"></div>
                                         </div>
                                         <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                     </div>
@@ -628,7 +319,7 @@
                         <div class="toolbar">
                             <div>
                                 <h4>Alcance internacional</h4>
-                                <p>Tarjetas sobre fondo azul con badges y CTA final.</p>
+                                <p>Tarjetas sobre fondo azul con badges y botón de acción final.</p>
                             </div>
                             <button type="button" class="button button-secondary" data-add-row>Agregar tarjeta</button>
                         </div>
@@ -636,9 +327,9 @@
                             <div class="field"><label>Título</label><input type="text" name="ems_international[title]" value="{{ old('ems_international.title', $emsInternational['settings']['title'] ?? '') }}"></div>
                             <div class="field"><label>Subtítulo</label><input type="text" name="ems_international[subtitle]" value="{{ old('ems_international.subtitle', $emsInternational['settings']['subtitle'] ?? '') }}"></div>
                             <div class="field"><label>Texto resaltado</label><input type="text" name="ems_international[highlight_text]" value="{{ old('ems_international.highlight_text', $emsInternational['settings']['highlight_text'] ?? '') }}"></div>
-                            <div class="field" style="grid-column:1/-1;"><label>Texto CTA</label><textarea class="field-small" name="ems_international[cta_text]">{{ old('ems_international.cta_text', $emsInternational['settings']['cta_text'] ?? '') }}</textarea></div>
-                            <div class="field"><label>Texto botón CTA</label><input type="text" name="ems_international[secondary_button_label]" value="{{ old('ems_international.secondary_button_label', $emsInternational['settings']['secondary_button_label'] ?? '') }}"></div>
-                            <div class="field"><label>URL botón CTA</label><input type="text" name="ems_international[secondary_button_url]" value="{{ old('ems_international.secondary_button_url', $emsInternational['settings']['secondary_button_url'] ?? '') }}"></div>
+                            <div class="field" style="grid-column:1/-1;"><label>Texto botón</label><textarea class="field-small" name="ems_international[cta_text]">{{ old('ems_international.cta_text', $emsInternational['settings']['cta_text'] ?? '') }}</textarea></div>
+                            <div class="field"><label>Texto botón botón</label><input type="text" name="ems_international[secondary_button_label]" value="{{ old('ems_international.secondary_button_label', $emsInternational['settings']['secondary_button_label'] ?? '') }}"></div>
+                            <div class="field"><label>Enlace botón botón</label><input type="text" name="ems_international[secondary_button_url]" value="{{ old('ems_international.secondary_button_url', $emsInternational['settings']['secondary_button_url'] ?? '') }}"></div>
                         </div>
                         <div class="stack" data-collection data-base="ems_international[items]" data-template="ems-card-template">
                             <div data-rows>
@@ -653,9 +344,9 @@
                                         </div>
                                         <div class="grid grid-2" style="margin-top:12px;">
                                             <div class="field"><label>Título</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
-                                            <div class="field"><label>Icono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
+                                            <div class="field"><label>Ícono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
                                             <div class="field" style="grid-column:1/-1;"><label>Descripción</label><textarea class="field-small" data-field="text">{{ $item['text'] ?? '' }}</textarea></div>
-                                            <div class="field"><label>Badge</label><input type="text" data-field="badge" value="{{ $item['badge'] ?? '' }}"></div>
+                                            <div class="field"><label>Etiqueta destacada</label><input type="text" data-field="badge" value="{{ $item['badge'] ?? '' }}"></div>
                                         </div>
                                         <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                     </div>
@@ -670,14 +361,13 @@
                 <section class="section-card" x-show="tab === 'design_text'">
                     <div class="section-header">
                         <div>
-                            <div class="section-eyebrow">Base de marca</div>
-                            <h3 class="section-title">Configuración general</h3>
-                            <p class="section-copy">Gestiona identidad visual, SEO y estado de publicación con criterios más claros para edición ejecutiva.</p>
+                            <div class="section-eyebrow">Página de inicio</div>
+                            <h3 class="section-title">Información de Home</h3>
+                            <p class="section-copy">Administra el nombre interno, la dirección, la información para buscadores y el estado de la portada.</p>
                         </div>
                         <div class="section-metrics">
-                            <span class="pill pill-off">Logo</span>
-                            <span class="pill pill-off">Colores</span>
-                            <span class="pill pill-off">SEO</span>
+                            <span class="pill pill-off">Home</span>
+                            <span class="pill pill-off">información para buscadores</span>
                         </div>
                     </div>
 
@@ -692,17 +382,17 @@
                                     <div class="field-help"><strong>Límite:</strong> 160 caracteres. Usa un nombre claro para gestión interna.</div>
                                 </div>
                                 <div class="field">
-                                    <label>Slug</label>
+                                    <label>Dirección de la página</label>
                                     <input type="text" name="slug" value="{{ old('slug', $page->slug) }}" maxlength="120" required>
                                     <div class="field-help"><strong>Limite:</strong> 120 caracteres. Solo identificador corto y estable.</div>
                                 </div>
                                 <div class="field">
-                                    <label>Título SEO</label>
+                                    <label>Título en buscadores</label>
                                     <input type="text" name="meta_title" value="{{ old('meta_title', $page->meta_title) }}" maxlength="255">
                                     <div class="field-help"><strong>Recomendado:</strong> 50 a 60 caracteres para mejor lectura en buscadores.</div>
                                 </div>
                                 <div class="field">
-                                    <label>Descripción SEO</label>
+                                    <label>Descripción en buscadores</label>
                                     <input type="text" name="meta_description" value="{{ old('meta_description', $page->meta_description) }}" maxlength="255">
                                     <div class="field-help"><strong>Recomendado:</strong> entre 120 y 160 caracteres con enfoque informativo.</div>
                                 </div>
@@ -713,12 +403,13 @@
                             <h4>Estado del sitio</h4>
                             <p>Control ejecutivo de publicación para esta vista.</p>
                             <label style="display:flex; gap:10px; align-items:center; font-weight:700;">
-                                <input type="checkbox" name="is_active" value="1" {{ $page->is_active ? 'checked' : '' }}>
+                                <input type="hidden" name="is_active" value="0"><input type="checkbox" name="is_active" value="1" {{ old('is_active', $page->is_active) ? 'checked' : '' }}>
                                 Página activa
                             </label>
                             <div class="field-help"><strong>Uso:</strong> si está inactiva, la vista no se mostrará públicamente.</div>
                         </div>
 
+                        @if (false)
                         <div
                             class="subpanel span-6"
                             x-data="{
@@ -774,7 +465,7 @@
                                     <img src="{{ $editorData['theme']['logo_url'] }}" alt="Logo actual" class="thumb" style="max-width: 280px;">
                                 @endif
                                 <div class="field">
-                                    <label>URL del logo</label>
+                                    <label>Enlace del logo</label>
                                     <input type="text" name="theme[logo_url]" value="{{ old('theme.logo_url', $editorData['theme']['logo_url']) }}">
                                     <div class="field-help"><strong>Recomendado:</strong> logo horizontal en PNG o SVG con fondo limpio.</div>
                                 </div>
@@ -785,14 +476,16 @@
                                 </div>
                             </div>
                         </div>
+                        @endif
                     </div>
                 </section>
 
+                @if (false)
                 <section class="section-card" x-show="tab === 'design_text'">
                     <div class="section-header">
                         <div>
-                            <div class="section-eyebrow">Navigation system</div>
-                            <h3 class="section-title">Encabezado y menu</h3>
+                            <div class="section-eyebrow">Navegación</div>
+                            <h3 class="section-title">Encabezado y menú</h3>
                             <p class="section-copy">Define idiomas, accesos rapidos y enlaces principales del sitio.</p>
                         </div>
                         <span class="pill pill-off">{{ count($header['links']) }} enlaces activos</span>
@@ -800,7 +493,7 @@
 
                     <div class="design-grid">
                         <div class="subpanel span-12">
-                            <h4>Textos del header</h4>
+                            <h4>Textos del encabezado</h4>
                             <div class="field-help" style="margin-bottom:14px;"><strong>Guía:</strong> mantén textos breves. Cada etiqueta debería quedar idealmente entre 12 y 30 caracteres para no saturar el encabezado.</div>
                             <div class="grid grid-3">
                                 <div class="field"><label>Idioma principal</label><input type="text" name="header[language_primary]" value="{{ old('header.language_primary', $header['settings']['language_primary']) }}" maxlength="30"><div class="field-help">Máximo 30 caracteres.</div></div>
@@ -840,7 +533,7 @@
                                             </div>
                                             <div class="grid grid-2" style="margin-top:12px;">
                                                 <div class="field"><label>Titular</label><input type="text" data-field="label" value="{{ $item['title'] ?? '' }}"></div>
-                                                <div class="field"><label>URL</label><input type="text" data-field="url" value="{{ $item['url'] ?? '/noticias' }}"></div>
+                                                <div class="field"><label>Enlace</label><input type="text" data-field="url" value="{{ $item['url'] ?? '/noticias' }}"></div>
                                             </div>
                                         </div>
                                     @empty
@@ -871,7 +564,7 @@
                                             </div>
                                             <div class="grid grid-2" style="margin-top:12px;">
                                                 <div class="field"><label>Texto</label><input type="text" data-field="label" value="{{ $link['label'] ?? '' }}"></div>
-                                                <div class="field"><label>URL</label><input type="text" data-field="url" value="{{ $link['url'] ?? '#' }}"></div>
+                                                <div class="field"><label>Enlace</label><input type="text" data-field="url" value="{{ $link['url'] ?? '#' }}"></div>
                                             </div>
                                             <input type="hidden" data-field="id" value="{{ $link['id'] ?? '' }}">
                                         </div>
@@ -883,13 +576,14 @@
                         </div>
                     </div>
                 </section>
+                @endif
 
                 <section class="section-card" x-show="tab === 'backgrounds'">
                     <div class="section-header">
                         <div>
-                            <div class="section-eyebrow">Hero media</div>
+                            <div class="section-eyebrow">Multimedia</div>
                             <h3 class="section-title">Fondos y carrusel</h3>
-                            <p class="section-copy">Administra los fondos de la portada sin cambiar el diseño del frontend. Puedes cargar imágenes o videos.</p>
+                            <p class="section-copy">Administra los fondos de la portada sin cambiar el diseño del sitio web. Puedes cargar imágenes o videos.</p>
                         </div>
                         <span class="pill pill-off">{{ count($hero['media'] ?? []) }} slides</span>
                     </div>
@@ -911,7 +605,7 @@
                         <div class="toolbar">
                             <div>
                                 <h4>Carrusel de fondos</h4>
-                                <p>Sube imágenes o videos. El frontend mantendrá el mismo formato visual con este contenido.</p>
+                                <p>Sube imágenes o videos. El sitio web mantendrá el mismo formato visual con este contenido.</p>
                             </div>
                             <button type="button" class="button button-secondary" data-add-row>Agregar slide</button>
                         </div>
@@ -933,7 +627,7 @@
                                             <div class="field"><label>Archivo actual</label><input type="text" data-field="src" value="{{ $item['src'] ?? '' }}"></div>
                                             <div class="field"><label>Subir archivo</label><input type="file" data-field="media_file" accept="image/*,video/*"></div>
                                             <div class="field" data-poster-field><label>Poster o imagen previa</label><input type="text" data-field="poster" value="{{ $item['poster'] ?? '' }}"></div>
-                                            <div class="field" data-poster-field><label>Subir poster</label><input type="file" data-field="poster_file" accept="image/*"></div>
+                                            <div class="field" data-poster-field><label>Subir portada del video</label><input type="file" data-field="poster_file" accept="image/*"></div>
                                         </div>
                                         <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                     </div>
@@ -948,7 +642,7 @@
                 <section class="section-card" x-show="tab === 'services'">
                     <div class="section-header">
                         <div>
-                            <div class="section-eyebrow">Service gallery</div>
+                            <div class="section-eyebrow">Servicios</div>
                             <h3 class="section-title">Servicios destacados</h3>
                             <p class="section-copy">Cada tarjeta puede llevar texto, icono y una imagen propia.</p>
                         </div>
@@ -985,10 +679,10 @@
                                         </div>
                                         <div class="grid grid-2" style="margin-top:12px;">
                                             <div class="field"><label>Título</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
-                                            <div class="field"><label>Icono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
+                                            <div class="field"><label>Ícono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
                                             <div class="field"><label>Imagen actual</label><input type="text" data-field="iconImage" value="{{ $item['iconImage'] ?? '' }}"></div>
                                             <div class="field"><label>Subir imagen</label><input type="file" data-field="iconImage_file" accept="image/*" data-preview-input></div>
-                                            <div class="field" style="grid-column:1/-1;"><label>Link de redirección</label><input type="text" data-field="url" value="{{ $item['url'] ?? '' }}" placeholder="/ems, /casillas o https://..."></div>
+                                            <div class="field" style="grid-column:1/-1;"><label>Enlace de destino</label><input type="text" data-field="url" value="{{ $item['url'] ?? '' }}" placeholder="/ems, /casillas o https://..."></div>
                                             <div class="field" style="grid-column:1/-1;"><label>Descripción</label><input type="text" data-field="text" value="{{ $item['text'] ?? '' }}"></div>
                                         </div>
                                         <div style="margin-top:12px;">
@@ -1005,10 +699,10 @@
                     </div>
                 </section>
 
-                <section class="section-card" x-show="tab === 'design_text'">
+                <section class="section-card" x-show="tab === 'tools'">
                     <div class="section-header">
                         <div>
-                            <div class="section-eyebrow">Utility area</div>
+                            <div class="section-eyebrow">Herramientas</div>
                             <h3 class="section-title">Herramientas</h3>
                             <p class="section-copy">Ajusta el bloque del mapa y la calculadora de envíos.</p>
                         </div>
@@ -1079,17 +773,17 @@
                 <section class="section-card" x-show="tab === 'banner'">
                     <div class="section-header">
                         <div>
-                            <div class="section-eyebrow">App promotion</div>
+                            <div class="section-eyebrow">Aplicaciones</div>
                             <h3 class="section-title">Banner frontal visual</h3>
-                            <p class="section-copy">Este bloque ahora se maneja como carrusel de imágenes puras, sin textos ni botones superpuestos en el frontend. Solo importa la pieza gráfica y su duración.</p>
+                            <p class="section-copy">Este bloque ahora se maneja como carrusel de imágenes puras, sin textos ni botones superpuestos en el sitio web. Solo importa la pieza gráfica y su duración.</p>
                         </div>
                         <span class="pill {{ count($appBanner['items'] ?? []) ? 'pill-ok' : 'pill-off' }}">{{ count($appBanner['items'] ?? []) ?: 0 }} banner(s)</span>
                     </div>
                     <div class="subpanel">
                         <div class="toolbar">
                             <div>
-                                <h4>Slides del banner</h4>
-                                <p>Usa imágenes horizontales, idealmente 16:9 o panorámicas, para cubrir bien desktop y móvil. Cada slide puede tener su propio tiempo.</p>
+                                <h4>imágenes o videos del banner</h4>
+                                <p>Usa imágenes horizontales, idealmente 16:9 o panorámicas, para cubrir bien desktop y móvil. Cada imagen o video puede tener su propio tiempo.</p>
                             </div>
                             <button type="button" class="button button-secondary" data-add-row>Agregar banner</button>
                         </div>
@@ -1129,8 +823,8 @@
                 <section class="section-card" x-show="tab === 'market'">
                     <div class="section-header">
                         <div>
-                            <div class="section-eyebrow">Commerce curation</div>
-                            <h3 class="section-title">Market y productos</h3>
+                            <div class="section-eyebrow">Filatelia</div>
+                            <h3 class="section-title">Productos de filatelia</h3>
                             <p class="section-copy">Carga piezas destacadas, imágenes, precios y descripciones.</p>
                         </div>
                         <span class="pill pill-off">{{ count($market['items']) }} productos</span>
@@ -1142,7 +836,7 @@
                             <div class="field"><label>Título</label><input type="text" name="market[title]" value="{{ old('market.title', $market['settings']['title'] ?? '') }}"></div>
                             <div class="field"><label>Subtítulo</label><input type="text" name="market[subtitle]" value="{{ old('market.subtitle', $market['settings']['subtitle'] ?? '') }}"></div>
                             <div class="field"><label>Texto del botón final</label><input type="text" name="market[view_all_label]" value="{{ old('market.view_all_label', $market['settings']['view_all_label'] ?? '') }}"></div>
-                            <div class="field"><label>URL del botón final</label><input type="text" name="market[view_all_url]" value="{{ old('market.view_all_url', $market['settings']['view_all_url'] ?? '') }}"></div>
+                            <div class="field"><label>Enlace del botón final</label><input type="text" name="market[view_all_url]" value="{{ old('market.view_all_url', $market['settings']['view_all_url'] ?? '') }}"></div>
                         </div>
                     </div>
 
@@ -1188,10 +882,11 @@
                     </div>
                 </section>
 
+                @if (false)
                 <section class="section-card" x-show="tab === 'footer'">
                     <div class="section-header">
                         <div>
-                            <div class="section-eyebrow">Closure and contact</div>
+                            <div class="section-eyebrow">Contacto</div>
                             <h3 class="section-title">Pie de página</h3>
                             <p class="section-copy">Cierra la experiencia con enlaces, datos de contacto y redes sociales.</p>
                         </div>
@@ -1213,7 +908,7 @@
                             <div class="field"><label>Teléfono línea 1</label><input type="text" name="footer[phone_line_1]" value="{{ old('footer.phone_line_1', $phone[0] ?? '') }}"></div>
                             <div class="field"><label>Teléfono línea 2</label><input type="text" name="footer[phone_line_2]" value="{{ old('footer.phone_line_2', $phone[1] ?? '') }}"></div>
                             <div class="field">
-                                <label>Logo inferior del footer</label>
+                                <label>Logo inferior del pie de página</label>
                                 <input type="text" name="footer[seal_logo]" value="{{ old('footer.seal_logo', $footer['settings']['seal_logo'] ?? '') }}" placeholder="/storage/cms/footer/sello.png o https://...">
                             </div>
                             <div class="field">
@@ -1251,7 +946,7 @@
                                         </div>
                                         <div class="grid grid-2" style="margin-top:12px;">
                                             <div class="field"><label>Texto</label><input type="text" data-field="label" value="{{ $link['label'] ?? '' }}"></div>
-                                            <div class="field"><label>URL</label><input type="text" data-field="url" value="{{ $link['url'] ?? '#' }}"></div>
+                                            <div class="field"><label>Enlace</label><input type="text" data-field="url" value="{{ $link['url'] ?? '#' }}"></div>
                                         </div>
                                         <input type="hidden" data-field="id" value="{{ $link['id'] ?? '' }}">
                                     </div>
@@ -1266,7 +961,7 @@
                         <div class="toolbar">
                             <div>
                                 <h4>Enlaces de empresa</h4>
-                                <p>Sección institucional del footer.</p>
+                                <p>Sección institucional del pie de página.</p>
                             </div>
                             <button type="button" class="button button-secondary" data-add-row>Agregar enlace</button>
                         </div>
@@ -1283,7 +978,7 @@
                                         </div>
                                         <div class="grid grid-2" style="margin-top:12px;">
                                             <div class="field"><label>Texto</label><input type="text" data-field="label" value="{{ $link['label'] ?? '' }}"></div>
-                                            <div class="field"><label>URL</label><input type="text" data-field="url" value="{{ $link['url'] ?? '#' }}"></div>
+                                            <div class="field"><label>Enlace</label><input type="text" data-field="url" value="{{ $link['url'] ?? '#' }}"></div>
                                         </div>
                                         <input type="hidden" data-field="id" value="{{ $link['id'] ?? '' }}">
                                     </div>
@@ -1298,7 +993,7 @@
                         <div class="toolbar">
                             <div>
                                 <h4>Entidades relacionadas</h4>
-                                <p>Instituciones nacionales que quieres destacar en el footer.</p>
+                                <p>Instituciones nacionales que quieres destacar en el pie de página.</p>
                             </div>
                             <button type="button" class="button button-secondary" data-add-row>Agregar enlace</button>
                         </div>
@@ -1315,7 +1010,7 @@
                                         </div>
                                         <div class="grid grid-2" style="margin-top:12px;">
                                             <div class="field"><label>Texto</label><input type="text" data-field="label" value="{{ $link['label'] ?? '' }}"></div>
-                                            <div class="field"><label>URL</label><input type="text" data-field="url" value="{{ $link['url'] ?? '#' }}"></div>
+                                            <div class="field"><label>Enlace</label><input type="text" data-field="url" value="{{ $link['url'] ?? '#' }}"></div>
                                         </div>
                                         <input type="hidden" data-field="id" value="{{ $link['id'] ?? '' }}">
                                     </div>
@@ -1330,7 +1025,7 @@
                         <div class="toolbar">
                             <div>
                                 <h4>Organizaciones internacionales</h4>
-                                <p>Vínculos institucionales internacionales visibles en el footer.</p>
+                                <p>Vínculos institucionales internacionales visibles en el pie de página.</p>
                             </div>
                             <button type="button" class="button button-secondary" data-add-row>Agregar enlace</button>
                         </div>
@@ -1347,7 +1042,7 @@
                                         </div>
                                         <div class="grid grid-2" style="margin-top:12px;">
                                             <div class="field"><label>Texto</label><input type="text" data-field="label" value="{{ $link['label'] ?? '' }}"></div>
-                                            <div class="field"><label>URL</label><input type="text" data-field="url" value="{{ $link['url'] ?? '#' }}"></div>
+                                            <div class="field"><label>Enlace</label><input type="text" data-field="url" value="{{ $link['url'] ?? '#' }}"></div>
                                         </div>
                                         <input type="hidden" data-field="id" value="{{ $link['id'] ?? '' }}">
                                     </div>
@@ -1379,8 +1074,8 @@
                                         </div>
                                         <div class="grid grid-3" style="margin-top:12px;">
                                             <div class="field"><label>Texto corto</label><input type="text" data-field="label" value="{{ $link['label'] ?? '' }}"></div>
-                                            <div class="field"><label>Nombre accesible</label><input type="text" data-field="aria_label" value="{{ $link['aria_label'] ?? '' }}"></div>
-                                            <div class="field"><label>URL</label><input type="text" data-field="url" value="{{ $link['url'] ?? '#' }}"></div>
+                                            <div class="field"><label>Descripción para lectores de pantalla</label><input type="text" data-field="aria_label" value="{{ $link['aria_label'] ?? '' }}"></div>
+                                            <div class="field"><label>Enlace</label><input type="text" data-field="url" value="{{ $link['url'] ?? '#' }}"></div>
                                             <div class="field"><label>Imagen actual</label><input type="text" data-field="image" value="{{ $link['image'] ?? '' }}"></div>
                                             <div class="field"><label>Subir icono</label><input type="file" data-field="image_file" accept="image/*" data-preview-input></div>
                                         </div>
@@ -1400,258 +1095,15 @@
                         </div>
                     </div>
                 </section>
+                @endif
 
-                <section id="history-root" class="section-card" x-show="tab === 'history_overview'">
-                    <div class="section-header">
-                        <div>
-                            <div class="section-eyebrow">Timeline</div>
-                            <h3 class="section-title">Historial general de la página</h3>
-                            <p class="section-copy">Resumen editorial de cambios y restauraciones aplicadas en esta página.</p>
-                        </div>
-                        <div class="section-metrics">
-                            <span class="pill pill-off">{{ $historyData['total_changes'] }} cambios</span>
-                            <span class="pill pill-off">{{ $versions->count() }} versiones recientes</span>
-                        </div>
-                    </div>
-
-                    <div class="design-grid">
-                        <div class="subpanel span-6">
-                            <h4>Versiones recientes</h4>
-                            <p>Cada guardado crea una versión completa que puedes restaurar.</p>
-                            <div class="stack" style="gap:12px;">
-                                @forelse ($versions as $version)
-                                    @php($isCurrentVersion = (int) $version->version_number === (int) $currentVersionNumber)
-                                    <div class="repeater-card" style="padding:14px;">
-                                        <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
-                                            <div>
-                                                <strong>Versión {{ $version->version_number }}</strong>
-                                                <div style="font-size:12px; color:#6b7280; margin-top:4px;">
-                                                    {{ $historyActionLabels[$version->action] ?? ucfirst($version->action) }} · {{ optional($version->created_at)->format('d/m/Y H:i') }}
-                                                </div>
-                                            </div>
-                                            <span class="pill {{ $version->action === 'restored' ? 'pill-ok' : 'pill-off' }}">{{ $historyActionLabels[$version->action] ?? ucfirst($version->action) }}</span>
-                                        </div>
-                                        @if ($isCurrentVersion)
-                                            <div style="margin-top:10px;">
-                                                <span class="pill pill-ok">Versión actual</span>
-                                            </div>
-                                        @endif
-                                        <div style="margin-top:10px; font-size:13px; color:#4b5563;">
-                                            <div><strong>Responsable:</strong> {{ $version->created_by_name ?: 'Sistema' }}</div>
-                                            @if ($version->change_summary)
-                                                <div style="margin-top:6px;"><strong>Resumen editorial:</strong> {{ $version->change_summary }}</div>
-                                            @endif
-                                            <div style="margin-top:6px;"><strong>Cambios incluidos:</strong> {{ $version->changeLogs->count() }}</div>
-                                        </div>
-                                        @if ($isCurrentVersion)
-                                            <div class="button button-secondary" style="width:100%; margin-top:12px; opacity:.78; cursor:default;">Versión actual publicada</div>
-                                        @else
-                                            <button
-                                                type="button"
-                                                class="button button-secondary"
-                                                style="width:100%; margin-top:12px;"
-                                                onclick="submitRestore('{{ route('admin.pages.restore', [$page, $version]) }}', 'Restauración desde la versión {{ $version->version_number }}')"
-                                            >
-                                                Volver a esta versión
-                                            </button>
-                                        @endif
-                                    </div>
-                                @empty
-                                    <div class="empty-note">Todavía no hay versiones registradas.</div>
-                                @endforelse
-                            </div>
-                        </div>
-
-                        <div class="subpanel span-6">
-                            <h4>Cambios recientes</h4>
-                            <p>Lectura simple de las últimas acciones realizadas en contenido y estructura.</p>
-                            <div class="stack" style="gap:12px;">
-                                @forelse ($historyData['latest_changes'] as $log)
-                                    <div class="repeater-card" style="padding:14px;">
-                                        <strong>{{ $log->summary ?: 'Cambio registrado' }}</strong>
-                                        <div style="font-size:12px; color:#6b7280; margin-top:4px;">
-                                            {{ optional($log->created_at)->format('d/m/Y H:i') }}
-                                        </div>
-                                        <div style="margin-top:10px; font-size:13px; color:#4b5563;">
-                                            <div><strong>Sección:</strong> {{ $historySectionLabels[$log->section_key ?: 'general'] ?? ucfirst($log->section_key ?: 'general') }}</div>
-                                            <div style="margin-top:6px;"><strong>Usuario:</strong> {{ $log->created_by_name ?: 'Sistema' }}</div>
-                                            <div style="margin-top:6px;"><strong>Versión:</strong> {{ $log->version?->version_number ?: 'N/D' }}</div>
-                                        </div>
-                                    </div>
-                                @empty
-                                    <div class="empty-note">Todavía no hay cambios registrados.</div>
-                                @endforelse
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                @foreach ($historySections as $historySection)
-                    <section class="section-card" x-show="tab === 'history_{{ $historySection['key'] }}'">
-                        <div class="section-header">
-                            <div>
-                                <div class="section-eyebrow">Section history</div>
-                                <h3 class="section-title">Historial de {{ $historySection['label'] }}</h3>
-                                <p class="section-copy">Revisión editorial clara de cambios, responsables y restauraciones de esta sección.</p>
-                            </div>
-                            <div class="section-metrics">
-                                <span class="pill pill-off">{{ $historySection['count'] }} eventos</span>
-                                <span class="pill pill-off">{{ $historySection['versions']->count() }} versiones</span>
-                            </div>
-                        </div>
-
-                        <div class="design-grid">
-                            <div class="subpanel span-3">
-                                <h4>Versiones relacionadas</h4>
-                                <p>Guardados donde esta sección recibió algún cambio.</p>
-                                <div class="stack" style="gap:12px;">
-                                    @forelse ($historySection['versions'] as $version)
-                                        @php($isCurrentVersion = (int) $version->version_number === (int) $currentVersionNumber)
-                                        <div class="repeater-card" style="padding:14px;">
-                                            <strong>Versión {{ $version->version_number }}</strong>
-                                            <div style="font-size:12px; color:#6b7280; margin-top:4px;">
-                                                {{ $historyActionLabels[$version->action] ?? ucfirst($version->action) }} · {{ optional($version->created_at)->format('d/m/Y H:i') }}
-                                            </div>
-                                            @if ($isCurrentVersion)
-                                                <div style="margin-top:10px;">
-                                                    <span class="pill pill-ok">Versión actual</span>
-                                                </div>
-                                            @endif
-                                            <div style="margin-top:8px; font-size:13px; color:#4b5563;">
-                                                <div><strong>Responsable:</strong> {{ $version->created_by_name ?: 'Sistema' }}</div>
-                                                @if ($version->change_summary)
-                                                    <div style="margin-top:6px;"><strong>Resumen editorial:</strong> {{ $version->change_summary }}</div>
-                                                @endif
-                                            </div>
-                                            @if ($isCurrentVersion)
-                                                <div class="button button-secondary" style="width:100%; margin-top:12px; opacity:.78; cursor:default;">Versión actual publicada</div>
-                                            @else
-                                                <button
-                                                    type="button"
-                                                    class="button button-secondary"
-                                                    style="width:100%; margin-top:12px;"
-                                                    onclick="submitRestore('{{ route('admin.pages.restore', [$page, $version]) }}', 'Restauración desde la versión {{ $version->version_number }} para {{ $historySection['label'] }}')"
-                                                >
-                                                    Volver a esta versión
-                                                </button>
-                                            @endif
-                                        </div>
-                                    @empty
-                                        <div class="empty-note">Esta sección aún no tiene versiones relacionadas.</div>
-                                    @endforelse
-                                </div>
-                            </div>
-
-                            <div class="subpanel span-9">
-                                <h4>Línea de tiempo de la sección</h4>
-                                <p>Lectura ejecutiva de lo que se modificó, quién lo hizo y cómo quedó el contenido.</p>
-                                <div class="stack" style="gap:12px;">
-                                    @forelse ($historySection['logs'] as $log)
-                                        <div class="repeater-card" style="padding:14px;">
-                                            <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
-                                                <div>
-                                                    <strong>{{ $log->summary ?: 'Cambio registrado' }}</strong>
-                                                    <div style="font-size:12px; color:#6b7280; margin-top:4px;">
-                                                        {{ optional($log->created_at)->format('d/m/Y H:i') }}
-                                                    </div>
-                                                </div>
-                                                <span class="pill {{ $log->action === 'restored' ? 'pill-ok' : 'pill-off' }}">{{ $historyActionLabels[$log->action] ?? ucfirst($log->action) }}</span>
-                                            </div>
-                                            <div class="grid grid-3" style="margin-top:12px;">
-                                                <div><strong>Usuario:</strong><br>{{ $log->created_by_name ?: 'Sistema' }}</div>
-                                                <div><strong>Versión:</strong><br>{{ $log->version?->version_number ?: 'N/D' }}</div>
-                                                <div><strong>Elemento:</strong><br>{{ $log->item_name ?: ($historyFieldLabels[$log->field_name] ?? ($log->field_name ?: 'Sección completa')) }}</div>
-                                            </div>
-                                            @php($changeDetails = $buildHistoryDiff($log->before_state, $log->after_state))
-                                            @if (!empty($changeDetails))
-                                                <div class="image-frame" style="margin-top:12px;">
-                                                    <strong>Cambios detectados</strong>
-                                                    <div class="stack" style="gap:10px; margin-top:12px;">
-                                                        @foreach ($changeDetails as $change)
-                                                            <div style="padding:12px 14px; border:1px solid #dbe5f3; border-radius:16px; background:#fff;">
-                                                                <div style="display:flex; justify-content:space-between; gap:12px; align-items:flex-start;">
-                                                                    <strong style="font-size:13px; color:#123047;">{{ $change['label'] ?: 'Campo actualizado' }}</strong>
-                                                                    <span class="pill pill-off">{{ $change['type'] }}</span>
-                                                                </div>
-                                                                <div class="grid grid-2" style="margin-top:10px; gap:10px;">
-                                                                    <div>
-                                                                        <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:#667085;">Antes</div>
-                                                                        <div style="margin-top:4px; font-size:13px; color:#344054; line-height:1.55;">{{ $change['before'] }}</div>
-                                                                    </div>
-                                                                    <div>
-                                                                        <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:#667085;">Después</div>
-                                                                        <div style="margin-top:4px; font-size:13px; color:#344054; line-height:1.55;">{{ $change['after'] }}</div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    @empty
-                                        <div class="empty-note">Todavía no hay cambios registrados para esta sección.</div>
-                                    @endforelse
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                @endforeach
 
             </div>
 
         </div>
-        <div class="save-dock">
-            <div style="flex:1;">
-                <strong style="display:block; margin-bottom:4px;">Todo listo para guardar</strong>
-                <p>El frontend publico no cambia de estructura, solo actualiza lo que el administrador controla aqui.</p>
-                <div class="field" style="margin-top:12px;">
-                    <label>Resumen del cambio</label>
-                    <input type="text" name="change_summary" form="page-edit-form" value="{{ old('change_summary') }}" placeholder="Ej: Actualice hero, servicios y footer">
-                </div>
-            </div>
-            <button type="submit" id="save-design-button" form="page-edit-form" class="button button-primary">Guardar cambios del diseño</button>
-        </div>
+        @include('admin.pages.partials.save')
     </form>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const saveButton = document.getElementById('save-design-button');
-        const form = document.getElementById('page-edit-form');
-
-        if (!saveButton || !form) return;
-
-        saveButton.addEventListener('click', function (event) {
-            event.preventDefault();
-            form.submit();
-        });
-    });
-
-    function submitRestore(url, summary) {
-        const token = document.querySelector('#page-edit-form input[name="_token"]')?.value;
-        if (!url || !token) return;
-
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = url;
-        form.style.display = 'none';
-
-        const csrf = document.createElement('input');
-        csrf.type = 'hidden';
-        csrf.name = '_token';
-        csrf.value = token;
-        form.appendChild(csrf);
-
-        const changeSummary = document.createElement('input');
-        changeSummary.type = 'hidden';
-        changeSummary.name = 'change_summary';
-        changeSummary.value = summary || '';
-        form.appendChild(changeSummary);
-
-        document.body.appendChild(form);
-        form.submit();
-    }
-</script>
 @endsection
 

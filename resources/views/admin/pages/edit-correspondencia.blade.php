@@ -21,31 +21,28 @@
             </div>
         @endif
 
-        <form id="page-edit-form" method="POST" action="{{ route('admin.pages.update', $page) }}" class="stack" enctype="multipart/form-data">
+        @include('admin.pages.partials.header')
+
+    <form id="page-edit-form" method="POST" action="{{ route('admin.pages.update', $page) }}" class="stack" data-editor-form enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
             <section class="section-card">
                 <div class="section-header">
                     <div>
-                        <div class="section-eyebrow">General</div>
+                        <div class="section-eyebrow">Esta página</div>
                         <h3 class="section-title">Configuracion base de Correspondencia Agrupada</h3>
-                        <p class="section-copy">Slug, SEO, tema y estado de publicacion.</p>
+                        <p class="section-copy">Nombre, enlace y publicación de esta página.</p><div class="field-help">El logo, los colores, el encabezado y el pie se administran desde Configuración global.</div>
                     </div>
                 </div>
                 <div class="grid grid-2">
-                    <div class="field"><label>Slug</label><input type="text" name="slug" value="{{ old('slug', $page->slug) }}"></div>
+                    <div class="field"><label>Dirección de la página</label><input type="text" name="slug" value="{{ old('slug', $page->slug) }}"></div>
                     <div class="field"><label>Nombre de la pagina</label><input type="text" name="name" value="{{ old('name', $page->name) }}"></div>
-                    <div class="field"><label>Titulo SEO</label><input type="text" name="meta_title" value="{{ old('meta_title', $page->meta_title) }}"></div>
-                    <div class="field"><label>Descripcion SEO</label><input type="text" name="meta_description" value="{{ old('meta_description', $page->meta_description) }}"></div>
-                    <div class="field"><label>Color principal</label><input type="text" name="theme[primary_color]" value="{{ old('theme.primary_color', $theme['primary_color'] ?? '#20539a') }}"></div>
-                    <div class="field"><label>Color secundario</label><input type="text" name="theme[secondary_color]" value="{{ old('theme.secondary_color', $theme['secondary_color'] ?? '#102542') }}"></div>
-                    <div class="field"><label>Color acento</label><input type="text" name="theme[accent_color]" value="{{ old('theme.accent_color', $theme['accent_color'] ?? '#fecc36') }}"></div>
-                    <div class="field"><label>Logo actual</label><input type="text" name="theme[logo_url]" value="{{ old('theme.logo_url', $theme['logo_url'] ?? '') }}"></div>
-                    <div class="field"><label>Subir logo</label><input type="file" name="theme[logo_file]" accept="image/*"></div>
+                    <div class="field"><label>Título en buscadores</label><input type="text" name="meta_title" value="{{ old('meta_title', $page->meta_title) }}"></div>
+                    <div class="field"><label>Descripción en buscadores</label><input type="text" name="meta_description" value="{{ old('meta_description', $page->meta_description) }}"></div>
                     <div class="field" style="display:flex; align-items:end;">
                         <label style="display:flex; gap:10px; align-items:center; margin:0; text-transform:none; letter-spacing:0; font-size:14px; color:#123047;">
-                            <input type="checkbox" name="is_active" value="1" {{ old('is_active', $page->is_active) ? 'checked' : '' }}>
+                            <input type="hidden" name="is_active" value="0"><input type="checkbox" name="is_active" value="1" {{ old('is_active', $page->is_active) ? 'checked' : '' }}>
                             Publicar esta pagina
                         </label>
                     </div>
@@ -53,19 +50,19 @@
             </section>
 
             <section class="section-card">
-                <div class="section-header"><div><div class="section-eyebrow">Hero</div><h3 class="section-title">Bloque principal</h3></div></div>
+                <div class="section-header"><div><div class="section-eyebrow">Portada</div><h3 class="section-title">Bloque principal</h3></div></div>
                 <div class="grid grid-2">
-                    <div class="field" style="grid-column:1/-1;"><label>Badge</label><input type="text" name="correspondencia_hero[badge]" value="{{ old('correspondencia_hero.badge', $hero['badge'] ?? '') }}"></div>
+                    <div class="field" style="grid-column:1/-1;"><label>Etiqueta destacada</label><input type="text" name="correspondencia_hero[badge]" value="{{ old('correspondencia_hero.badge', $hero['badge'] ?? '') }}"></div>
                     <div class="field"><label>Titulo linea 1 azul</label><input type="text" name="correspondencia_hero[title_line_one_blue]" value="{{ old('correspondencia_hero.title_line_one_blue', $hero['title_line_one_blue'] ?? '') }}"></div>
                     <div class="field"><label>Titulo linea 1 amarillo</label><input type="text" name="correspondencia_hero[title_line_one_yellow]" value="{{ old('correspondencia_hero.title_line_one_yellow', $hero['title_line_one_yellow'] ?? '') }}"></div>
                     <div class="field"><label>Titulo linea 2 amarillo</label><input type="text" name="correspondencia_hero[title_line_two_yellow]" value="{{ old('correspondencia_hero.title_line_two_yellow', $hero['title_line_two_yellow'] ?? '') }}"></div>
                     <div class="field"><label>Titulo linea 3 azul</label><input type="text" name="correspondencia_hero[title_line_three_blue]" value="{{ old('correspondencia_hero.title_line_three_blue', $hero['title_line_three_blue'] ?? '') }}"></div>
                     <div class="field" style="grid-column:1/-1;"><label>Subtitulo</label><textarea class="field-small" name="correspondencia_hero[subtitle]">{{ old('correspondencia_hero.subtitle', $hero['subtitle'] ?? '') }}</textarea></div>
                     <div class="field"><label>Boton principal</label><input type="text" name="correspondencia_hero[primary_button_label]" value="{{ old('correspondencia_hero.primary_button_label', $hero['primary_button_label'] ?? '') }}"></div>
-                    <div class="field"><label>URL boton principal</label><input type="text" name="correspondencia_hero[primary_button_url]" value="{{ old('correspondencia_hero.primary_button_url', $hero['primary_button_url'] ?? '') }}"></div>
+                    <div class="field"><label>Enlace boton principal</label><input type="text" name="correspondencia_hero[primary_button_url]" value="{{ old('correspondencia_hero.primary_button_url', $hero['primary_button_url'] ?? '') }}"></div>
                     <div class="field"><label>Boton secundario</label><input type="text" name="correspondencia_hero[secondary_button_label]" value="{{ old('correspondencia_hero.secondary_button_label', $hero['secondary_button_label'] ?? '') }}"></div>
-                    <div class="field"><label>URL boton secundario</label><input type="text" name="correspondencia_hero[secondary_button_url]" value="{{ old('correspondencia_hero.secondary_button_url', $hero['secondary_button_url'] ?? '') }}"></div>
-                    <div class="field"><label>Icono visual</label><input type="text" name="correspondencia_hero[visual_icon]" value="{{ old('correspondencia_hero.visual_icon', $hero['visual_icon'] ?? '') }}"></div>
+                    <div class="field"><label>Enlace boton secundario</label><input type="text" name="correspondencia_hero[secondary_button_url]" value="{{ old('correspondencia_hero.secondary_button_url', $hero['secondary_button_url'] ?? '') }}"></div>
+                    <div class="field"><label>Ícono del bloque</label><input type="text" name="correspondencia_hero[visual_icon]" value="{{ old('correspondencia_hero.visual_icon', $hero['visual_icon'] ?? '') }}"></div>
                     <div class="field"><label>Imagen visual actual</label><input type="text" name="correspondencia_hero[visual_image]" value="{{ old('correspondencia_hero.visual_image', $hero['visual_image'] ?? '') }}"></div>
                     <div class="field"><label>Subir imagen visual</label><input type="file" name="correspondencia_hero[visual_image_file]" accept="image/*"></div>
                 </div>
@@ -88,7 +85,7 @@
                                     <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Item' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
                                     <div class="grid grid-2" style="margin-top:12px;">
                                         <div class="field"><label>Titulo</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
-                                        <div class="field"><label>Icono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
+                                        <div class="field"><label>Ícono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
                                     </div>
                                     <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                 </div>
@@ -105,8 +102,8 @@
                     <div class="field"><label>Subtitulo</label><input type="text" name="correspondencia_rates[subtitle]" value="{{ old('correspondencia_rates.subtitle', $rates['settings']['subtitle'] ?? '') }}"></div>
                     <div class="field"><label>Titulo nota</label><input type="text" name="correspondencia_rates[note_title]" value="{{ old('correspondencia_rates.note_title', $rates['settings']['note_title'] ?? '') }}"></div>
                     <div class="field"><label>Texto nota</label><input type="text" name="correspondencia_rates[note_text]" value="{{ old('correspondencia_rates.note_text', $rates['settings']['note_text'] ?? '') }}"></div>
-                    <div class="field"><label>Boton CTA</label><input type="text" name="correspondencia_rates[primary_button_label]" value="{{ old('correspondencia_rates.primary_button_label', $rates['settings']['primary_button_label'] ?? '') }}"></div>
-                    <div class="field"><label>URL CTA</label><input type="text" name="correspondencia_rates[primary_button_url]" value="{{ old('correspondencia_rates.primary_button_url', $rates['settings']['primary_button_url'] ?? '') }}"></div>
+                    <div class="field"><label>Boton botón</label><input type="text" name="correspondencia_rates[primary_button_label]" value="{{ old('correspondencia_rates.primary_button_label', $rates['settings']['primary_button_label'] ?? '') }}"></div>
+                    <div class="field"><label>Enlace botón</label><input type="text" name="correspondencia_rates[primary_button_url]" value="{{ old('correspondencia_rates.primary_button_url', $rates['settings']['primary_button_url'] ?? '') }}"></div>
                 </div>
                 <div class="subpanel">
                     <div class="toolbar"><div><h4>Tarjetas de metricas</h4></div><button type="button" class="button button-secondary" data-add-row>Agregar tarjeta</button></div>
@@ -146,7 +143,7 @@
                                     <div class="grid grid-2" style="margin-top:12px;">
                                         <div class="field"><label>Eyebrow</label><input type="text" data-field="eyebrow" value="{{ $item['eyebrow'] ?? '' }}"></div>
                                         <div class="field"><label>Titulo</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
-                                        <div class="field"><label>Icono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
+                                        <div class="field"><label>Ícono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
                                         <div class="field"><label>Fila 1 label</label><input type="text" data-field="row_one_label" value="{{ $item['row_one_label'] ?? '' }}"></div>
                                         <div class="field"><label>Fila 1 valor</label><input type="text" data-field="row_one_value" value="{{ $item['row_one_value'] ?? '' }}"></div>
                                         <div class="field"><label>Fila 2 label</label><input type="text" data-field="row_two_label" value="{{ $item['row_two_label'] ?? '' }}"></div>
@@ -177,9 +174,9 @@
                                     <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Tarjeta' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
                                     <div class="grid grid-2" style="margin-top:12px;">
                                         <div class="field"><label>Titulo</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
-                                        <div class="field"><label>Icono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
+                                        <div class="field"><label>Ícono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
                                         <div class="field" style="grid-column:1/-1;"><label>Descripcion</label><textarea class="field-small" data-field="text">{{ $item['text'] ?? '' }}</textarea></div>
-                                        <div class="field"><label>Badge</label><input type="text" data-field="badge" value="{{ $item['badge'] ?? '' }}"></div>
+                                        <div class="field"><label>Etiqueta destacada</label><input type="text" data-field="badge" value="{{ $item['badge'] ?? '' }}"></div>
                                     </div>
                                     <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                 </div>
@@ -206,18 +203,11 @@
                     <div class="field"><label>Imagen QR actual</label><input type="text" name="correspondencia_cta[qr_image]" value="{{ old('correspondencia_cta.qr_image', $cta['qr_image'] ?? '') }}"></div>
                     <div class="field"><label>Subir QR</label><input type="file" name="correspondencia_cta[qr_image_file]" accept="image/*"></div>
                     <div class="field"><label>Boton</label><input type="text" name="correspondencia_cta[button_label]" value="{{ old('correspondencia_cta.button_label', $cta['button_label'] ?? '') }}"></div>
-                    <div class="field"><label>URL boton</label><input type="text" name="correspondencia_cta[button_url]" value="{{ old('correspondencia_cta.button_url', $cta['button_url'] ?? '') }}"></div>
+                    <div class="field"><label>Enlace boton</label><input type="text" name="correspondencia_cta[button_url]" value="{{ old('correspondencia_cta.button_url', $cta['button_url'] ?? '') }}"></div>
                 </div>
             </section>
 
-            <div class="save-dock">
-                <div style="flex:1;">
-                    <strong style="display:block; margin-bottom:4px;">Guardar pagina {{ $page->name }}</strong>
-                    <p>Header y footer se conservan; aqui administras toda la landing del servicio.</p>
-                    <div class="field" style="margin-top:12px;"><label>Resumen del cambio</label><input type="text" name="change_summary" value="{{ old('change_summary') }}"></div>
-                </div>
-                <button type="submit" class="button button-primary">Guardar cambios del diseno</button>
-            </div>
+            @include('admin.pages.partials.save')
         </form>
 
         <template id="eca-simple-template">
@@ -225,7 +215,7 @@
                 <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Item</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
                 <div class="grid grid-2" style="margin-top:12px;">
                     <div class="field"><label>Titulo</label><input type="text" data-field="title"></div>
-                    <div class="field"><label>Icono</label><input type="text" data-field="icon"></div>
+                    <div class="field"><label>Ícono</label><input type="text" data-field="icon"></div>
                 </div>
                 <input type="hidden" data-field="id">
             </div>
@@ -249,7 +239,7 @@
                 <div class="grid grid-2" style="margin-top:12px;">
                     <div class="field"><label>Eyebrow</label><input type="text" data-field="eyebrow"></div>
                     <div class="field"><label>Titulo</label><input type="text" data-field="title"></div>
-                    <div class="field"><label>Icono</label><input type="text" data-field="icon"></div>
+                    <div class="field"><label>Ícono</label><input type="text" data-field="icon"></div>
                     <div class="field"><label>Fila 1 label</label><input type="text" data-field="row_one_label"></div>
                     <div class="field"><label>Fila 1 valor</label><input type="text" data-field="row_one_value"></div>
                     <div class="field"><label>Fila 2 label</label><input type="text" data-field="row_two_label"></div>

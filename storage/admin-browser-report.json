@@ -1,0 +1,104 @@
+{
+  "report": [
+    {
+      "title": "Aplicaciones y Sistemas Publicada",
+      "form": true,
+      "sections": 4,
+      "visible": 1,
+      "overflow": false,
+      "url": "http://127.0.0.1:8777/admin/pages/10/edit",
+      "mobileOverflow": false
+    },
+    {
+      "title": "Casillas Publicada",
+      "form": true,
+      "sections": 6,
+      "visible": 1,
+      "overflow": false,
+      "url": "http://127.0.0.1:8777/admin/pages/8/edit",
+      "mobileOverflow": false
+    },
+    {
+      "title": "Correspondencia Agrupada Publicada",
+      "form": true,
+      "sections": 7,
+      "visible": 1,
+      "overflow": false,
+      "url": "http://127.0.0.1:8777/admin/pages/7/edit",
+      "mobileOverflow": false
+    },
+    {
+      "title": "Delivery Express Publicada",
+      "form": true,
+      "sections": 7,
+      "visible": 1,
+      "overflow": false,
+      "url": "http://127.0.0.1:8777/admin/pages/4/edit",
+      "mobileOverflow": false
+    },
+    {
+      "title": "Encomienda Postal Publicada",
+      "form": true,
+      "sections": 6,
+      "visible": 1,
+      "overflow": false,
+      "url": "http://127.0.0.1:8777/admin/pages/6/edit",
+      "mobileOverflow": false
+    },
+    {
+      "title": "Home Publicada",
+      "form": true,
+      "sections": 8,
+      "visible": 3,
+      "overflow": false,
+      "url": "http://127.0.0.1:8777/admin/pages/1/edit",
+      "mobileOverflow": false
+    },
+    {
+      "title": "Información Postal Publicada",
+      "form": true,
+      "sections": 2,
+      "visible": 1,
+      "overflow": false,
+      "url": "http://127.0.0.1:8777/admin/pages/11/edit",
+      "mobileOverflow": false
+    },
+    {
+      "title": "Noticias Publicada",
+      "form": true,
+      "sections": 6,
+      "visible": 1,
+      "overflow": false,
+      "url": "http://127.0.0.1:8777/admin/pages/3/edit",
+      "mobileOverflow": false
+    },
+    {
+      "title": "Postal Shopper Publicada",
+      "form": true,
+      "sections": 5,
+      "visible": 1,
+      "overflow": false,
+      "url": "http://127.0.0.1:8777/admin/pages/9/edit",
+      "mobileOverflow": false
+    },
+    {
+      "title": "Quienes Somos Publicada",
+      "form": true,
+      "sections": 6,
+      "visible": 1,
+      "overflow": false,
+      "url": "http://127.0.0.1:8777/admin/pages/2/edit",
+      "mobileOverflow": false
+    },
+    {
+      "title": "Servicio ECA Publicada",
+      "form": true,
+      "sections": 7,
+      "visible": 1,
+      "overflow": false,
+      "url": "http://127.0.0.1:8777/admin/pages/5/edit",
+      "mobileOverflow": false
+    }
+  ],
+  "errors": []
+}

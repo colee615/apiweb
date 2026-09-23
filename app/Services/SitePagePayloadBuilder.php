@@ -55,6 +55,39 @@ class SitePagePayloadBuilder
         ];
     }
 
+    /** Build a public page using the brand and navigation managed from Home. */
+    public function buildPublic(SitePage $page): array
+    {
+        $payload = $this->build($page);
+        $home = $page->slug === 'home'
+            ? $page
+            : SitePage::query()->where('slug', 'home')->with([
+                'sections' => fn ($query) => $query->where('is_active', true)->orderBy('sort_order'),
+                'sections.items' => fn ($query) => $query->where('is_active', true)->orderBy('sort_order'),
+            ])->first();
+
+        if (! $home) {
+            return $payload;
+        }
+
+        $shared = $this->build($home);
+        $payload['theme'] = $shared['theme'];
+
+        $sections = collect($payload['sections'])
+            ->reject(fn (array $section) => $section['key'] === 'header')
+            ->values();
+        $header = $shared['section_map']['header'] ?? null;
+
+        if ($header && $header['is_active']) {
+            $sections->prepend($header);
+        }
+
+        $payload['sections'] = $sections->values()->all();
+        $payload['section_map'] = $sections->keyBy('key')->all();
+
+        return $payload;
+    }
+
     public function normalizeAssetFields(array $data): array
     {
         $data = ContentSecurity::sanitizeArray($data);

@@ -1,0 +1,60 @@
+{
+  "report": [
+    {
+      "url": "http://127.0.0.1:8777/admin/pages/10/edit",
+      "success": "Diseno y contenidos actualizados correctamente.",
+      "changedFields": []
+    },
+    {
+      "url": "http://127.0.0.1:8777/admin/pages/8/edit",
+      "success": "Diseno y contenidos actualizados correctamente.",
+      "changedFields": []
+    },
+    {
+      "url": "http://127.0.0.1:8777/admin/pages/7/edit",
+      "success": "Diseno y contenidos actualizados correctamente.",
+      "changedFields": []
+    },
+    {
+      "url": "http://127.0.0.1:8777/admin/pages/4/edit",
+      "success": "Diseno y contenidos actualizados correctamente.",
+      "changedFields": []
+    },
+    {
+      "url": "http://127.0.0.1:8777/admin/pages/6/edit",
+      "success": "Diseno y contenidos actualizados correctamente.",
+      "changedFields": []
+    },
+    {
+      "url": "http://127.0.0.1:8777/admin/pages/1/edit",
+      "success": "Diseno y contenidos actualizados correctamente.",
+      "changedFields": []
+    },
+    {
+      "url": "http://127.0.0.1:8777/admin/pages/11/edit",
+      "success": "Diseno y contenidos actualizados correctamente.",
+      "changedFields": []
+    },
+    {
+      "url": "http://127.0.0.1:8777/admin/pages/3/edit",
+      "success": "Diseno y contenidos actualizados correctamente.",
+      "changedFields": []
+    },
+    {
+      "url": "http://127.0.0.1:8777/admin/pages/9/edit",
+      "success": "Diseno y contenidos actualizados correctamente.",
+      "changedFields": []
+    },
+    {
+      "url": "http://127.0.0.1:8777/admin/pages/2/edit",
+      "success": "Diseno y contenidos actualizados correctamente.",
+      "changedFields": []
+    },
+    {
+      "url": "http://127.0.0.1:8777/admin/pages/5/edit",
+      "success": "Diseno y contenidos actualizados correctamente.",
+      "changedFields": []
+    }
+  ],
+  "errors": []
+}

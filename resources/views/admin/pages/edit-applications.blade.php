@@ -25,90 +25,35 @@
             </div>
         @endif
 
-        <form id="page-edit-form" method="POST" action="{{ route('admin.pages.update', $page) }}" class="stack" enctype="multipart/form-data">
+        @include('admin.pages.partials.header')
+
+    <form id="page-edit-form" method="POST" action="{{ route('admin.pages.update', $page) }}" class="stack" data-editor-form enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
             <section class="section-card">
                 <div class="section-header">
                     <div>
-                        <div class="section-eyebrow">General</div>
+                        <div class="section-eyebrow">Esta página</div>
                         <h3 class="section-title">Aplicaciones y Sistemas</h3>
-                        <p class="section-copy">Configura la URL, SEO, identidad visual y estado de publicación de esta página.</p>
+                        <p class="section-copy">Configura la URL, información para buscadores y estado de publicación de esta página.</p><div class="field-help">El logo, los colores, el encabezado y el pie se administran desde Configuración global.</div>
                     </div>
                 </div>
                 <div class="grid grid-2">
-                    <div class="field"><label>Slug</label><input type="text" name="slug" value="{{ old('slug', $page->slug) }}"></div>
+                    <div class="field"><label>Dirección de la página</label><input type="text" name="slug" value="{{ old('slug', $page->slug) }}"></div>
                     <div class="field"><label>Nombre de la página</label><input type="text" name="name" value="{{ old('name', $page->name) }}"></div>
-                    <div class="field"><label>Título SEO</label><input type="text" name="meta_title" value="{{ old('meta_title', $page->meta_title) }}"></div>
-                    <div class="field"><label>Descripción SEO</label><input type="text" name="meta_description" value="{{ old('meta_description', $page->meta_description) }}"></div>
-                    <div class="field"><label>Color principal</label><input type="text" name="theme[primary_color]" value="{{ old('theme.primary_color', $theme['primary_color'] ?? '#20539a') }}"></div>
-                    <div class="field"><label>Color secundario</label><input type="text" name="theme[secondary_color]" value="{{ old('theme.secondary_color', $theme['secondary_color'] ?? '#2f3f5c') }}"></div>
-                    <div class="field"><label>Color de acento</label><input type="text" name="theme[accent_color]" value="{{ old('theme.accent_color', $theme['accent_color'] ?? '#fecc36') }}"></div>
-                    <div class="field"><label>Logo actual</label><input type="text" name="theme[logo_url]" value="{{ old('theme.logo_url', $theme['logo_url'] ?? '') }}"></div>
-                    <div class="field"><label>Subir logo</label><input type="file" name="theme[logo_file]" accept="image/*"></div>
+                    <div class="field"><label>Título en buscadores</label><input type="text" name="meta_title" value="{{ old('meta_title', $page->meta_title) }}"></div>
+                    <div class="field"><label>Descripción en buscadores</label><input type="text" name="meta_description" value="{{ old('meta_description', $page->meta_description) }}"></div>
                     <div class="field" style="display:flex; align-items:end;">
                         <label style="display:flex; gap:10px; align-items:center; margin:0; text-transform:none; letter-spacing:0; font-size:14px; color:#123047;">
-                            <input type="checkbox" name="is_active" value="1" {{ old('is_active', $page->is_active) ? 'checked' : '' }}>
+                            <input type="hidden" name="is_active" value="0"><input type="checkbox" name="is_active" value="1" {{ old('is_active', $page->is_active) ? 'checked' : '' }}>
                             Publicar esta página
                         </label>
                     </div>
                 </div>
             </section>
 
-            <section class="section-card">
-                <div class="section-header">
-                    <div>
-                        <div class="section-eyebrow">Header</div>
-                        <h3 class="section-title">Encabezado y novedades</h3>
-                        <p class="section-copy">Esta copia del header queda administrable para esta página sin depender de textos fijos del frontend.</p>
-                    </div>
-                </div>
-                <div class="grid grid-3">
-                    <div class="field"><label>Idioma principal</label><input type="text" name="header[language_primary]" value="{{ old('header.language_primary', $headerSettings['language_primary'] ?? '') }}"></div>
-                    <div class="field"><label>Idioma secundario</label><input type="text" name="header[language_secondary]" value="{{ old('header.language_secondary', $headerSettings['language_secondary'] ?? '') }}"></div>
-                    <div class="field"><label>Ayuda / contacto</label><input type="text" name="header[help_label]" value="{{ old('header.help_label', $headerSettings['help_label'] ?? '') }}"></div>
-                    <div class="field"><label>Inicio de sesión</label><input type="text" name="header[login_label]" value="{{ old('header.login_label', $headerSettings['login_label'] ?? '') }}"></div>
-                    <div class="field"><label>Placeholder de búsqueda</label><input type="text" name="header[search_placeholder]" value="{{ old('header.search_placeholder', $headerSettings['search_placeholder'] ?? '') }}"></div>
-                    <div class="field"><label>Etiqueta de novedades</label><input type="text" name="header[news_ticker_label]" value="{{ old('header.news_ticker_label', $headerSettings['news_ticker_label'] ?? 'Novedades') }}"></div>
-                </div>
-
-                <div class="subpanel">
-                    <div class="toolbar"><div><h4>Carrusel superior de novedades</h4><p>Agrega los textos y enlaces que aparecen en la franja azul superior.</p></div><button type="button" class="button button-secondary" data-add-row>Agregar novedad</button></div>
-                    <div class="stack" data-collection data-base="header[ticker_items]" data-template="link-template">
-                        <div data-rows>
-                            @foreach (old('header.ticker_items', $tickerItems) as $item)
-                                <div class="repeater-card" data-row>
-                                    <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['label'] ?? 'Novedad' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
-                                    <div class="grid grid-2" style="margin-top:12px;">
-                                        <div class="field"><label>Texto</label><input type="text" data-field="label" value="{{ $item['label'] ?? ($item['title'] ?? '') }}"></div>
-                                        <div class="field"><label>URL</label><input type="text" data-field="url" value="{{ $item['url'] ?? '' }}"></div>
-                                    </div>
-                                    <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-
-                <div class="subpanel">
-                    <div class="toolbar"><div><h4>Enlaces de navegación</h4><p>Ordena y administra los botones del menú de esta página.</p></div><button type="button" class="button button-secondary" data-add-row>Agregar enlace</button></div>
-                    <div class="stack" data-collection data-base="header[links]" data-template="link-template">
-                        <div data-rows>
-                            @foreach (old('header.links', $header['links'] ?? []) as $item)
-                                <div class="repeater-card" data-row>
-                                    <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['label'] ?? 'Enlace' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
-                                    <div class="grid grid-2" style="margin-top:12px;">
-                                        <div class="field"><label>Texto</label><input type="text" data-field="label" value="{{ $item['label'] ?? '' }}"></div>
-                                        <div class="field"><label>URL</label><input type="text" data-field="url" value="{{ $item['url'] ?? '' }}"></div>
-                                    </div>
-                                    <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            </section>
+            
 
             <section class="section-card">
                 <div class="section-header">
@@ -135,22 +80,34 @@
                     <div class="stack" data-collection data-base="applications[items]" data-template="application-template">
                         <div data-rows>
                             @foreach (old('applications.items', $applications['items'] ?? []) as $item)
+                                @php($resourceType = ($item['resource_type'] ?? 'web') === 'app' ? 'app' : 'web')
                                 <div class="repeater-card" data-row>
                                     <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['name'] ?? 'Aplicación' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
                                     <div class="grid grid-3" style="margin-top:12px;">
                                         <div class="field"><label>Nombre</label><input type="text" data-field="name" value="{{ $item['name'] ?? '' }}"></div>
-                                        <div class="field"><label>Tipo</label><input type="text" data-field="type" value="{{ $item['type'] ?? '' }}" placeholder="Aplicación / Sistema / Sitio web"></div>
+                                        <div class="field">
+                                            <label>Tipo de acceso</label>
+                                            <select data-field="resource_type" data-application-type>
+                                                <option value="web" {{ $resourceType === 'web' ? 'selected' : '' }}>Sitio web</option>
+                                                <option value="app" {{ $resourceType === 'app' ? 'selected' : '' }}>Aplicativo</option>
+                                            </select>
+                                        </div>
                                         <div class="field"><label>Categoría</label><input type="text" data-field="category" value="{{ $item['category'] ?? 'Otros' }}"></div>
                                         <div class="field" style="grid-column:1/-1;"><label>Descripción</label><textarea class="field-small" data-field="description">{{ $item['description'] ?? '' }}</textarea></div>
-                                        <div class="field"><label>Icono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? 'grid' }}" placeholder="package, document, users..."></div>
+                                        <div class="field"><label>Ícono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? 'grid' }}" placeholder="package, document, users..."></div>
                                         <div class="field"><label>Color</label><input type="text" data-field="color" value="{{ $item['color'] ?? '#20539a' }}" placeholder="#20539a"></div>
                                         <div class="field"><label>Texto del botón</label><input type="text" data-field="action" value="{{ $item['action'] ?? 'Ingresar' }}"></div>
-                                        <div class="field" style="grid-column:1/-1;"><label>URL</label><input type="text" data-field="url" value="{{ $item['url'] ?? '' }}" placeholder="/ruta-interna o https://... "></div>
+                                        <div class="field" style="grid-column:1/-1;" data-application-web-field><label>Enlace del sitio web</label><input type="text" data-field="url" value="{{ $item['url'] ?? '' }}" placeholder="/ruta-interna o https://..."></div>
+                                        <div class="field" style="grid-column:1/-1;" data-application-app-field><label>Enlace de Google Play</label><input type="text" data-field="play_store_url" value="{{ $item['play_store_url'] ?? '' }}" placeholder="https://play.google.com/store/apps/details?id=..."></div>
+                                        <div class="field" data-application-app-field><label>Archivo instalable actual</label><input type="text" data-field="download_url" value="{{ $item['download_url'] ?? '' }}" placeholder="Se completa al subir el archivo"></div>
+                                        <div class="field" data-application-app-field><label>Nombre del archivo</label><input type="text" data-field="download_name" value="{{ $item['download_name'] ?? '' }}" placeholder="aplicacion.apk"></div>
+                                        <div class="field" data-application-app-field><label>Subir instalador</label><input type="file" data-field="download_file" accept=".apk,.aab,.zip,application/vnd.android.package-archive,application/zip"></div>
+                                        <div class="field-help" style="grid-column:1/-1;" data-application-app-field>Se usará primero Google Play. Si ese enlace está vacío, el botón descargará el APK, AAB o ZIP subido aquí (máximo 35 MB).</div>
                                         <div class="field"><label>Imagen actual</label><input type="text" data-field="image" value="{{ $item['image'] ?? '' }}"></div>
                                         <div class="field"><label>Subir captura o imagen</label><input type="file" data-field="image_file" accept="image/*"></div>
-                                        <div class="field"><label>Estilo de preview</label><input type="text" data-field="preview" value="{{ $item['preview'] ?? 'default' }}" placeholder="tracking, ems, default..."></div>
-                                        <div class="field"><label>Etiqueta del preview</label><input type="text" data-field="preview_label" value="{{ $item['preview_label'] ?? ($item['name'] ?? '') }}"></div>
-                                        <div class="field"><label>Título del preview</label><input type="text" data-field="preview_title" value="{{ $item['preview_title'] ?? ($item['name'] ?? '') }}"></div>
+                                        <div class="field"><label>Estilo de la vista previa</label><input type="text" data-field="preview" value="{{ $item['preview'] ?? 'default' }}" placeholder="tracking, ems, default..."></div>
+                                        <div class="field"><label>Etiqueta de la vista previa</label><input type="text" data-field="preview_label" value="{{ $item['preview_label'] ?? ($item['name'] ?? '') }}"></div>
+                                        <div class="field"><label>Título de la vista previa</label><input type="text" data-field="preview_title" value="{{ $item['preview_title'] ?? ($item['name'] ?? '') }}"></div>
                                     </div>
                                     <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                 </div>
@@ -160,14 +117,14 @@
                 </div>
 
                 <div class="subpanel">
-                    <div class="toolbar"><div><h4>Beneficios del hero</h4><p>Los tres mensajes breves que acompañan la portada.</p></div><button type="button" class="button button-secondary" data-add-row>Agregar beneficio</button></div>
+                    <div class="toolbar"><div><h4>Beneficios del portada</h4><p>Los tres mensajes breves que acompañan la portada.</p></div><button type="button" class="button button-secondary" data-add-row>Agregar beneficio</button></div>
                     <div class="stack" data-collection data-base="applications_highlights[items]" data-template="application-highlight-template">
                         <div data-rows>
                             @foreach (old('applications_highlights.items', $highlights) as $item)
                                 <div class="repeater-card" data-row>
                                     <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Beneficio' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
                                     <div class="grid grid-2" style="margin-top:12px;">
-                                        <div class="field"><label>Icono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? 'spark' }}"></div>
+                                        <div class="field"><label>Ícono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? 'spark' }}"></div>
                                         <div class="field"><label>Texto</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
                                     </div>
                                     <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
@@ -184,13 +141,14 @@
                         <div class="field"><label>Título</label><input type="text" name="applications[support_title]" value="{{ old('applications.support_title', $applicationSettings['support_title'] ?? '') }}"></div>
                         <div class="field" style="grid-column:1/-1;"><label>Texto</label><textarea class="field-small" name="applications[support_text]">{{ old('applications.support_text', $applicationSettings['support_text'] ?? '') }}</textarea></div>
                         <div class="field"><label>Texto del botón</label><input type="text" name="applications[support_button_label]" value="{{ old('applications.support_button_label', $applicationSettings['support_button_label'] ?? '') }}"></div>
-                        <div class="field"><label>URL del botón</label><input type="text" name="applications[support_button_url]" value="{{ old('applications.support_button_url', $applicationSettings['support_button_url'] ?? '') }}"></div>
+                        <div class="field"><label>Enlace del botón</label><input type="text" name="applications[support_button_url]" value="{{ old('applications.support_button_url', $applicationSettings['support_button_url'] ?? '') }}"></div>
                     </div>
                 </div>
             </section>
 
+            @if ($page->slug === 'home')
             <section class="section-card">
-                <div class="section-header"><div><div class="section-eyebrow">Footer</div><h3 class="section-title">Pie de página</h3><p class="section-copy">El footer se administra desde esta misma página, igual que los demás contenidos del sitio.</p></div></div>
+                <div class="section-header"><div><div class="section-eyebrow">Pie de página</div><h3 class="section-title">Pie de página</h3><p class="section-copy">El pie de página se administra desde esta misma página, igual que los demás contenidos del sitio.</p></div></div>
                 <div class="grid grid-3">
                     <div class="field"><label>Título de ayuda</label><input type="text" name="footer[help_title]" value="{{ old('footer.help_title', $footerSettings['help_title'] ?? '') }}"></div>
                     <div class="field"><label>Título de empresa</label><input type="text" name="footer[company_title]" value="{{ old('footer.company_title', $footerSettings['company_title'] ?? '') }}"></div>
@@ -218,7 +176,7 @@
                                 @foreach (old('footer.' . $linkGroup['key'], $linkGroup['items']) as $item)
                                     <div class="repeater-card" data-row>
                                         <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['label'] ?? 'Enlace' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
-                                        <div class="grid grid-2" style="margin-top:12px;"><div class="field"><label>Texto</label><input type="text" data-field="label" value="{{ $item['label'] ?? '' }}"></div><div class="field"><label>URL</label><input type="text" data-field="url" value="{{ $item['url'] ?? '' }}"></div></div>
+                                        <div class="grid grid-2" style="margin-top:12px;"><div class="field"><label>Texto</label><input type="text" data-field="label" value="{{ $item['label'] ?? '' }}"></div><div class="field"><label>Enlace</label><input type="text" data-field="url" value="{{ $item['url'] ?? '' }}"></div></div>
                                         <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                     </div>
                                 @endforeach
@@ -234,7 +192,7 @@
                             @foreach (old('footer.social_links', $footer['social_links'] ?? []) as $item)
                                 <div class="repeater-card" data-row>
                                     <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['aria_label'] ?? ($item['label'] ?? 'Red social') }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
-                                    <div class="grid grid-3" style="margin-top:12px;"><div class="field"><label>Etiqueta</label><input type="text" data-field="label" value="{{ $item['label'] ?? '' }}"></div><div class="field"><label>Nombre accesible</label><input type="text" data-field="aria_label" value="{{ $item['aria_label'] ?? '' }}"></div><div class="field"><label>URL</label><input type="text" data-field="url" value="{{ $item['url'] ?? '' }}"></div><div class="field"><label>Imagen actual</label><input type="text" data-field="image" value="{{ $item['image'] ?? '' }}"></div><div class="field"><label>Subir icono</label><input type="file" data-field="image_file" accept="image/*"></div></div>
+                                    <div class="grid grid-3" style="margin-top:12px;"><div class="field"><label>Etiqueta</label><input type="text" data-field="label" value="{{ $item['label'] ?? '' }}"></div><div class="field"><label>Descripción para lectores de pantalla</label><input type="text" data-field="aria_label" value="{{ $item['aria_label'] ?? '' }}"></div><div class="field"><label>Enlace</label><input type="text" data-field="url" value="{{ $item['url'] ?? '' }}"></div><div class="field"><label>Imagen actual</label><input type="text" data-field="image" value="{{ $item['image'] ?? '' }}"></div><div class="field"><label>Subir icono</label><input type="file" data-field="image_file" accept="image/*"></div></div>
                                     <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                 </div>
                             @endforeach
@@ -242,11 +200,9 @@
                     </div>
                 </div>
             </section>
+            @endif
 
-            <div class="save-dock">
-                <div style="flex:1;"><strong style="display:block; margin-bottom:4px;">Guardar Aplicaciones y Sistemas</strong><p>Los cambios se versionan y se publican en /misaplicaciones.</p><div class="field" style="margin-top:12px;"><label>Resumen del cambio</label><input type="text" name="change_summary" value="{{ old('change_summary') }}"></div></div>
-                <button type="submit" class="button button-primary">Guardar cambios</button>
-            </div>
+            @include('admin.pages.partials.save')
         </form>
 
         <template id="application-template">
@@ -254,18 +210,23 @@
                 <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Aplicación</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
                 <div class="grid grid-3" style="margin-top:12px;">
                     <div class="field"><label>Nombre</label><input type="text" data-field="name"></div>
-                    <div class="field"><label>Tipo</label><input type="text" data-field="type" placeholder="Aplicación / Sistema / Sitio web"></div>
+                    <div class="field"><label>Tipo de acceso</label><select data-field="resource_type" data-application-type><option value="web" selected>Sitio web</option><option value="app">Aplicativo</option></select></div>
                     <div class="field"><label>Categoría</label><input type="text" data-field="category" value="Otros"></div>
                     <div class="field" style="grid-column:1/-1;"><label>Descripción</label><textarea class="field-small" data-field="description"></textarea></div>
-                    <div class="field"><label>Icono</label><input type="text" data-field="icon" value="grid"></div>
+                    <div class="field"><label>Ícono</label><input type="text" data-field="icon" value="grid"></div>
                     <div class="field"><label>Color</label><input type="text" data-field="color" value="#20539a"></div>
                     <div class="field"><label>Texto del botón</label><input type="text" data-field="action" value="Ingresar"></div>
-                    <div class="field" style="grid-column:1/-1;"><label>URL</label><input type="text" data-field="url"></div>
+                    <div class="field" style="grid-column:1/-1;" data-application-web-field><label>Enlace del sitio web</label><input type="text" data-field="url" placeholder="/ruta-interna o https://..."></div>
+                    <div class="field" style="grid-column:1/-1;" data-application-app-field><label>Enlace de Google Play</label><input type="text" data-field="play_store_url" placeholder="https://play.google.com/store/apps/details?id=..."></div>
+                    <div class="field" data-application-app-field><label>Archivo instalable actual</label><input type="text" data-field="download_url" placeholder="Se completa al subir el archivo"></div>
+                    <div class="field" data-application-app-field><label>Nombre del archivo</label><input type="text" data-field="download_name" placeholder="aplicacion.apk"></div>
+                    <div class="field" data-application-app-field><label>Subir instalador</label><input type="file" data-field="download_file" accept=".apk,.aab,.zip,application/vnd.android.package-archive,application/zip"></div>
+                    <div class="field-help" style="grid-column:1/-1;" data-application-app-field>Se usará primero Google Play. Si está vacío, se descargará el instalador subido (máximo 35 MB).</div>
                     <div class="field"><label>Imagen actual</label><input type="text" data-field="image"></div>
                     <div class="field"><label>Subir captura</label><input type="file" data-field="image_file" accept="image/*"></div>
-                    <div class="field"><label>Estilo de preview</label><input type="text" data-field="preview" value="default"></div>
-                    <div class="field"><label>Etiqueta del preview</label><input type="text" data-field="preview_label"></div>
-                    <div class="field"><label>Título del preview</label><input type="text" data-field="preview_title"></div>
+                    <div class="field"><label>Estilo de la vista previa</label><input type="text" data-field="preview" value="default"></div>
+                    <div class="field"><label>Etiqueta de la vista previa</label><input type="text" data-field="preview_label"></div>
+                    <div class="field"><label>Título de la vista previa</label><input type="text" data-field="preview_title"></div>
                 </div>
                 <input type="hidden" data-field="id">
             </div>
@@ -274,7 +235,7 @@
         <template id="application-highlight-template">
             <div class="repeater-card" data-row>
                 <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Beneficio</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
-                <div class="grid grid-2" style="margin-top:12px;"><div class="field"><label>Icono</label><input type="text" data-field="icon" value="spark"></div><div class="field"><label>Texto</label><input type="text" data-field="title"></div></div>
+                <div class="grid grid-2" style="margin-top:12px;"><div class="field"><label>Ícono</label><input type="text" data-field="icon" value="spark"></div><div class="field"><label>Texto</label><input type="text" data-field="title"></div></div>
                 <input type="hidden" data-field="id">
             </div>
         </template>

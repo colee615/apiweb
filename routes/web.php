@@ -25,7 +25,10 @@ Route::post('/admin/logout', [AdminAuthController::class, 'destroy'])->name('adm
 
 Route::middleware('admin.session')->group(function () {
    Route::get('/admin', [AdminPageController::class, 'index'])->name('admin.dashboard');
+   Route::get('/admin/configuracion-global', [AdminPageController::class, 'editGlobalSettings'])->name('admin.global.edit');
+   Route::put('/admin/configuracion-global', [AdminPageController::class, 'updateGlobalSettings'])->name('admin.global.update');
    Route::get('/admin/analytics', [AdminAnalyticsController::class, 'index'])->name('admin.analytics');
+   Route::get('/admin/analytics/tracking/export', [AdminAnalyticsController::class, 'exportTracking'])->name('admin.analytics.tracking.export');
    Route::get('/admin/pages/{page}/edit', [AdminPageController::class, 'edit'])->name('admin.pages.edit');
    Route::put('/admin/pages/{page}', [AdminPageController::class, 'update'])->name('admin.pages.update');
    Route::post('/admin/pages/{page}/versions/{version}/restore', [AdminPageController::class, 'restore'])->name('admin.pages.restore');

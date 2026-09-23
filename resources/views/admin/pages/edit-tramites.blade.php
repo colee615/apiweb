@@ -17,7 +17,9 @@
             </div>
         @endif
 
-        <form id="page-edit-form" method="POST" action="{{ route('admin.pages.update', $page) }}" class="stack" enctype="multipart/form-data">
+        @include('admin.pages.partials.header')
+
+    <form id="page-edit-form" method="POST" action="{{ route('admin.pages.update', $page) }}" class="stack" data-editor-form enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -26,20 +28,15 @@
                     <div>
                         <div class="section-eyebrow">Contenido administrable</div>
                         <h3 class="section-title">Información Postal</h3>
-                        <p class="section-copy">Administra la información postal, sus descripciones, enlaces y archivos descargables. Las imágenes se muestran como vista previa en el sitio.</p>
+                        <p class="section-copy">Administra la información postal, sus descripciones, enlaces y archivos descargables. Las imágenes se muestran como vista previa en el sitio.</p><div class="field-help">El logo, los colores, el encabezado y el pie se administran desde Configuración global.</div>
                     </div>
                 </div>
                 <div class="grid grid-2">
-                    <div class="field"><label>Slug</label><input type="text" name="slug" value="{{ old('slug', $page->slug) }}"></div>
+                    <div class="field"><label>Dirección de la página</label><input type="text" name="slug" value="{{ old('slug', $page->slug) }}"></div>
                     <div class="field"><label>Nombre de la página</label><input type="text" name="name" value="{{ old('name', $page->name) }}"></div>
-                    <div class="field"><label>Título SEO</label><input type="text" name="meta_title" value="{{ old('meta_title', $page->meta_title) }}"></div>
-                    <div class="field"><label>Descripción SEO</label><input type="text" name="meta_description" value="{{ old('meta_description', $page->meta_description) }}"></div>
-                    <div class="field"><label>Color principal</label><input type="text" name="theme[primary_color]" value="{{ old('theme.primary_color', $theme['primary_color'] ?? '#20539a') }}"></div>
-                    <div class="field"><label>Color secundario</label><input type="text" name="theme[secondary_color]" value="{{ old('theme.secondary_color', $theme['secondary_color'] ?? '#2f3f5c') }}"></div>
-                    <div class="field"><label>Color de acento</label><input type="text" name="theme[accent_color]" value="{{ old('theme.accent_color', $theme['accent_color'] ?? '#fecc36') }}"></div>
-                    <div class="field"><label>Logo actual</label><input type="text" name="theme[logo_url]" value="{{ old('theme.logo_url', $theme['logo_url'] ?? '') }}"></div>
-                    <div class="field"><label>Subir logo</label><input type="file" name="theme[logo_file]" accept="image/*"></div>
-                    <div class="field" style="display:flex;align-items:end;"><label style="display:flex;gap:10px;align-items:center;margin:0;text-transform:none;letter-spacing:0;font-size:14px;color:#123047;"><input type="checkbox" name="is_active" value="1" {{ old('is_active', $page->is_active) ? 'checked' : '' }}> Publicar esta página</label></div>
+                    <div class="field"><label>Título en buscadores</label><input type="text" name="meta_title" value="{{ old('meta_title', $page->meta_title) }}"></div>
+                    <div class="field"><label>Descripción en buscadores</label><input type="text" name="meta_description" value="{{ old('meta_description', $page->meta_description) }}"></div>
+                    <div class="field" style="display:flex;align-items:end;"><label style="display:flex;gap:10px;align-items:center;margin:0;text-transform:none;letter-spacing:0;font-size:14px;color:#123047;"><input type="hidden" name="is_active" value="0"><input type="checkbox" name="is_active" value="1" {{ old('is_active', $page->is_active) ? 'checked' : '' }}> Publicar esta página</label></div>
                 </div>
             </section>
 
@@ -48,7 +45,7 @@
                     <div>
                         <div class="section-eyebrow">Página pública</div>
                         <h3 class="section-title">Presentación de Información Postal</h3>
-                        <p class="section-copy">El header y el footer se mantienen compartidos con el resto del sitio.</p>
+                        <p class="section-copy">El encabezado y el pie de página se mantienen compartidos con el resto del sitio.</p>
                     </div>
                 </div>
                 <div class="grid grid-2">
@@ -117,10 +114,7 @@
                 </div>
             </section>
 
-            <div class="save-dock">
-                <div style="flex:1;"><strong style="display:block;margin-bottom:4px;">Guardar Información Postal</strong><p>Los cambios se versionan y se publican en /informacion-postal.</p><div class="field" style="margin-top:12px;"><label>Resumen del cambio</label><input type="text" name="change_summary" value="{{ old('change_summary') }}"></div></div>
-                <button type="submit" class="button button-primary">Guardar cambios</button>
-            </div>
+            @include('admin.pages.partials.save')
         </form>
 
         <template id="tramite-template">

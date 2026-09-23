@@ -4,8 +4,8 @@
 <div class="admin-shell stack">
     <div class="admin-topbar">
         <div class="admin-brand">
-            <h2>{{ $mode === 'create' ? 'Nuevo usuario' : 'Editar usuario' }}</h2>
-            <p>Gestiona accesos al panel premium de administracion.</p>
+            <h1>{{ $mode === 'create' ? 'Nuevo usuario' : 'Editar usuario' }}</h1>
+            <p>Gestiona accesos al panel de administración.</p>
         </div>
         <a href="{{ route('admin.users.index') }}" class="button button-secondary">Volver</a>
     </div>
@@ -26,7 +26,7 @@
                     <h3 class="section-title">{{ $mode === 'create' ? 'Alta de usuario' : 'Perfil del usuario' }}</h3>
                     <p class="section-copy">Completa los datos para acceso al panel y control editorial.</p>
                 </div>
-                <label><input type="checkbox" name="is_active" value="1" {{ old('is_active', $user->is_active ?? true) ? 'checked' : '' }}> Usuario activo</label>
+                <input type="hidden" name="is_active" value="0"><label><input type="checkbox" name="is_active" value="1" {{ old('is_active', $user->is_active ?? true) ? 'checked' : '' }}> Usuario activo</label>
             </div>
 
             <div class="grid grid-2">
@@ -40,10 +40,11 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="field"><label>Contrasena {{ $mode === 'edit' ? '(solo si deseas cambiarla)' : '' }}</label><input type="password" name="password" {{ $mode === 'create' ? 'required' : '' }}></div>
+                <div class="field"><label>Contraseña {{ $mode === 'edit' ? '(solo si deseas cambiarla)' : '' }}</label><input type="password" name="password" autocomplete="new-password" minlength="8" {{ $mode === 'create' ? 'required' : '' }}></div>
             </div>
 
             <div class="actions">
+                <a href="{{ route('admin.users.index') }}" class="button button-ghost">Cancelar</a>
                 <button type="submit" class="button button-primary">{{ $mode === 'create' ? 'Crear usuario' : 'Guardar cambios' }}</button>
             </div>
         </div>

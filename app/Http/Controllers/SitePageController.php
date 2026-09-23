@@ -87,7 +87,7 @@ class SitePageController extends Controller
             ])
             ->firstOrFail();
 
-        return response()->json($this->buildPagePayload($page));
+        return response()->json($this->payloadBuilder->buildPublic($page));
     }
 
     public function updateEditor(Request $request, SitePage $page): JsonResponse

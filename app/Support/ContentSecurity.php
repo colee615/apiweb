@@ -14,6 +14,7 @@ class ContentSecurity
         'poster',
         'poster_image',
         'seal_logo',
+        'download_url',
     ];
 
     public const LINK_KEYS = [

@@ -7,13 +7,14 @@ use App\Models\AnalyticsVisitorSession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Validation\Rule;
 use Jenssegers\Agent\Agent;
 
 class PublicAnalyticsController extends Controller
 {
     public function collect(Request $request): JsonResponse
     {
-        $data = $request->validate([
+        $rules = [
             'visitor_token' => ['required', 'string', 'max:80'],
             'session_token' => ['required', 'string', 'max:80'],
             'event_name' => ['required', 'string', 'max:60'],
@@ -24,7 +25,17 @@ class PublicAnalyticsController extends Controller
             'searched_term' => ['nullable', 'string', 'max:160'],
             'referrer' => ['nullable', 'string', 'max:2000'],
             'metadata' => ['nullable', 'array'],
-        ]);
+            'metadata.service' => ['nullable', 'string', 'max:120'],
+            'metadata.tracking_status' => ['nullable', Rule::in(['found', 'not_found', 'error'])],
+        ];
+
+        if ($request->input('event_name') === 'tracking_result') {
+            $rules['searched_term'] = ['required', 'string', 'max:160'];
+            $rules['metadata.service'] = ['required', 'string', 'max:120'];
+            $rules['metadata.tracking_status'] = ['required', Rule::in(['found', 'not_found', 'error'])];
+        }
+
+        $data = $request->validate($rules);
 
         $now = now();
         $agent = new Agent();

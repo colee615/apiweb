@@ -21,32 +21,29 @@
             </div>
         @endif
 
-        <form id="page-edit-form" method="POST" action="{{ route('admin.pages.update', $page) }}" class="stack" enctype="multipart/form-data">
+        @include('admin.pages.partials.header')
+
+    <form id="page-edit-form" method="POST" action="{{ route('admin.pages.update', $page) }}" class="stack" data-editor-form enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
             <section class="section-card">
                 <div class="section-header">
                     <div>
-                        <div class="section-eyebrow">General</div>
-                        <h3 class="section-title">Configuración base de la página</h3>
-                        <p class="section-copy">Aquí controlas el slug, SEO, estado y paleta general de Delivery Express.</p>
+                        <div class="section-eyebrow">Esta página</div>
+                        <h3 class="section-title">Datos de esta página</h3>
+                        <p class="section-copy">Edita el enlace, la información para buscadores y el estado de esta página.</p><div class="field-help">El logo, los colores, el encabezado y el pie se administran desde Configuración global.</div>
                     </div>
                 </div>
 
                 <div class="grid grid-2">
-                    <div class="field"><label>Slug</label><input type="text" name="slug" value="{{ old('slug', $page->slug) }}"></div>
+                    <div class="field"><label>Dirección de la página</label><input type="text" name="slug" value="{{ old('slug', $page->slug) }}"></div>
                     <div class="field"><label>Nombre de la página</label><input type="text" name="name" value="{{ old('name', $page->name) }}"></div>
-                    <div class="field"><label>Título SEO</label><input type="text" name="meta_title" value="{{ old('meta_title', $page->meta_title) }}"></div>
-                    <div class="field"><label>Descripción SEO</label><input type="text" name="meta_description" value="{{ old('meta_description', $page->meta_description) }}"></div>
-                    <div class="field"><label>Color principal</label><input type="text" name="theme[primary_color]" value="{{ old('theme.primary_color', $theme['primary_color'] ?? '#20539a') }}"></div>
-                    <div class="field"><label>Color secundario</label><input type="text" name="theme[secondary_color]" value="{{ old('theme.secondary_color', $theme['secondary_color'] ?? '#102542') }}"></div>
-                    <div class="field"><label>Color acento</label><input type="text" name="theme[accent_color]" value="{{ old('theme.accent_color', $theme['accent_color'] ?? '#f3b53f') }}"></div>
-                    <div class="field"><label>Logo actual</label><input type="text" name="theme[logo_url]" value="{{ old('theme.logo_url', $theme['logo_url'] ?? '') }}"></div>
-                    <div class="field"><label>Subir logo</label><input type="file" name="theme[logo_file]" accept="image/*"></div>
+                    <div class="field"><label>Título en buscadores</label><input type="text" name="meta_title" value="{{ old('meta_title', $page->meta_title) }}"></div>
+                    <div class="field"><label>Descripción en buscadores</label><input type="text" name="meta_description" value="{{ old('meta_description', $page->meta_description) }}"></div>
                     <div class="field" style="display:flex; align-items:end;">
                         <label style="display:flex; gap:10px; align-items:center; margin:0; text-transform:none; letter-spacing:0; font-size:14px; color:#123047;">
-                            <input type="checkbox" name="is_active" value="1" {{ old('is_active', $page->is_active) ? 'checked' : '' }}>
+                            <input type="hidden" name="is_active" value="0"><input type="checkbox" name="is_active" value="1" {{ old('is_active', $page->is_active) ? 'checked' : '' }}>
                             Publicar esta página
                         </label>
                     </div>
@@ -56,9 +53,9 @@
             <section class="section-card">
                 <div class="section-header">
                     <div>
-                        <div class="section-eyebrow">Hero</div>
+                        <div class="section-eyebrow">Portada</div>
                         <h3 class="section-title">Bloque principal</h3>
-                        <p class="section-copy">Controla el gran titular, CTA y el visual superior.</p>
+                        <p class="section-copy">Controla el gran titular, botón de acción y el visual superior.</p>
                     </div>
                 </div>
 
@@ -68,10 +65,10 @@
                     <div class="field"><label>Texto amarillo</label><input type="text" name="delivery_hero[eyebrow]" value="{{ old('delivery_hero.eyebrow', $hero['eyebrow'] ?? '') }}"></div>
                     <div class="field"><label>Subtítulo</label><input type="text" name="delivery_hero[subtitle]" value="{{ old('delivery_hero.subtitle', $hero['subtitle'] ?? '') }}"></div>
                     <div class="field"><label>Botón principal</label><input type="text" name="delivery_hero[primary_button_label]" value="{{ old('delivery_hero.primary_button_label', $hero['primary_button_label'] ?? '') }}"></div>
-                    <div class="field"><label>URL botón principal</label><input type="text" name="delivery_hero[primary_button_url]" value="{{ old('delivery_hero.primary_button_url', $hero['primary_button_url'] ?? '') }}"></div>
+                    <div class="field"><label>Enlace botón principal</label><input type="text" name="delivery_hero[primary_button_url]" value="{{ old('delivery_hero.primary_button_url', $hero['primary_button_url'] ?? '') }}"></div>
                     <div class="field"><label>Botón secundario</label><input type="text" name="delivery_hero[secondary_button_label]" value="{{ old('delivery_hero.secondary_button_label', $hero['secondary_button_label'] ?? '') }}"></div>
-                    <div class="field"><label>URL botón secundario</label><input type="text" name="delivery_hero[secondary_button_url]" value="{{ old('delivery_hero.secondary_button_url', $hero['secondary_button_url'] ?? '') }}"></div>
-                    <div class="field"><label>Icono central</label><input type="text" name="delivery_hero[visual_icon]" value="{{ old('delivery_hero.visual_icon', $hero['visual_icon'] ?? '') }}" placeholder="smartphone, package, truck"></div>
+                    <div class="field"><label>Enlace botón secundario</label><input type="text" name="delivery_hero[secondary_button_url]" value="{{ old('delivery_hero.secondary_button_url', $hero['secondary_button_url'] ?? '') }}"></div>
+                    <div class="field"><label>Ícono principal</label><input type="text" name="delivery_hero[visual_icon]" value="{{ old('delivery_hero.visual_icon', $hero['visual_icon'] ?? '') }}" placeholder="smartphone, package, truck"></div>
                     <div class="field"><label>Icono flotante</label><input type="text" name="delivery_hero[floating_icon]" value="{{ old('delivery_hero.floating_icon', $hero['floating_icon'] ?? '') }}" placeholder="smartphone, mail"></div>
                     <div class="field"><label>Imagen visual actual</label><input type="text" name="delivery_hero[visual_image]" value="{{ old('delivery_hero.visual_image', $hero['visual_image'] ?? '') }}"></div>
                     <div class="field"><label>Subir imagen visual</label><input type="file" name="delivery_hero[visual_image_file]" accept="image/*"></div>
@@ -83,7 +80,7 @@
                     <div>
                         <div class="section-eyebrow">Intro</div>
                         <h3 class="section-title">Presentación del servicio</h3>
-                        <p class="section-copy">Texto principal, párrafos, chips y visual del segundo bloque.</p>
+                        <p class="section-copy">Texto principal, párrafos, etiquetas cortas y visual del segundo bloque.</p>
                     </div>
                 </div>
 
@@ -96,8 +93,8 @@
                     <div class="field"><label>Chip 1</label><input type="text" name="delivery_intro[chip_one]" value="{{ old('delivery_intro.chip_one', $intro['chip_one'] ?? '') }}"></div>
                     <div class="field"><label>Chip 2</label><input type="text" name="delivery_intro[chip_two]" value="{{ old('delivery_intro.chip_two', $intro['chip_two'] ?? '') }}"></div>
                     <div class="field"><label>Chip 3</label><input type="text" name="delivery_intro[chip_three]" value="{{ old('delivery_intro.chip_three', $intro['chip_three'] ?? '') }}"></div>
-                    <div class="field"><label>Icono visual</label><input type="text" name="delivery_intro[visual_icon]" value="{{ old('delivery_intro.visual_icon', $intro['visual_icon'] ?? '') }}"></div>
-                    <div class="field"><label>Texto del badge</label><input type="text" name="delivery_intro[visual_badge]" value="{{ old('delivery_intro.visual_badge', $intro['visual_badge'] ?? '') }}"></div>
+                    <div class="field"><label>Ícono del bloque</label><input type="text" name="delivery_intro[visual_icon]" value="{{ old('delivery_intro.visual_icon', $intro['visual_icon'] ?? '') }}"></div>
+                    <div class="field"><label>Texto de la etiqueta</label><input type="text" name="delivery_intro[visual_badge]" value="{{ old('delivery_intro.visual_badge', $intro['visual_badge'] ?? '') }}"></div>
                     <div class="field"><label>Imagen visual actual</label><input type="text" name="delivery_intro[visual_image]" value="{{ old('delivery_intro.visual_image', $intro['visual_image'] ?? '') }}"></div>
                     <div class="field"><label>Subir imagen visual</label><input type="file" name="delivery_intro[visual_image_file]" accept="image/*"></div>
                 </div>
@@ -121,7 +118,7 @@
                     <div class="toolbar">
                         <div>
                             <h4>Tarjetas de ventajas</h4>
-                            <p>Edita icono, título, texto y badge opcional.</p>
+                            <p>Edita icono, título, texto y etiqueta opcional.</p>
                         </div>
                         <button type="button" class="button button-secondary" data-add-row>Agregar tarjeta</button>
                     </div>
@@ -135,9 +132,9 @@
                                     </div>
                                     <div class="grid grid-2" style="margin-top:12px;">
                                         <div class="field"><label>Título</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
-                                        <div class="field"><label>Icono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
+                                        <div class="field"><label>Ícono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
                                         <div class="field" style="grid-column:1/-1;"><label>Descripción</label><textarea class="field-small" data-field="text">{{ $item['text'] ?? '' }}</textarea></div>
-                                        <div class="field"><label>Badge</label><input type="text" data-field="badge" value="{{ $item['badge'] ?? '' }}"></div>
+                                        <div class="field"><label>Etiqueta destacada</label><input type="text" data-field="badge" value="{{ $item['badge'] ?? '' }}"></div>
                                     </div>
                                     <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                 </div>
@@ -152,7 +149,7 @@
                     <div>
                         <div class="section-eyebrow">Proceso</div>
                         <h3 class="section-title">Pasos y trazabilidad</h3>
-                        <p class="section-copy">Controla los 3 pasos, bullets y mock del seguimiento.</p>
+                        <p class="section-copy">Controla los 3 pasos, puntos de la lista y vista de ejemplo del seguimiento.</p>
                     </div>
                 </div>
 
@@ -177,7 +174,7 @@
 
                 <div class="subpanel">
                     <div class="toolbar">
-                        <div><h4>Pasos del proceso</h4><p>Usa el badge para 01, 02, 03.</p></div>
+                        <div><h4>Pasos del proceso</h4><p>Usa el etiqueta para 01, 02, 03.</p></div>
                         <button type="button" class="button button-secondary" data-add-row>Agregar paso</button>
                     </div>
                     <div class="stack" data-collection data-base="delivery_process[items]" data-template="ems-card-template">
@@ -190,9 +187,9 @@
                                     </div>
                                     <div class="grid grid-2" style="margin-top:12px;">
                                         <div class="field"><label>Título</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
-                                        <div class="field"><label>Icono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
+                                        <div class="field"><label>Ícono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
                                         <div class="field" style="grid-column:1/-1;"><label>Descripción</label><textarea class="field-small" data-field="text">{{ $item['text'] ?? '' }}</textarea></div>
-                                        <div class="field"><label>Número / badge</label><input type="text" data-field="badge" value="{{ $item['badge'] ?? '' }}"></div>
+                                        <div class="field"><label>Número / etiqueta</label><input type="text" data-field="badge" value="{{ $item['badge'] ?? '' }}"></div>
                                     </div>
                                     <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                 </div>
@@ -232,9 +229,9 @@
                                     </div>
                                     <div class="grid grid-2" style="margin-top:12px;">
                                         <div class="field"><label>Título</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
-                                        <div class="field"><label>Icono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
+                                        <div class="field"><label>Ícono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
                                         <div class="field" style="grid-column:1/-1;"><label>Descripción</label><textarea class="field-small" data-field="text">{{ $item['text'] ?? '' }}</textarea></div>
-                                        <div class="field"><label>Badge</label><input type="text" data-field="badge" value="{{ $item['badge'] ?? '' }}"></div>
+                                        <div class="field"><label>Etiqueta destacada</label><input type="text" data-field="badge" value="{{ $item['badge'] ?? '' }}"></div>
                                     </div>
                                     <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                 </div>
@@ -247,7 +244,7 @@
             <section class="section-card">
                 <div class="section-header">
                     <div>
-                        <div class="section-eyebrow">CTA</div>
+                        <div class="section-eyebrow">Contacto y botones</div>
                         <h3 class="section-title">Bloque final amarillo</h3>
                         <p class="section-copy">Descarga, registro y contacto.</p>
                     </div>
@@ -260,11 +257,11 @@
                     <div class="field"><label>Título app</label><input type="text" name="delivery_cta[app_title]" value="{{ old('delivery_cta.app_title', $cta['app_title'] ?? '') }}"></div>
                     <div class="field"><label>Nota app</label><input type="text" name="delivery_cta[app_note]" value="{{ old('delivery_cta.app_note', $cta['app_note'] ?? '') }}"></div>
                     <div class="field"><label>Texto App Store</label><input type="text" name="delivery_cta[app_store_label]" value="{{ old('delivery_cta.app_store_label', $cta['app_store_label'] ?? '') }}"></div>
-                    <div class="field"><label>URL App Store</label><input type="text" name="delivery_cta[app_store_url]" value="{{ old('delivery_cta.app_store_url', $cta['app_store_url'] ?? '') }}"></div>
+                    <div class="field"><label>Enlace App Store</label><input type="text" name="delivery_cta[app_store_url]" value="{{ old('delivery_cta.app_store_url', $cta['app_store_url'] ?? '') }}"></div>
                     <div class="field"><label>Imagen actual App Store</label><input type="text" name="delivery_cta[app_store_badge]" value="{{ old('delivery_cta.app_store_badge', $cta['app_store_badge'] ?? '') }}"></div>
                     <div class="field"><label>Subir imagen App Store</label><input type="file" name="delivery_cta[app_store_badge_file]" accept="image/*"></div>
                     <div class="field"><label>Texto Google Play</label><input type="text" name="delivery_cta[play_store_label]" value="{{ old('delivery_cta.play_store_label', $cta['play_store_label'] ?? '') }}"></div>
-                    <div class="field"><label>URL Google Play</label><input type="text" name="delivery_cta[play_store_url]" value="{{ old('delivery_cta.play_store_url', $cta['play_store_url'] ?? '') }}"></div>
+                    <div class="field"><label>Enlace Google Play</label><input type="text" name="delivery_cta[play_store_url]" value="{{ old('delivery_cta.play_store_url', $cta['play_store_url'] ?? '') }}"></div>
                     <div class="field"><label>Imagen actual Google Play</label><input type="text" name="delivery_cta[play_store_badge]" value="{{ old('delivery_cta.play_store_badge', $cta['play_store_badge'] ?? '') }}"></div>
                     <div class="field"><label>Subir imagen Google Play</label><input type="file" name="delivery_cta[play_store_badge_file]" accept="image/*"></div>
                     <div class="field"><label>Título registro</label><input type="text" name="delivery_cta[register_title]" value="{{ old('delivery_cta.register_title', $cta['register_title'] ?? '') }}"></div>
@@ -281,17 +278,7 @@
                 </div>
             </section>
 
-            <div class="save-dock">
-                <div style="flex:1;">
-                    <strong style="display:block; margin-bottom:4px;">Guardar Delivery Express</strong>
-                    <p>Header y footer actuales se conservan tal como están; aquí editas la landing completa del servicio.</p>
-                    <div class="field" style="margin-top:12px;">
-                        <label>Resumen del cambio</label>
-                        <input type="text" name="change_summary" value="{{ old('change_summary') }}" placeholder="Ej: Ajusté hero, trazabilidad y CTA final">
-                    </div>
-                </div>
-                <button type="submit" class="button button-primary">Guardar cambios del diseño</button>
-            </div>
+            @include('admin.pages.partials.save')
         </form>
     </div>
 @endsection

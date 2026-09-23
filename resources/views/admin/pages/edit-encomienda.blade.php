@@ -20,31 +20,28 @@
             </div>
         @endif
 
-        <form id="page-edit-form" method="POST" action="{{ route('admin.pages.update', $page) }}" class="stack" enctype="multipart/form-data">
+        @include('admin.pages.partials.header')
+
+    <form id="page-edit-form" method="POST" action="{{ route('admin.pages.update', $page) }}" class="stack" data-editor-form enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
             <section class="section-card">
                 <div class="section-header">
                     <div>
-                        <div class="section-eyebrow">General</div>
-                        <h3 class="section-title">Configuracion base de Encomienda</h3>
-                        <p class="section-copy">SEO, tema de colores, logo y estado de publicacion.</p>
+                        <div class="section-eyebrow">Esta página</div>
+                        <h3 class="section-title">Datos de esta página</h3>
+                        <p class="section-copy">Información para buscadores y estado de publicación.</p><div class="field-help">El logo, los colores, el encabezado y el pie se administran desde Configuración global.</div>
                     </div>
                 </div>
                 <div class="grid grid-2">
-                    <div class="field"><label>Slug</label><input type="text" name="slug" value="{{ old('slug', $page->slug) }}"></div>
+                    <div class="field"><label>Dirección de la página</label><input type="text" name="slug" value="{{ old('slug', $page->slug) }}"></div>
                     <div class="field"><label>Nombre de la pagina</label><input type="text" name="name" value="{{ old('name', $page->name) }}"></div>
-                    <div class="field"><label>Titulo SEO</label><input type="text" name="meta_title" value="{{ old('meta_title', $page->meta_title) }}"></div>
-                    <div class="field"><label>Descripcion SEO</label><input type="text" name="meta_description" value="{{ old('meta_description', $page->meta_description) }}"></div>
-                    <div class="field"><label>Color principal</label><input type="text" name="theme[primary_color]" value="{{ old('theme.primary_color', $theme['primary_color'] ?? '#0d47b5') }}"></div>
-                    <div class="field"><label>Color secundario</label><input type="text" name="theme[secondary_color]" value="{{ old('theme.secondary_color', $theme['secondary_color'] ?? '#2a4268') }}"></div>
-                    <div class="field"><label>Color acento</label><input type="text" name="theme[accent_color]" value="{{ old('theme.accent_color', $theme['accent_color'] ?? '#ffc61a') }}"></div>
-                    <div class="field"><label>Logo actual</label><input type="text" name="theme[logo_url]" value="{{ old('theme.logo_url', $theme['logo_url'] ?? '') }}"></div>
-                    <div class="field"><label>Subir logo</label><input type="file" name="theme[logo_file]" accept="image/*"></div>
+                    <div class="field"><label>Título en buscadores</label><input type="text" name="meta_title" value="{{ old('meta_title', $page->meta_title) }}"></div>
+                    <div class="field"><label>Descripción en buscadores</label><input type="text" name="meta_description" value="{{ old('meta_description', $page->meta_description) }}"></div>
                     <div class="field" style="display:flex; align-items:end;">
                         <label style="display:flex; gap:10px; align-items:center; margin:0; text-transform:none; letter-spacing:0; font-size:14px; color:#123047;">
-                            <input type="checkbox" name="is_active" value="1" {{ old('is_active', $page->is_active) ? 'checked' : '' }}>
+                            <input type="hidden" name="is_active" value="0"><input type="checkbox" name="is_active" value="1" {{ old('is_active', $page->is_active) ? 'checked' : '' }}>
                             Publicar esta pagina
                         </label>
                     </div>
@@ -52,19 +49,19 @@
             </section>
 
             <section class="section-card">
-                <div class="section-header"><div><div class="section-eyebrow">Hero</div><h3 class="section-title">Portada azul principal</h3></div></div>
+                <div class="section-header"><div><div class="section-eyebrow">Portada</div><h3 class="section-title">Portada azul principal</h3></div></div>
                 <div class="grid grid-2">
-                    <div class="field" style="grid-column:1/-1;"><label>Badge superior</label><input type="text" name="encomienda_hero[badge]" value="{{ old('encomienda_hero.badge', $hero['badge'] ?? '') }}"></div>
+                    <div class="field" style="grid-column:1/-1;"><label>etiqueta superior</label><input type="text" name="encomienda_hero[badge]" value="{{ old('encomienda_hero.badge', $hero['badge'] ?? '') }}"></div>
                     <div class="field"><label>Titulo linea 1 blanco</label><input type="text" name="encomienda_hero[title_line_one_white]" value="{{ old('encomienda_hero.title_line_one_white', $hero['title_line_one_white'] ?? '') }}"></div>
                     <div class="field"><label>Titulo linea 1 amarillo</label><input type="text" name="encomienda_hero[title_line_one_yellow]" value="{{ old('encomienda_hero.title_line_one_yellow', $hero['title_line_one_yellow'] ?? '') }}"></div>
                     <div class="field"><label>Titulo linea 2 blanco</label><input type="text" name="encomienda_hero[title_line_two_white]" value="{{ old('encomienda_hero.title_line_two_white', $hero['title_line_two_white'] ?? '') }}"></div>
                     <div class="field"><label>Titulo linea 2 amarillo</label><input type="text" name="encomienda_hero[title_line_two_yellow]" value="{{ old('encomienda_hero.title_line_two_yellow', $hero['title_line_two_yellow'] ?? '') }}"></div>
                     <div class="field" style="grid-column:1/-1;"><label>Subtitulo</label><textarea class="field-small" name="encomienda_hero[subtitle]">{{ old('encomienda_hero.subtitle', $hero['subtitle'] ?? '') }}</textarea></div>
                     <div class="field"><label>Boton principal</label><input type="text" name="encomienda_hero[primary_button_label]" value="{{ old('encomienda_hero.primary_button_label', $hero['primary_button_label'] ?? '') }}"></div>
-                    <div class="field"><label>URL boton principal</label><input type="text" name="encomienda_hero[primary_button_url]" value="{{ old('encomienda_hero.primary_button_url', $hero['primary_button_url'] ?? '') }}"></div>
+                    <div class="field"><label>Enlace boton principal</label><input type="text" name="encomienda_hero[primary_button_url]" value="{{ old('encomienda_hero.primary_button_url', $hero['primary_button_url'] ?? '') }}"></div>
                     <div class="field"><label>Boton secundario</label><input type="text" name="encomienda_hero[secondary_button_label]" value="{{ old('encomienda_hero.secondary_button_label', $hero['secondary_button_label'] ?? '') }}"></div>
-                    <div class="field"><label>URL boton secundario</label><input type="text" name="encomienda_hero[secondary_button_url]" value="{{ old('encomienda_hero.secondary_button_url', $hero['secondary_button_url'] ?? '') }}"></div>
-                    <div class="field"><label>Icono visual</label><input type="text" name="encomienda_hero[visual_icon]" value="{{ old('encomienda_hero.visual_icon', $hero['visual_icon'] ?? '') }}"></div>
+                    <div class="field"><label>Enlace boton secundario</label><input type="text" name="encomienda_hero[secondary_button_url]" value="{{ old('encomienda_hero.secondary_button_url', $hero['secondary_button_url'] ?? '') }}"></div>
+                    <div class="field"><label>Ícono del bloque</label><input type="text" name="encomienda_hero[visual_icon]" value="{{ old('encomienda_hero.visual_icon', $hero['visual_icon'] ?? '') }}"></div>
                     <div class="field"><label>Imagen visual actual</label><input type="text" name="encomienda_hero[visual_image]" value="{{ old('encomienda_hero.visual_image', $hero['visual_image'] ?? '') }}"></div>
                     <div class="field"><label>Subir imagen visual</label><input type="file" name="encomienda_hero[visual_image_file]" accept="image/*"></div>
                 </div>
@@ -80,9 +77,9 @@
                     <div class="field" style="grid-column:1/-1;"><label>Frase destacada</label><input type="text" name="encomienda_intro[quote]" value="{{ old('encomienda_intro.quote', $intro['settings']['quote'] ?? '') }}"></div>
                     <div class="field"><label>Imagen actual</label><input type="text" name="encomienda_intro[image]" value="{{ old('encomienda_intro.image', $intro['settings']['image'] ?? '') }}"></div>
                     <div class="field"><label>Subir imagen</label><input type="file" name="encomienda_intro[image_file]" accept="image/*"></div>
-                    <div class="field"><label>Badge label</label><input type="text" name="encomienda_intro[badge_label]" value="{{ old('encomienda_intro.badge_label', $intro['settings']['badge_label'] ?? '') }}"></div>
-                    <div class="field"><label>Badge valor</label><input type="text" name="encomienda_intro[badge_value]" value="{{ old('encomienda_intro.badge_value', $intro['settings']['badge_value'] ?? '') }}"></div>
-                    <div class="field"><label>Badge sufijo</label><input type="text" name="encomienda_intro[badge_suffix]" value="{{ old('encomienda_intro.badge_suffix', $intro['settings']['badge_suffix'] ?? '') }}"></div>
+                    <div class="field"><label>etiqueta label</label><input type="text" name="encomienda_intro[badge_label]" value="{{ old('encomienda_intro.badge_label', $intro['settings']['badge_label'] ?? '') }}"></div>
+                    <div class="field"><label>etiqueta valor</label><input type="text" name="encomienda_intro[badge_value]" value="{{ old('encomienda_intro.badge_value', $intro['settings']['badge_value'] ?? '') }}"></div>
+                    <div class="field"><label>etiqueta sufijo</label><input type="text" name="encomienda_intro[badge_suffix]" value="{{ old('encomienda_intro.badge_suffix', $intro['settings']['badge_suffix'] ?? '') }}"></div>
                 </div>
                 <div class="subpanel">
                     <div class="toolbar"><div><h4>Estadisticas inferiores</h4></div><button type="button" class="button button-secondary" data-add-row>Agregar estadistica</button></div>
@@ -117,7 +114,7 @@
                                 <div class="repeater-card" data-row>
                                     <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Tarjeta' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
                                     <div class="grid grid-2" style="margin-top:12px;">
-                                        <div class="field"><label>Icono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
+                                        <div class="field"><label>Ícono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
                                         <div class="field"><label>Titulo</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
                                         <div class="field" style="grid-column:1/-1;"><label>Descripcion</label><textarea class="field-small" data-field="text">{{ $item['text'] ?? '' }}</textarea></div>
                                     </div>
@@ -144,7 +141,7 @@
                                 <div class="repeater-card" data-row>
                                     <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Pregunta' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
                                     <div class="grid grid-2" style="margin-top:12px;">
-                                        <div class="field"><label>Icono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
+                                        <div class="field"><label>Ícono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
                                         <div class="field"><label>Pregunta</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
                                         <div class="field" style="grid-column:1/-1;"><label>Respuesta</label><textarea class="field-small" data-field="text">{{ $item['text'] ?? '' }}</textarea></div>
                                     </div>
@@ -157,28 +154,28 @@
             </section>
 
             <section class="section-card">
-                <div class="section-header"><div><div class="section-eyebrow">CTA</div><h3 class="section-title">Bloque final de conversion</h3></div></div>
+                <div class="section-header"><div><div class="section-eyebrow">Contacto y botones</div><h3 class="section-title">Bloque final de conversion</h3></div></div>
                 <div class="grid grid-2">
                     <div class="field"><label>Titulo</label><input type="text" name="encomienda_cta[title]" value="{{ old('encomienda_cta.title', $cta['settings']['title'] ?? '') }}"></div>
                     <div class="field"><label>Subtitulo</label><input type="text" name="encomienda_cta[subtitle]" value="{{ old('encomienda_cta.subtitle', $cta['settings']['subtitle'] ?? '') }}"></div>
                     <div class="field"><label>Boton 1</label><input type="text" name="encomienda_cta[button_one_label]" value="{{ old('encomienda_cta.button_one_label', $cta['settings']['button_one_label'] ?? '') }}"></div>
-                    <div class="field"><label>URL boton 1</label><input type="text" name="encomienda_cta[button_one_url]" value="{{ old('encomienda_cta.button_one_url', $cta['settings']['button_one_url'] ?? '') }}"></div>
+                    <div class="field"><label>Enlace boton 1</label><input type="text" name="encomienda_cta[button_one_url]" value="{{ old('encomienda_cta.button_one_url', $cta['settings']['button_one_url'] ?? '') }}"></div>
                     <div class="field"><label>Boton 2</label><input type="text" name="encomienda_cta[button_two_label]" value="{{ old('encomienda_cta.button_two_label', $cta['settings']['button_two_label'] ?? '') }}"></div>
-                    <div class="field"><label>URL boton 2</label><input type="text" name="encomienda_cta[button_two_url]" value="{{ old('encomienda_cta.button_two_url', $cta['settings']['button_two_url'] ?? '') }}"></div>
+                    <div class="field"><label>Enlace boton 2</label><input type="text" name="encomienda_cta[button_two_url]" value="{{ old('encomienda_cta.button_two_url', $cta['settings']['button_two_url'] ?? '') }}"></div>
                     <div class="field"><label>Boton 3</label><input type="text" name="encomienda_cta[button_three_label]" value="{{ old('encomienda_cta.button_three_label', $cta['settings']['button_three_label'] ?? '') }}"></div>
-                    <div class="field"><label>URL boton 3</label><input type="text" name="encomienda_cta[button_three_url]" value="{{ old('encomienda_cta.button_three_url', $cta['settings']['button_three_url'] ?? '') }}"></div>
+                    <div class="field"><label>Enlace boton 3</label><input type="text" name="encomienda_cta[button_three_url]" value="{{ old('encomienda_cta.button_three_url', $cta['settings']['button_three_url'] ?? '') }}"></div>
                     <div class="field"><label>Texto enorme de fondo</label><input type="text" name="encomienda_cta[watermark_text]" value="{{ old('encomienda_cta.watermark_text', $cta['settings']['watermark_text'] ?? '') }}"></div>
                     <div class="field"><label>Texto inferior</label><input type="text" name="encomienda_cta[footnote]" value="{{ old('encomienda_cta.footnote', $cta['settings']['footnote'] ?? '') }}"></div>
                 </div>
                 <div class="subpanel">
-                    <div class="toolbar"><div><h4>Chips de contacto</h4></div><button type="button" class="button button-secondary" data-add-row>Agregar chip</button></div>
+                    <div class="toolbar"><div><h4>etiquetas cortas de contacto</h4></div><button type="button" class="button button-secondary" data-add-row>Agregar chip</button></div>
                     <div class="stack" data-collection data-base="encomienda_cta[items]" data-template="encomienda-contact-template">
                         <div class="stack" data-rows>
                             @foreach (old('encomienda_cta.items', $cta['items'] ?? []) as $item)
                                 <div class="repeater-card" data-row>
                                     <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['text'] ?? 'Chip' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
                                     <div class="grid grid-2" style="margin-top:12px;">
-                                        <div class="field"><label>Icono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
+                                        <div class="field"><label>Ícono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? '' }}"></div>
                                         <div class="field"><label>Texto</label><input type="text" data-field="text" value="{{ $item['text'] ?? '' }}"></div>
                                     </div>
                                     <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
@@ -189,14 +186,7 @@
                 </div>
             </section>
 
-            <div class="save-dock">
-                <div style="flex:1;">
-                    <strong style="display:block; margin-bottom:4px;">Guardar pagina Encomienda</strong>
-                    <p>Header y footer se preservan; aqui administras el contenido completo de esta landing.</p>
-                    <div class="field" style="margin-top:12px;"><label>Resumen del cambio</label><input type="text" name="change_summary" value="{{ old('change_summary') }}"></div>
-                </div>
-                <button type="submit" class="button button-primary">Guardar cambios del diseno</button>
-            </div>
+            @include('admin.pages.partials.save')
         </form>
 
         <template id="encomienda-stat-template">
@@ -214,7 +204,7 @@
             <div class="repeater-card" data-row>
                 <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Tarjeta</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
                 <div class="grid grid-2" style="margin-top:12px;">
-                    <div class="field"><label>Icono</label><input type="text" data-field="icon"></div>
+                    <div class="field"><label>Ícono</label><input type="text" data-field="icon"></div>
                     <div class="field"><label>Titulo</label><input type="text" data-field="title"></div>
                     <div class="field" style="grid-column:1/-1;"><label>Texto</label><textarea class="field-small" data-field="text"></textarea></div>
                 </div>
@@ -226,7 +216,7 @@
             <div class="repeater-card" data-row>
                 <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Chip</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
                 <div class="grid grid-2" style="margin-top:12px;">
-                    <div class="field"><label>Icono</label><input type="text" data-field="icon"></div>
+                    <div class="field"><label>Ícono</label><input type="text" data-field="icon"></div>
                     <div class="field"><label>Texto</label><input type="text" data-field="text"></div>
                 </div>
                 <input type="hidden" data-field="id">

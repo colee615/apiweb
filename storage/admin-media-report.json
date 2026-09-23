@@ -1,0 +1,104 @@
+{
+  "report": [
+    {
+      "url": "http://127.0.0.1:8777/admin/pages/10/edit",
+      "files": 15,
+      "enhanced": 15,
+      "unmapped": [],
+      "colors": 11,
+      "colorPickers": 11,
+      "checked": 15
+    },
+    {
+      "url": "http://127.0.0.1:8777/admin/pages/8/edit",
+      "files": 2,
+      "enhanced": 2,
+      "unmapped": [],
+      "colors": 3,
+      "colorPickers": 3,
+      "checked": 2
+    },
+    {
+      "url": "http://127.0.0.1:8777/admin/pages/7/edit",
+      "files": 3,
+      "enhanced": 3,
+      "unmapped": [],
+      "colors": 3,
+      "colorPickers": 3,
+      "checked": 3
+    },
+    {
+      "url": "http://127.0.0.1:8777/admin/pages/4/edit",
+      "files": 6,
+      "enhanced": 6,
+      "unmapped": [],
+      "colors": 3,
+      "colorPickers": 3,
+      "checked": 6
+    },
+    {
+      "url": "http://127.0.0.1:8777/admin/pages/6/edit",
+      "files": 3,
+      "enhanced": 3,
+      "unmapped": [],
+      "colors": 3,
+      "colorPickers": 3,
+      "checked": 3
+    },
+    {
+      "url": "http://127.0.0.1:8777/admin/pages/1/edit",
+      "files": 20,
+      "enhanced": 20,
+      "unmapped": [],
+      "colors": 3,
+      "colorPickers": 3,
+      "checked": 20
+    },
+    {
+      "url": "http://127.0.0.1:8777/admin/pages/11/edit",
+      "files": 2,
+      "enhanced": 2,
+      "unmapped": [],
+      "colors": 3,
+      "colorPickers": 3,
+      "checked": 2
+    },
+    {
+      "url": "http://127.0.0.1:8777/admin/pages/3/edit",
+      "files": 15,
+      "enhanced": 15,
+      "unmapped": [],
+      "colors": 3,
+      "colorPickers": 3,
+      "checked": 15
+    },
+    {
+      "url": "http://127.0.0.1:8777/admin/pages/9/edit",
+      "files": 9,
+      "enhanced": 9,
+      "unmapped": [],
+      "colors": 3,
+      "colorPickers": 3,
+      "checked": 9
+    },
+    {
+      "url": "http://127.0.0.1:8777/admin/pages/2/edit",
+      "files": 15,
+      "enhanced": 15,
+      "unmapped": [],
+      "colors": 3,
+      "colorPickers": 3,
+      "checked": 15
+    },
+    {
+      "url": "http://127.0.0.1:8777/admin/pages/5/edit",
+      "files": 3,
+      "enhanced": 3,
+      "unmapped": [],
+      "colors": 3,
+      "colorPickers": 3,
+      "checked": 3
+    }
+  ],
+  "errors": []
+}

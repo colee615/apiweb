@@ -14,7 +14,9 @@
     @if (session('status'))<div class="notice notice-success">{{ session('status') }}</div>@endif
     @if ($errors->any())<div class="notice notice-error">@foreach ($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>@endif
 
-    <form method="POST" action="{{ route('admin.pages.update', $page) }}" class="stack" enctype="multipart/form-data">
+    @include('admin.pages.partials.header')
+
+    <form id="page-edit-form" method="POST" action="{{ route('admin.pages.update', $page) }}" class="stack" data-editor-form enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -22,14 +24,14 @@
             <aside class="editor-sidebar">
                 <div class="editor-nav">
                     <h3>Secciones de noticias</h3>
-                    <p>Esta vista centraliza el contenido editorial sin duplicar el layout global.</p>
+                    <p>Selecciona el bloque que quieres editar.</p>
                     <div class="editor-nav-list">
-                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'design_text' }" @click="go('design_text')"><strong>Diseno</strong><span>SEO y tema visual</span></button>
-                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'featured' }" @click="go('featured')"><strong>Destacado</strong><span>Hero principal</span></button>
+                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'design_text' }" @click="go('design_text')"><strong>Página</strong><span>Nombre, enlace, buscadores y estado</span></button>
+                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'featured' }" @click="go('featured')"><strong>Destacado</strong><span>Noticia principal</span></button>
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'notices' }" @click="go('notices')"><strong>Avisos</strong><span>Panel lateral destacado</span></button>
-                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'filters' }" @click="go('filters')"><strong>Filtros</strong><span>Categorias y busqueda</span></button>
-                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'grid' }" @click="go('grid')"><strong>Grid</strong><span>Tarjetas de noticias</span></button>
-                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'newsletter' }" @click="go('newsletter')"><strong>Boletin</strong><span>Suscripcion y paginacion</span></button>
+                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'filters' }" @click="go('filters')"><strong>Filtros</strong><span>Categorías y búsqueda</span></button>
+                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'grid' }" @click="go('grid')"><strong>Noticias</strong><span>Tarjetas de noticias</span></button>
+                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'newsletter' }" @click="go('newsletter')"><strong>Boletín</strong><span>Suscripción y paginación</span></button>
                     </div>
                 </div>
             </aside>
@@ -38,45 +40,32 @@
                 <section class="section-card" x-show="tab === 'design_text'">
                     <div class="section-header">
                         <div>
-                            <div class="section-eyebrow">Base editorial</div>
-                            <h3 class="section-title">Configuracion general</h3>
-                            <p class="section-copy">Gestiona la informacion principal y la identidad visual de la pagina.</p>
+                            <div class="section-eyebrow">Esta página</div>
+                            <h3 class="section-title">Datos de esta página</h3>
+                            <p class="section-copy">Edita el nombre, el enlace, la información para buscadores y el estado de esta página.</p><div class="field-help">El logo, los colores, el encabezado y el pie se administran desde Configuración global.</div>
                         </div>
-                        <div class="section-metrics"><span class="pill pill-off">SEO</span><span class="pill pill-off">Tema</span><span class="pill pill-off">Estado</span></div>
+                        <div class="section-metrics"><span class="pill pill-off">Buscadores</span><span class="pill pill-off">Estado</span></div>
                     </div>
                     <div class="design-grid">
                         <div class="subpanel span-8">
                             <h4>Informacion principal</h4>
                             <div class="grid grid-2">
                                 <div class="field"><label>Nombre interno</label><input type="text" name="name" value="{{ old('name', $page->name) }}" required></div>
-                                <div class="field"><label>Slug</label><input type="text" name="slug" value="{{ old('slug', $page->slug) }}" required></div>
-                                <div class="field"><label>Titulo SEO</label><input type="text" name="meta_title" value="{{ old('meta_title', $page->meta_title) }}"></div>
-                                <div class="field"><label>Descripcion SEO</label><textarea name="meta_description" class="field-small">{{ old('meta_description', $page->meta_description) }}</textarea></div>
+                                <div class="field"><label>Dirección de la página</label><input type="text" name="slug" value="{{ old('slug', $page->slug) }}" required></div>
+                                <div class="field"><label>Título en buscadores</label><input type="text" name="meta_title" value="{{ old('meta_title', $page->meta_title) }}"></div>
+                                <div class="field"><label>Descripción en buscadores</label><textarea name="meta_description" class="field-small">{{ old('meta_description', $page->meta_description) }}</textarea></div>
                             </div>
                         </div>
                         <div class="subpanel span-4">
                             <h4>Estado del sitio</h4>
-                            <label style="display:flex; gap:10px; align-items:center; font-weight:800; margin-top:16px;"><input type="checkbox" name="is_active" value="1" {{ old('is_active', $page->is_active) ? 'checked' : '' }}>Pagina activa</label>
+                            <label style="display:flex; gap:10px; align-items:center; font-weight:800; margin-top:16px;"><input type="hidden" name="is_active" value="0"><input type="checkbox" name="is_active" value="1" {{ old('is_active', $page->is_active) ? 'checked' : '' }}>Pagina activa</label>
                             <div class="image-frame" style="margin-top:16px;">
                                 <strong>Layout compartido</strong>
-                                <p style="margin-top:10px;">El header y el footer visibles en frontend se leen desde Home.</p>
+                                <p style="margin-top:10px;">El encabezado y el pie visibles en el sitio se leen desde Configuración global.</p>
                             </div>
                         </div>
-                        <div class="subpanel span-6">
-                            <h4>Paleta</h4>
-                            <div class="grid grid-3">
-                                <div class="field"><label>Color principal</label><input type="text" name="theme[primary_color]" value="{{ old('theme.primary_color', $editorData['theme']['primary_color'] ?? '#20539a') }}"></div>
-                                <div class="field"><label>Color secundario</label><input type="text" name="theme[secondary_color]" value="{{ old('theme.secondary_color', $editorData['theme']['secondary_color'] ?? '#102542') }}"></div>
-                                <div class="field"><label>Color acento</label><input type="text" name="theme[accent_color]" value="{{ old('theme.accent_color', $editorData['theme']['accent_color'] ?? '#f3b53f') }}"></div>
-                            </div>
-                        </div>
-                        <div class="subpanel span-6">
-                            <h4>Logo referencial</h4>
-                            <div class="grid grid-2">
-                                <div class="field"><label>URL del logo</label><input type="text" name="theme[logo_url]" value="{{ old('theme.logo_url', $editorData['theme']['logo_url'] ?? '') }}"></div>
-                                <div class="field"><label>Subir logo</label><input type="file" name="theme[logo_file]" accept="image/*"></div>
-                            </div>
-                        </div>
+                        
+                        
                     </div>
                 </section>
 
@@ -98,13 +87,13 @@
                                     <div class="repeater-card" data-row>
                                         <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Destacado' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
                                         <div class="grid grid-3" style="margin-top:12px;">
-                                            <div class="field"><label>Badge</label><input type="text" data-field="badge" value="{{ $item['badge'] ?? '' }}"></div>
+                                            <div class="field"><label>Etiqueta destacada</label><input type="text" data-field="badge" value="{{ $item['badge'] ?? '' }}"></div>
                                             <div class="field"><label>Categoria</label><input type="text" data-field="category" value="{{ $item['category'] ?? '' }}"></div>
-                                            <div class="field"><label>URL noticia</label><input type="text" data-field="article_url" value="{{ $item['article_url'] ?? '' }}"></div>
+                                            <div class="field"><label>Enlace noticia</label><input type="text" data-field="article_url" value="{{ $item['article_url'] ?? '' }}"></div>
                                             <div class="field"><label>Slug detalle</label><input type="text" data-field="slug" value="{{ $item['slug'] ?? '' }}" placeholder="mi-noticia"></div>
                                             <div class="field"><label>Fecha</label><input type="text" data-field="date" value="{{ $item['date'] ?? '' }}" placeholder="septiembre 11, 2026"></div>
                                             <div class="field"><label>Ubicacion</label><input type="text" data-field="location" value="{{ $item['location'] ?? '' }}" placeholder="La Paz"></div>
-                                            <div class="field" style="grid-column:1 / -1;"><label>Titulo</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
+                                            <div class="field" style="grid-column:1 / -1;"><label>Título</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
                                             <div class="field">
                                                 <label>Tipo de medio</label>
                                                 <select data-field="media_type">
@@ -112,11 +101,11 @@
                                                     <option value="video" {{ ($item['media_type'] ?? '') === 'video' ? 'selected' : '' }}>Video</option>
                                                 </select>
                                             </div>
-                                            <div class="field"><label>URL del medio</label><input type="text" data-field="media_url" value="{{ $item['media_url'] ?? ($item['image'] ?? '') }}"></div>
+                                            <div class="field"><label>Enlace del medio</label><input type="text" data-field="media_url" value="{{ $item['media_url'] ?? ($item['image'] ?? '') }}"></div>
                                             <div class="field"><label>Subir imagen o video</label><input type="file" data-field="media_file" accept="image/*,video/mp4,video/webm"></div>
                                         </div>
                                         <div class="grid grid-2" style="margin-top:12px;">
-                                            <div class="field"><label>URL portada (opcional para video)</label><input type="text" data-field="poster_image" value="{{ $item['poster_image'] ?? '' }}"></div>
+                                            <div class="field"><label>Enlace portada (opcional para video)</label><input type="text" data-field="poster_image" value="{{ $item['poster_image'] ?? '' }}"></div>
                                             <div class="field"><label>Subir portada del video</label><input type="file" data-field="poster_file" accept="image/*"></div>
                                         </div>
                                         <div class="field" style="margin-top:12px;"><label>Resumen</label><textarea class="field-small" data-field="excerpt">{{ $item['excerpt'] ?? '' }}</textarea></div>
@@ -136,9 +125,9 @@
                     </div>
                     <div class="subpanel">
                         <div class="grid grid-3">
-                            <div class="field"><label>Titulo del panel</label><input type="text" name="important_notices[title]" value="{{ old('important_notices.title', $importantNotices['settings']['title'] ?? 'Avisos importantes') }}"></div>
+                            <div class="field"><label>Título del panel</label><input type="text" name="important_notices[title]" value="{{ old('important_notices.title', $importantNotices['settings']['title'] ?? 'Avisos importantes') }}"></div>
                             <div class="field"><label>Texto Ver todos</label><input type="text" name="important_notices[view_all_label]" value="{{ old('important_notices.view_all_label', $importantNotices['settings']['view_all_label'] ?? 'Ver todos') }}"></div>
-                            <div class="field"><label>URL Ver todos</label><input type="text" name="important_notices[view_all_url]" value="{{ old('important_notices.view_all_url', $importantNotices['settings']['view_all_url'] ?? '/noticias') }}"></div>
+                            <div class="field"><label>Enlace Ver todos</label><input type="text" name="important_notices[view_all_url]" value="{{ old('important_notices.view_all_url', $importantNotices['settings']['view_all_url'] ?? '/noticias') }}"></div>
                         </div>
                     </div>
                     <div class="subpanel">
@@ -149,7 +138,7 @@
                                     <div class="repeater-card" data-row>
                                         <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Aviso' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
                                         <div class="grid grid-4" style="margin-top:12px;">
-                                            <div class="field" style="grid-column:1 / span 2;"><label>Titulo</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
+                                            <div class="field" style="grid-column:1 / span 2;"><label>Título</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
                                             <div class="field"><label>Fecha</label><input type="text" data-field="date" value="{{ $item['date'] ?? '' }}"></div>
                                             <div class="field">
                                                 <label>Estado visual</label>
@@ -161,7 +150,7 @@
                                                 </select>
                                             </div>
                                             <div class="field" style="grid-column:1 / -1;"><label>Texto</label><input type="text" data-field="text" value="{{ $item['text'] ?? '' }}"></div>
-                                            <div class="field" style="grid-column:1 / -1;"><label>URL</label><input type="text" data-field="url" value="{{ $item['url'] ?? '' }}"></div>
+                                            <div class="field" style="grid-column:1 / -1;"><label>Enlace</label><input type="text" data-field="url" value="{{ $item['url'] ?? '' }}"></div>
                                         </div>
                                         <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                     </div>
@@ -173,13 +162,13 @@
 
                 <section class="section-card" x-show="tab === 'filters'">
                     <div class="section-header">
-                        <div><div class="section-eyebrow">Navegacion</div><h3 class="section-title">Filtros y busqueda</h3><p class="section-copy">Controla las categorias visibles y el texto del buscador referencial.</p></div>
+                        <div><div class="section-eyebrow">Navegacion</div><h3 class="section-title">Filtros y búsqueda</h3><p class="section-copy">Controla las categorias visibles y el texto del buscador referencial.</p></div>
                     </div>
                     <div class="subpanel">
                         <div class="field"><label>Placeholder del buscador</label><input type="text" name="category_filters[search_placeholder]" value="{{ old('category_filters.search_placeholder', $categoryFilters['settings']['search_placeholder'] ?? 'Buscar noticias...') }}"></div>
                     </div>
                     <div class="subpanel">
-                        <div class="toolbar"><div><h4>Categorias visibles</h4></div><button type="button" class="button button-secondary" data-add-row>Agregar filtro</button></div>
+                        <div class="toolbar"><div><h4>Categorías visibles</h4></div><button type="button" class="button button-secondary" data-add-row>Agregar filtro</button></div>
                         <div class="stack" data-collection data-base="category_filters[items]" data-template="filter-template">
                             <div data-rows>
                                 @foreach ($categoryFilters['items'] as $item)
@@ -187,7 +176,7 @@
                                         <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['label'] ?? 'Filtro' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
                                         <div class="grid grid-3" style="margin-top:12px;">
                                             <div class="field"><label>Etiqueta</label><input type="text" data-field="label" value="{{ $item['label'] ?? '' }}"></div>
-                                            <div class="field"><label>URL</label><input type="text" data-field="url" value="{{ $item['url'] ?? '' }}"></div>
+                                            <div class="field"><label>Enlace</label><input type="text" data-field="url" value="{{ $item['url'] ?? '' }}"></div>
                                             <div class="field"><label>Activo</label><input type="checkbox" data-field="is_active" value="1" {{ !empty($item['is_active']) ? 'checked' : '' }}></div>
                                         </div>
                                         <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
@@ -205,9 +194,9 @@
                     </div>
                     <div class="subpanel">
                         <div class="grid grid-3">
-                            <div class="field"><label>Titulo de seccion</label><input type="text" name="news_grid[title]" value="{{ old('news_grid.title', $newsGrid['settings']['title'] ?? '') }}"></div>
+                            <div class="field"><label>Título de seccion</label><input type="text" name="news_grid[title]" value="{{ old('news_grid.title', $newsGrid['settings']['title'] ?? '') }}"></div>
                             <div class="field"><label>Subtitulo</label><input type="text" name="news_grid[subtitle]" value="{{ old('news_grid.subtitle', $newsGrid['settings']['subtitle'] ?? '') }}"></div>
-                            <div class="field"><label>Texto CTA</label><input type="text" name="news_grid[cta_label]" value="{{ old('news_grid.cta_label', $newsGrid['settings']['cta_label'] ?? 'Leer mas') }}"></div>
+                            <div class="field"><label>Texto botón</label><input type="text" name="news_grid[cta_label]" value="{{ old('news_grid.cta_label', $newsGrid['settings']['cta_label'] ?? 'Leer mas') }}"></div>
                         </div>
                     </div>
                     <div class="subpanel">
@@ -220,10 +209,10 @@
                                         <div class="grid grid-3" style="margin-top:12px;">
                                             <div class="field"><label>Fecha</label><input type="text" data-field="date" value="{{ $item['date'] ?? '' }}"></div>
                                             <div class="field"><label>Categoria</label><input type="text" data-field="category" value="{{ $item['category'] ?? '' }}"></div>
-                                            <div class="field"><label>URL noticia</label><input type="text" data-field="article_url" value="{{ $item['article_url'] ?? '' }}"></div>
+                                            <div class="field"><label>Enlace noticia</label><input type="text" data-field="article_url" value="{{ $item['article_url'] ?? '' }}"></div>
                                             <div class="field"><label>Slug detalle</label><input type="text" data-field="slug" value="{{ $item['slug'] ?? '' }}" placeholder="mi-noticia"></div>
                                             <div class="field"><label>Ubicacion</label><input type="text" data-field="location" value="{{ $item['location'] ?? '' }}" placeholder="La Paz"></div>
-                                            <div class="field" style="grid-column:1 / -1;"><label>Titulo</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
+                                            <div class="field" style="grid-column:1 / -1;"><label>Título</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
                                             <div class="field">
                                                 <label>Tipo de medio</label>
                                                 <select data-field="media_type">
@@ -231,11 +220,11 @@
                                                     <option value="video" {{ ($item['media_type'] ?? '') === 'video' ? 'selected' : '' }}>Video</option>
                                                 </select>
                                             </div>
-                                            <div class="field"><label>URL del medio</label><input type="text" data-field="media_url" value="{{ $item['media_url'] ?? ($item['image'] ?? '') }}"></div>
+                                            <div class="field"><label>Enlace del medio</label><input type="text" data-field="media_url" value="{{ $item['media_url'] ?? ($item['image'] ?? '') }}"></div>
                                             <div class="field"><label>Subir imagen o video</label><input type="file" data-field="media_file" accept="image/*,video/mp4,video/webm"></div>
                                         </div>
                                         <div class="grid grid-2" style="margin-top:12px;">
-                                            <div class="field"><label>URL portada (opcional para video)</label><input type="text" data-field="poster_image" value="{{ $item['poster_image'] ?? '' }}"></div>
+                                            <div class="field"><label>Enlace portada (opcional para video)</label><input type="text" data-field="poster_image" value="{{ $item['poster_image'] ?? '' }}"></div>
                                             <div class="field"><label>Subir portada del video</label><input type="file" data-field="poster_file" accept="image/*"></div>
                                         </div>
                                         <div class="field" style="margin-top:12px;"><label>Extracto</label><textarea class="field-small" data-field="excerpt">{{ $item['excerpt'] ?? '' }}</textarea></div>
@@ -250,13 +239,13 @@
 
                 <section class="section-card" x-show="tab === 'newsletter'">
                     <div class="section-header">
-                        <div><div class="section-eyebrow">Captacion</div><h3 class="section-title">Boletin y paginacion</h3><p class="section-copy">Personaliza el bloque amarillo de suscripcion y las paginas visibles al pie.</p></div>
+                        <div><div class="section-eyebrow">Captacion</div><h3 class="section-title">Boletín y paginación</h3><p class="section-copy">Personaliza el bloque amarillo de suscripcion y las paginas visibles al pie.</p></div>
                     </div>
                     <div class="subpanel">
                         <h4>Bloque de boletin</h4>
                         <div class="grid grid-2">
-                            <div class="field"><label>Badge</label><input type="text" name="newsletter[badge]" value="{{ old('newsletter.badge', $newsletter['settings']['badge'] ?? '') }}"></div>
-                            <div class="field"><label>Titulo</label><input type="text" name="newsletter[title]" value="{{ old('newsletter.title', $newsletter['settings']['title'] ?? '') }}"></div>
+                            <div class="field"><label>Etiqueta destacada</label><input type="text" name="newsletter[badge]" value="{{ old('newsletter.badge', $newsletter['settings']['badge'] ?? '') }}"></div>
+                            <div class="field"><label>Título</label><input type="text" name="newsletter[title]" value="{{ old('newsletter.title', $newsletter['settings']['title'] ?? '') }}"></div>
                             <div class="field" style="grid-column:1 / -1;"><label>Texto</label><textarea name="newsletter[text]" class="field-small">{{ old('newsletter.text', $newsletter['settings']['text'] ?? '') }}</textarea></div>
                             <div class="field"><label>Placeholder email</label><input type="text" name="newsletter[placeholder]" value="{{ old('newsletter.placeholder', $newsletter['settings']['placeholder'] ?? '') }}"></div>
                             <div class="field"><label>Texto boton</label><input type="text" name="newsletter[button_label]" value="{{ old('newsletter.button_label', $newsletter['settings']['button_label'] ?? '') }}"></div>
@@ -269,7 +258,7 @@
                         </div>
                     </div>
                     <div class="subpanel">
-                        <div class="toolbar"><div><h4>Items de paginacion</h4></div><button type="button" class="button button-secondary" data-add-row>Agregar pagina</button></div>
+                        <div class="toolbar"><div><h4>Items de paginación</h4></div><button type="button" class="button button-secondary" data-add-row>Agregar pagina</button></div>
                         <div class="stack" data-collection data-base="pagination[items]" data-template="pagination-template">
                             <div data-rows>
                                 @foreach ($pagination['items'] as $item)
@@ -277,7 +266,7 @@
                                         <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['label'] ?? 'Pagina' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
                                         <div class="grid grid-4" style="margin-top:12px;">
                                             <div class="field"><label>Etiqueta</label><input type="text" data-field="label" value="{{ $item['label'] ?? '' }}"></div>
-                                            <div class="field"><label>URL</label><input type="text" data-field="url" value="{{ $item['url'] ?? '' }}"></div>
+                                            <div class="field"><label>Enlace</label><input type="text" data-field="url" value="{{ $item['url'] ?? '' }}"></div>
                                             <div class="field"><label>Activo</label><input type="checkbox" data-field="is_active" value="1" {{ !empty($item['is_active']) ? 'checked' : '' }}></div>
                                             <div class="field"><label>Es puntos suspensivos</label><input type="checkbox" data-field="is_ellipsis" value="1" {{ !empty($item['is_ellipsis']) ? 'checked' : '' }}></div>
                                         </div>
@@ -289,17 +278,7 @@
                     </div>
                 </section>
 
-                <div class="save-dock">
-                    <div style="flex:1;">
-                        <strong style="display:block; margin-bottom:4px;">Todo listo para guardar</strong>
-                        <p>Los cambios impactan directamente en la portada pública de noticias.</p>
-                        <div class="field" style="margin-top:12px;">
-                            <label>Resumen del cambio</label>
-                            <input type="text" name="change_summary" value="{{ old('change_summary') }}" placeholder="Ej: Actualice destacado, grid y boletin">
-                        </div>
-                    </div>
-                    <button type="submit" class="button button-primary">Guardar cambios del diseno</button>
-                </div>
+                @include('admin.pages.partials.save')
             </div>
         </div>
     </form>
@@ -309,13 +288,13 @@
     <div class="repeater-card" data-row>
         <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Destacado</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
         <div class="grid grid-3" style="margin-top:12px;">
-            <div class="field"><label>Badge</label><input type="text" data-field="badge"></div>
+            <div class="field"><label>Etiqueta destacada</label><input type="text" data-field="badge"></div>
             <div class="field"><label>Categoria</label><input type="text" data-field="category"></div>
-            <div class="field"><label>URL noticia</label><input type="text" data-field="article_url"></div>
+            <div class="field"><label>Enlace noticia</label><input type="text" data-field="article_url"></div>
             <div class="field"><label>Slug detalle</label><input type="text" data-field="slug" placeholder="mi-noticia"></div>
             <div class="field"><label>Fecha</label><input type="text" data-field="date" placeholder="septiembre 11, 2026"></div>
             <div class="field"><label>Ubicacion</label><input type="text" data-field="location" placeholder="La Paz"></div>
-            <div class="field" style="grid-column:1 / -1;"><label>Titulo</label><input type="text" data-field="title"></div>
+            <div class="field" style="grid-column:1 / -1;"><label>Título</label><input type="text" data-field="title"></div>
             <div class="field">
                 <label>Tipo de medio</label>
                 <select data-field="media_type">
@@ -323,11 +302,11 @@
                     <option value="video">Video</option>
                 </select>
             </div>
-            <div class="field"><label>URL del medio</label><input type="text" data-field="media_url"></div>
+            <div class="field"><label>Enlace del medio</label><input type="text" data-field="media_url"></div>
             <div class="field"><label>Subir imagen o video</label><input type="file" data-field="media_file" accept="image/*,video/mp4,video/webm"></div>
         </div>
         <div class="grid grid-2" style="margin-top:12px;">
-            <div class="field"><label>URL portada (opcional para video)</label><input type="text" data-field="poster_image"></div>
+            <div class="field"><label>Enlace portada (opcional para video)</label><input type="text" data-field="poster_image"></div>
             <div class="field"><label>Subir portada del video</label><input type="file" data-field="poster_file" accept="image/*"></div>
         </div>
         <div class="field" style="margin-top:12px;"><label>Resumen</label><textarea class="field-small" data-field="excerpt"></textarea></div>
@@ -340,7 +319,7 @@
     <div class="repeater-card" data-row>
         <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Aviso</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
         <div class="grid grid-4" style="margin-top:12px;">
-            <div class="field" style="grid-column:1 / span 2;"><label>Titulo</label><input type="text" data-field="title"></div>
+            <div class="field" style="grid-column:1 / span 2;"><label>Título</label><input type="text" data-field="title"></div>
             <div class="field"><label>Fecha</label><input type="text" data-field="date"></div>
             <div class="field">
                 <label>Estado visual</label>
@@ -352,7 +331,7 @@
                 </select>
             </div>
             <div class="field" style="grid-column:1 / -1;"><label>Texto</label><input type="text" data-field="text"></div>
-            <div class="field" style="grid-column:1 / -1;"><label>URL</label><input type="text" data-field="url"></div>
+            <div class="field" style="grid-column:1 / -1;"><label>Enlace</label><input type="text" data-field="url"></div>
         </div>
         <input type="hidden" data-field="id">
     </div>
@@ -363,7 +342,7 @@
         <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Filtro</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
         <div class="grid grid-3" style="margin-top:12px;">
             <div class="field"><label>Etiqueta</label><input type="text" data-field="label"></div>
-            <div class="field"><label>URL</label><input type="text" data-field="url"></div>
+            <div class="field"><label>Enlace</label><input type="text" data-field="url"></div>
             <div class="field"><label>Activo</label><input type="checkbox" data-field="is_active" value="1"></div>
         </div>
         <input type="hidden" data-field="id">
@@ -376,10 +355,10 @@
         <div class="grid grid-3" style="margin-top:12px;">
             <div class="field"><label>Fecha</label><input type="text" data-field="date"></div>
             <div class="field"><label>Categoria</label><input type="text" data-field="category"></div>
-            <div class="field"><label>URL noticia</label><input type="text" data-field="article_url"></div>
+            <div class="field"><label>Enlace noticia</label><input type="text" data-field="article_url"></div>
             <div class="field"><label>Slug detalle</label><input type="text" data-field="slug" placeholder="mi-noticia"></div>
             <div class="field"><label>Ubicacion</label><input type="text" data-field="location" placeholder="La Paz"></div>
-            <div class="field" style="grid-column:1 / -1;"><label>Titulo</label><input type="text" data-field="title"></div>
+            <div class="field" style="grid-column:1 / -1;"><label>Título</label><input type="text" data-field="title"></div>
             <div class="field">
                 <label>Tipo de medio</label>
                 <select data-field="media_type">
@@ -387,11 +366,11 @@
                     <option value="video">Video</option>
                 </select>
             </div>
-            <div class="field"><label>URL del medio</label><input type="text" data-field="media_url"></div>
+            <div class="field"><label>Enlace del medio</label><input type="text" data-field="media_url"></div>
             <div class="field"><label>Subir imagen o video</label><input type="file" data-field="media_file" accept="image/*,video/mp4,video/webm"></div>
         </div>
         <div class="grid grid-2" style="margin-top:12px;">
-            <div class="field"><label>URL portada (opcional para video)</label><input type="text" data-field="poster_image"></div>
+            <div class="field"><label>Enlace portada (opcional para video)</label><input type="text" data-field="poster_image"></div>
             <div class="field"><label>Subir portada del video</label><input type="file" data-field="poster_file" accept="image/*"></div>
         </div>
         <div class="field" style="margin-top:12px;"><label>Extracto</label><textarea class="field-small" data-field="excerpt"></textarea></div>
@@ -405,7 +384,7 @@
         <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Pagina</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
         <div class="grid grid-4" style="margin-top:12px;">
             <div class="field"><label>Etiqueta</label><input type="text" data-field="label"></div>
-            <div class="field"><label>URL</label><input type="text" data-field="url"></div>
+            <div class="field"><label>Enlace</label><input type="text" data-field="url"></div>
             <div class="field"><label>Activo</label><input type="checkbox" data-field="is_active" value="1"></div>
             <div class="field"><label>Es puntos suspensivos</label><input type="checkbox" data-field="is_ellipsis" value="1"></div>
         </div>
