@@ -22,12 +22,7 @@ class AdminPageController extends Controller
 
     public function index(): View
     {
-        $pages = SitePage::withCount([
-            'sections',
-            'sections as ems_sections_count' => function ($query) {
-                $query->where('key', 'like', 'ems_%');
-            },
-        ])
+        $pages = SitePage::withCount('sections')
             ->orderBy('name')
             ->get();
 
@@ -192,8 +187,16 @@ class AdminPageController extends Controller
             ->with('status', 'La configuración global se actualizó correctamente.');
     }
 
-    public function edit(SitePage $page): View
+    public function edit(SitePage $page): View|RedirectResponse
     {
+        if ($page->slug === 'home' && request('tab') === 'ems') {
+            $emsPage = SitePage::query()->where('slug', 'ems')->first();
+
+            if ($emsPage) {
+                return redirect()->route('admin.pages.edit', $emsPage);
+            }
+        }
+
         $page->load([
             'sections' => function ($query) {
                 $query->orderBy('sort_order');
@@ -297,6 +300,15 @@ class AdminPageController extends Controller
             return view('admin.pages.edit-encomienda', [
                 'page' => $page,
                 'editorData' => $this->buildEncomiendaEditorData($page),
+                'versions' => $page->versions()->with(['actor', 'changeLogs'])->take(12)->get(),
+                'historyData' => $this->buildHistoryData($page),
+            ]);
+        }
+
+        if ($page->slug === 'ems') {
+            return view('admin.pages.edit-ems', [
+                'page' => $page,
+                'editorData' => $this->buildEmsEditorData($page),
                 'versions' => $page->versions()->with(['actor', 'changeLogs'])->take(12)->get(),
                 'historyData' => $this->buildHistoryData($page),
             ]);
@@ -552,7 +564,9 @@ class AdminPageController extends Controller
 
         $data = $request->validate($rules, $messages, $attributes);
 
-        if ($this->isAboutPage($page)) {
+        if ($page->slug === 'ems') {
+            $sectionsPayload = $this->buildEmsSectionsPayload($request, $page);
+        } elseif ($this->isAboutPage($page)) {
             $sectionsPayload = $this->buildAboutSectionsPayload($request, $page);
         } elseif ($this->isNewsPage($page)) {
             $sectionsPayload = $this->buildNewsSectionsPayload($request, $page);
@@ -582,6 +596,19 @@ class AdminPageController extends Controller
         // Regular page editors always preserve those records.
         $page->loadMissing('sections.items');
         $sharedSectionKeys = ['announcement_modal', 'header', 'footer'];
+
+        if ($page->slug === 'home') {
+            $sectionsPayload = array_values(array_filter(
+                $sectionsPayload,
+                fn (array $section) => ! in_array($section['key'] ?? null, [
+                    'ems_intro',
+                    'ems_benefits',
+                    'ems_national',
+                    'ems_international',
+                ], true)
+            ));
+        }
+
         $existingSharedSections = $page->sections->whereIn('key', $sharedSectionKeys);
         $sectionsPayload = array_values(array_filter(
             $sectionsPayload,
@@ -839,6 +866,44 @@ class AdminPageController extends Controller
                 ]),
                 'items' => $this->sectionItems($page, 'services'),
             ],
+            'status' => [
+                'settings' => $this->sectionSettings($page, 'status', [
+                    'title' => '',
+                    'subtitle' => '',
+                    'placeholder' => '',
+                    'button_label' => '',
+                ]),
+            ],
+            'tools' => [
+                'settings' => $this->sectionSettings($page, 'tools', []),
+                'items' => $this->sectionItems($page, 'tools'),
+            ],
+            'app_banner' => [
+                'settings' => $this->sectionSettings($page, 'app_banner', [
+                    'background_image' => '',
+                ]),
+                'items' => $this->sectionItems($page, 'app_banner'),
+            ],
+            'market' => [
+                'settings' => $this->sectionSettings($page, 'market', []),
+                'items' => $this->sectionItems($page, 'market'),
+            ],
+            'footer' => [
+                'settings' => $this->sectionSettings($page, 'footer', [
+                    'seal_logo' => '',
+                ]),
+                'help_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'help')),
+                'company_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'company')),
+                'alliances_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'alliances')),
+                'international_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'international')),
+                'social_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'social')),
+            ],
+        ];
+    }
+
+    protected function buildEmsEditorData(SitePage $page): array
+    {
+        return [
             'ems_intro' => [
                 'settings' => $this->sectionSettings($page, 'ems_intro', [
                     'eyebrow' => 'Express Mail Service',
@@ -881,38 +946,6 @@ class AdminPageController extends Controller
                     'secondary_button_url' => '#',
                 ]),
                 'items' => $this->sectionItems($page, 'ems_international'),
-            ],
-            'status' => [
-                'settings' => $this->sectionSettings($page, 'status', [
-                    'title' => '',
-                    'subtitle' => '',
-                    'placeholder' => '',
-                    'button_label' => '',
-                ]),
-            ],
-            'tools' => [
-                'settings' => $this->sectionSettings($page, 'tools', []),
-                'items' => $this->sectionItems($page, 'tools'),
-            ],
-            'app_banner' => [
-                'settings' => $this->sectionSettings($page, 'app_banner', [
-                    'background_image' => '',
-                ]),
-                'items' => $this->sectionItems($page, 'app_banner'),
-            ],
-            'market' => [
-                'settings' => $this->sectionSettings($page, 'market', []),
-                'items' => $this->sectionItems($page, 'market'),
-            ],
-            'footer' => [
-                'settings' => $this->sectionSettings($page, 'footer', [
-                    'seal_logo' => '',
-                ]),
-                'help_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'help')),
-                'company_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'company')),
-                'alliances_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'alliances')),
-                'international_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'international')),
-                'social_links' => array_values(array_filter($this->sectionItems($page, 'footer'), fn ($item) => ($item['group'] ?? '') === 'social')),
             ],
         ];
     }
@@ -1808,63 +1841,6 @@ class AdminPageController extends Controller
                 ];
             })),
 
-            $this->makeSectionPayload($page, 'ems_intro', 'EMS Intro', 'ems_intro', 5, [
-                'eyebrow' => $request->input('ems_intro.eyebrow'),
-                'hero_title' => $request->input('ems_intro.hero_title'),
-                'watermark_text' => $request->input('ems_intro.watermark_text'),
-                'title' => $request->input('ems_intro.title'),
-                'highlight_text' => $request->input('ems_intro.highlight_text'),
-                'paragraph_one' => $request->input('ems_intro.paragraph_one'),
-                'paragraph_two' => $request->input('ems_intro.paragraph_two'),
-                'paragraph_three' => $request->input('ems_intro.paragraph_three'),
-                'primary_button_label' => $request->input('ems_intro.primary_button_label'),
-                'primary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('ems_intro.primary_button_url')) ?? '',
-                'visual_icon' => $request->input('ems_intro.visual_icon'),
-                'image' => $this->storeUploadedImage($request, 'ems_intro.image_file', $request->input('ems_intro.image'), 'cms/ems'),
-            ]),
-
-            $this->makeSectionPayload($page, 'ems_benefits', 'EMS Beneficios', 'ems_card_grid', 6, [
-                'title' => $request->input('ems_benefits.title'),
-            ], $this->mapRepeaterItems(data_get($form, 'ems_benefits.items', []), 'ems_benefit', function ($item) {
-                return [
-                    'icon' => $item['icon'] ?? '',
-                    'title' => $item['title'] ?? '',
-                    'text' => $item['text'] ?? '',
-                    'badge' => $item['badge'] ?? '',
-                ];
-            })),
-
-            $this->makeSectionPayload($page, 'ems_national', 'EMS Nacional', 'ems_card_grid', 7, [
-                'title' => $request->input('ems_national.title'),
-                'subtitle' => $request->input('ems_national.subtitle'),
-                'stat_label' => $request->input('ems_national.stat_label'),
-                'stat_value' => $request->input('ems_national.stat_value'),
-                'stat_caption' => $request->input('ems_national.stat_caption'),
-            ], $this->mapRepeaterItems(data_get($form, 'ems_national.items', []), 'ems_national_card', function ($item) {
-                return [
-                    'icon' => $item['icon'] ?? '',
-                    'title' => $item['title'] ?? '',
-                    'text' => $item['text'] ?? '',
-                    'badge' => $item['badge'] ?? '',
-                ];
-            })),
-
-            $this->makeSectionPayload($page, 'ems_international', 'EMS Internacional', 'ems_card_grid', 8, [
-                'title' => $request->input('ems_international.title'),
-                'subtitle' => $request->input('ems_international.subtitle'),
-                'highlight_text' => $request->input('ems_international.highlight_text'),
-                'cta_text' => $request->input('ems_international.cta_text'),
-                'secondary_button_label' => $request->input('ems_international.secondary_button_label'),
-                'secondary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('ems_international.secondary_button_url')) ?? '',
-            ], $this->mapRepeaterItems(data_get($form, 'ems_international.items', []), 'ems_international_card', function ($item) {
-                return [
-                    'icon' => $item['icon'] ?? '',
-                    'title' => $item['title'] ?? '',
-                    'text' => $item['text'] ?? '',
-                    'badge' => $item['badge'] ?? '',
-                ];
-            })),
-
             $this->makeSectionPayload($page, 'status', 'Estado de envio', 'tracking_form', 4, [
                 'title' => $request->input('status.title', $statusSettings['title'] ?? ''),
                 'subtitle' => $request->input('status.subtitle', $statusSettings['subtitle'] ?? ''),
@@ -1957,6 +1933,69 @@ class AdminPageController extends Controller
         ];
     }
 
+    protected function buildEmsSectionsPayload(Request $request, SitePage $page): array
+    {
+        $form = $request->all();
+
+        return [
+            $this->makeSectionPayload($page, 'ems_intro', 'EMS Intro', 'ems_intro', 5, [
+                'eyebrow' => $request->input('ems_intro.eyebrow'),
+                'hero_title' => $request->input('ems_intro.hero_title'),
+                'watermark_text' => $request->input('ems_intro.watermark_text'),
+                'title' => $request->input('ems_intro.title'),
+                'highlight_text' => $request->input('ems_intro.highlight_text'),
+                'paragraph_one' => $request->input('ems_intro.paragraph_one'),
+                'paragraph_two' => $request->input('ems_intro.paragraph_two'),
+                'paragraph_three' => $request->input('ems_intro.paragraph_three'),
+                'primary_button_label' => $request->input('ems_intro.primary_button_label'),
+                'primary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('ems_intro.primary_button_url')) ?? '',
+                'visual_icon' => $request->input('ems_intro.visual_icon'),
+                'image' => $this->storeUploadedImage($request, 'ems_intro.image_file', $request->input('ems_intro.image'), 'cms/ems'),
+            ]),
+
+            $this->makeSectionPayload($page, 'ems_benefits', 'EMS Beneficios', 'ems_card_grid', 6, [
+                'title' => $request->input('ems_benefits.title'),
+            ], $this->mapRepeaterItems(data_get($form, 'ems_benefits.items', []), 'ems_benefit', function ($item) {
+                return [
+                    'icon' => $item['icon'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'text' => $item['text'] ?? '',
+                    'badge' => $item['badge'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'ems_national', 'EMS Nacional', 'ems_card_grid', 7, [
+                'title' => $request->input('ems_national.title'),
+                'subtitle' => $request->input('ems_national.subtitle'),
+                'stat_label' => $request->input('ems_national.stat_label'),
+                'stat_value' => $request->input('ems_national.stat_value'),
+                'stat_caption' => $request->input('ems_national.stat_caption'),
+            ], $this->mapRepeaterItems(data_get($form, 'ems_national.items', []), 'ems_national_card', function ($item) {
+                return [
+                    'icon' => $item['icon'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'text' => $item['text'] ?? '',
+                    'badge' => $item['badge'] ?? '',
+                ];
+            })),
+
+            $this->makeSectionPayload($page, 'ems_international', 'EMS Internacional', 'ems_card_grid', 8, [
+                'title' => $request->input('ems_international.title'),
+                'subtitle' => $request->input('ems_international.subtitle'),
+                'highlight_text' => $request->input('ems_international.highlight_text'),
+                'cta_text' => $request->input('ems_international.cta_text'),
+                'secondary_button_label' => $request->input('ems_international.secondary_button_label'),
+                'secondary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('ems_international.secondary_button_url')) ?? '',
+            ], $this->mapRepeaterItems(data_get($form, 'ems_international.items', []), 'ems_international_card', function ($item) {
+                return [
+                    'icon' => $item['icon'] ?? '',
+                    'title' => $item['title'] ?? '',
+                    'text' => $item['text'] ?? '',
+                    'badge' => $item['badge'] ?? '',
+                ];
+            })),
+        ];
+    }
     protected function buildDeliverySectionsPayload(Request $request, SitePage $page): array
     {
         $form = $request->all();

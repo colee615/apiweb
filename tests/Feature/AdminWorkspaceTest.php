@@ -73,6 +73,9 @@ class AdminWorkspaceTest extends TestCase
             ->assertDontSee('name="theme[primary_color]"', false)
             ->assertDontSee('name="header[help_label]"', false);
         $this->get('/admin/pages/'.$home->id.'/edit')->assertOk()
+            ->assertDontSee('name="theme[primary_color]"', false)
+            ->assertDontSee('name="header[help_label]"', false);
+        $this->get('/admin/configuracion-global')->assertOk()
             ->assertSee('name="theme[primary_color]"', false)
             ->assertSee('name="header[help_label]"', false);
 
@@ -83,6 +86,58 @@ class AdminWorkspaceTest extends TestCase
         $this->assertSame('#abcdef', $page->fresh()->theme['primary_color']);
         $this->assertSame('Texto local', $legacyHeader->fresh()->settings['help_label']);
         $this->assertSame('Se conserva', $contentSection->fresh()->settings['text']);
+    }
+
+    public function test_ems_has_its_own_admin_page_while_home_payload_stays_compatible(): void
+    {
+        $home = SitePage::where('slug', 'home')->firstOrFail();
+        $ems = SitePage::where('slug', 'ems')->firstOrFail();
+        $emsKeys = ['ems_intro', 'ems_benefits', 'ems_national', 'ems_international'];
+
+        $this->assertSame(0, $home->sections()->whereIn('key', $emsKeys)->count());
+        $this->assertSame(4, $ems->sections()->whereIn('key', $emsKeys)->count());
+
+        $this->getJson('/api/site/pages/home')->assertOk()
+            ->assertJsonPath('section_map.ems_intro.key', 'ems_intro')
+            ->assertJsonPath('section_map.ems_international.key', 'ems_international');
+        $this->getJson('/api/site/pages/ems')->assertOk()
+            ->assertJsonPath('section_map.ems_intro.key', 'ems_intro');
+
+        $this->get('/admin')->assertOk()->assertSee('/ems')->assertDontSee('Incluye el contenido de EMS');
+        $this->get('/admin/pages/'.$home->id.'/edit?tab=ems')
+            ->assertRedirect(route('admin.pages.edit', $ems));
+        $this->get('/admin/pages/'.$ems->id.'/edit')->assertOk()
+            ->assertSee('Contenido de EMS')
+            ->assertSee('buscadores')
+            ->assertDontSee('Información de Home');
+    }
+
+    public function test_saving_ems_does_not_change_home_content(): void
+    {
+        $home = SitePage::where('slug', 'home')->firstOrFail();
+        $ems = SitePage::where('slug', 'ems')->firstOrFail();
+        $homeTitle = $home->sections()->where('key', 'hero')->firstOrFail()->settings['title'] ?? null;
+        $emsSections = $ems->sections()->with('items')->get()->keyBy('key');
+        $items = fn (string $key) => $emsSections[$key]->items
+            ->map(fn ($item) => array_merge($item->data ?? [], ['id' => $item->id]))
+            ->all();
+
+        $this->put('/admin/pages/'.$ems->id, [
+            'name' => 'EMS',
+            'slug' => 'ems',
+            'meta_title' => 'EMS actualizado',
+            'meta_description' => 'Servicio EMS independiente.',
+            'is_active' => '1',
+            'ems_intro' => array_merge($emsSections['ems_intro']->settings, ['title' => 'Envíos urgentes EMS']),
+            'ems_benefits' => array_merge($emsSections['ems_benefits']->settings, ['items' => $items('ems_benefits')]),
+            'ems_national' => array_merge($emsSections['ems_national']->settings, ['items' => $items('ems_national')]),
+            'ems_international' => array_merge($emsSections['ems_international']->settings, ['items' => $items('ems_international')]),
+        ])->assertRedirect(route('admin.pages.edit', $ems))->assertSessionHasNoErrors();
+
+        $this->assertSame($homeTitle, $home->fresh()->sections()->where('key', 'hero')->firstOrFail()->settings['title'] ?? null);
+        $updatedIntro = $ems->fresh('sections')->sections->firstWhere('key', 'ems_intro');
+        $this->assertSame('Envíos urgentes EMS', $updatedIntro->settings['title']);
+        $this->getJson('/api/site/pages/home')->assertJsonPath('section_map.ems_intro.settings.title', 'Envíos urgentes EMS');
     }
 
     public function test_analytics_deduplicates_visitors_per_week_and_counts_all_interactions(): void
@@ -245,36 +300,36 @@ class AdminWorkspaceTest extends TestCase
 
     public function test_tracking_searches_group_by_service_and_report_unsuccessful_results(): void
     {
-        foreach ([['EMS', 'EE123'], ['EMS', 'EE124'], ['Encomienda', 'CO456']] as [$service, $code]) {
+        foreach ([['EMS Internacional', 'EE123'], ['EMS Internacional', 'EE124'], ['Encomienda', 'XB456']] as [$service, $code]) {
             AnalyticsEvent::create(['visitor_token' => 'visitor-'.$code, 'session_token' => 'session-'.$code, 'event_name' => 'tracking_search', 'searched_term' => $code, 'metadata' => ['service' => $service], 'occurred_at' => now()]);
         }
 
         $this->withExceptionHandling()->postJson('/api/analytics/collect', [
             'visitor_token' => 'visitor-result', 'session_token' => 'session-result',
             'event_name' => 'tracking_result', 'searched_term' => 'EE999',
-            'metadata' => ['service' => 'EMS', 'tracking_status' => 'not_found'],
+            'metadata' => ['service' => 'EMS Internacional', 'tracking_status' => 'not_found'],
         ])->assertOk()->assertJsonPath('ok', true);
         $this->postJson('/api/analytics/collect', [
             'visitor_token' => 'visitor-found', 'session_token' => 'session-found',
             'event_name' => 'tracking_result', 'searched_term' => 'EE123',
-            'metadata' => ['service' => 'EMS', 'tracking_status' => 'found'],
+            'metadata' => ['service' => 'EMS Internacional', 'tracking_status' => 'found'],
         ])->assertOk();
         $this->postJson('/api/analytics/collect', [
             'visitor_token' => 'visitor-error', 'session_token' => 'session-error',
-            'event_name' => 'tracking_result', 'searched_term' => 'CO456',
+            'event_name' => 'tracking_result', 'searched_term' => 'XB456',
             'metadata' => ['service' => 'Encomienda', 'tracking_status' => 'error'],
         ])->assertOk();
 
         $response = $this->get('/admin/analytics')->assertOk()->assertSee('Búsquedas por servicio')->assertSee('Consultas sin éxito');
         $services = $response->viewData('trackingByService')->keyBy('service');
-        $this->assertSame(2, (int) $services->get('EMS')->searches);
+        $this->assertSame(2, (int) $services->get('EMS Internacional')->searches);
         $this->assertSame(1, (int) $services->get('Encomienda')->searches);
         $this->assertSame(1, $response->viewData('trackingResults')['not_found']);
         $this->assertSame(1, $response->viewData('trackingResults')['found']);
         $this->assertSame(1, $response->viewData('trackingResults')['error']);
         $this->assertSame('EE999', $response->viewData('unsuccessfulTrackingSearches')->first()->searched_term);
 
-        $filtered = $this->get('/admin/analytics?tracking_service=EMS')->assertOk();
+        $filtered = $this->get('/admin/analytics?tracking_service=EMS%20Internacional')->assertOk();
         $this->assertSame(2, $filtered->viewData('topTrackingSearches')->total());
         $this->assertSame(1, $filtered->viewData('unsuccessfulTrackingSearches')->total());
 

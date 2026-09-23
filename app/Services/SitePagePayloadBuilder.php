@@ -73,6 +73,31 @@ class SitePagePayloadBuilder
         $shared = $this->build($home);
         $payload['theme'] = $shared['theme'];
 
+        if ($page->slug === 'home') {
+            $emsPage = SitePage::query()
+                ->where('slug', 'ems')
+                ->where('is_active', true)
+                ->with([
+                    'sections' => fn ($query) => $query->where('is_active', true)->orderBy('sort_order'),
+                    'sections.items' => fn ($query) => $query->where('is_active', true)->orderBy('sort_order'),
+                ])
+                ->first();
+
+            if ($emsPage) {
+                $sections = collect($payload['sections']);
+
+                foreach ($this->build($emsPage)['sections'] as $emsSection) {
+                    $sections = $sections
+                        ->reject(fn (array $section) => $section['key'] === $emsSection['key'])
+                        ->push($emsSection);
+                }
+
+                $sections = $sections->sortBy('sort_order')->values();
+                $payload['sections'] = $sections->all();
+                $payload['section_map'] = $sections->keyBy('key')->all();
+            }
+        }
+
         $sections = collect($payload['sections'])
             ->reject(fn (array $section) => $section['key'] === 'header')
             ->values();
