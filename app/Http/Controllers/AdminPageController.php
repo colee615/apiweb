@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AnalyticsEvent;
 use App\Models\SitePage;
 use App\Models\SitePageChangeLog;
 use App\Models\SitePageVersion;
 use App\Services\SitePageEditor;
 use App\Support\ContentSecurity;
+use Illuminate\Support\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -22,11 +24,35 @@ class AdminPageController extends Controller
 
     public function index(): View
     {
-        $pages = SitePage::withCount('sections')
-            ->orderBy('name')
-            ->get();
+        $today = Carbon::today();
+        $startDate = $today->copy()->subDays(13)->startOfDay();
+        $endDate = $today->copy()->endOfDay();
+        $viewsBySlug = AnalyticsEvent::query()
+            ->selectRaw('page_path, COUNT(*) as total')
+            ->where('event_name', 'page_view')
+            ->whereBetween('occurred_at', [$startDate, $endDate])
+            ->whereNotNull('page_path')
+            ->groupBy('page_path')
+            ->get()
+            ->reduce(function (array $totals, $row): array {
+                $path = parse_url((string) $row->page_path, PHP_URL_PATH) ?: '';
+                $slug = strtolower(trim(rawurldecode($path), '/')) ?: 'home';
+                $totals[$slug] = ($totals[$slug] ?? 0) + (int) $row->total;
 
-        return view('admin.pages.index', compact('pages'));
+                return $totals;
+            }, []);
+
+        $pages = SitePage::query()->get()
+            ->each(function (SitePage $page) use ($viewsBySlug): void {
+                $page->views_count = $viewsBySlug[strtolower($page->slug)] ?? 0;
+            })
+            ->sort(function (SitePage $a, SitePage $b): int {
+                return ($b->views_count <=> $a->views_count) ?: strcasecmp($a->name, $b->name);
+            })
+            ->values();
+        $pageViewsPeriod = $pages->sum('views_count');
+
+        return view('admin.pages.index', compact('pages', 'pageViewsPeriod'));
     }
 
     public function editGlobalSettings(): View
