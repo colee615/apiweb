@@ -73,6 +73,14 @@ class ContentSecurity
     {
         foreach ($data as $key => $value) {
             if (is_array($value)) {
+                if ($key === 'screenshots') {
+                    $data[$key] = array_values(array_filter(array_map(
+                        fn ($url) => self::sanitizeAssetUrl(is_string($url) ? $url : null),
+                        $value
+                    )));
+                    continue;
+                }
+
                 $data[$key] = self::sanitizeArray($value);
                 continue;
             }

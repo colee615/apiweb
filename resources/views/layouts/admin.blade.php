@@ -98,7 +98,7 @@
 
     @if ((request()->routeIs('admin.pages.edit') && !$isHistoryMode) || request()->routeIs('admin.global.edit'))
         @include('admin.pages.partials.collections')
-        <script src="{{ asset('js/admin-collections.js') }}?v=3" defer></script>
+        <script src="{{ asset('js/admin-collections.js') }}?v=4" defer></script>
         <script src="{{ asset('js/admin-media.js') }}?v=2" defer></script>
     @endif
 

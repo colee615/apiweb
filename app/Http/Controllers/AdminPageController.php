@@ -567,6 +567,11 @@ class AdminPageController extends Controller
             $rules['applications.items.*.download_name'] = ['nullable', 'string', 'max:255'];
             $rules['applications.items.*.download_file'] = ['nullable', 'file', 'extensions:apk,aab,zip', 'max:35840'];
             $rules['applications.items.*.image_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'];
+            $rules['applications.items.*.app_version'] = ['nullable', 'string', 'max:40'];
+            $rules['applications.items.*.android_requirement'] = ['nullable', 'string', 'max:100'];
+            $rules['applications.items.*.screenshots_text'] = ['nullable', 'string', 'max:12000'];
+            $rules['applications.items.*.screenshots_files'] = ['nullable', 'array', 'max:10'];
+            $rules['applications.items.*.screenshots_files.*'] = ['file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'];
             $rules['applications_highlights.items'] = ['nullable', 'array'];
             $rules['applications_highlights.items.*.icon'] = ['nullable', 'string', 'max:80'];
             $rules['applications_highlights.items.*.title'] = ['nullable', 'string', 'max:180'];
@@ -1630,6 +1635,22 @@ class AdminPageController extends Controller
                 $downloadName = $downloadFile instanceof \Illuminate\Http\UploadedFile
                     ? $downloadFile->getClientOriginalName()
                     : ($item['download_name'] ?? '');
+                $image = $this->storeRepeaterImage($item, 'image_file', 'image', 'cms/applications');
+                $screenshots = collect(preg_split('/\r\n|\r|\n/', (string) ($item['screenshots_text'] ?? '')))
+                    ->map(fn ($url) => ContentSecurity::sanitizeAssetUrl(trim($url)))
+                    ->filter()
+                    ->merge(collect($item['screenshots_files'] ?? [])->filter(fn ($file) => $file instanceof \Illuminate\Http\UploadedFile)->map(function ($file) {
+                        $path = $file->store('cms/applications/screenshots', 'public');
+
+                        return $this->normalizeAssetUrl(Storage::disk('public')->url($path));
+                    }))
+                    ->filter()
+                    ->unique()
+                    ->values();
+
+                if ($image) {
+                    $screenshots->prepend($image);
+                }
 
                 return [
                     'name' => $item['name'] ?? '',
@@ -1646,7 +1667,10 @@ class AdminPageController extends Controller
                     'play_store_url' => ContentSecurity::sanitizeLinkUrl($item['play_store_url'] ?? '') ?? '',
                     'download_url' => $this->storeRepeaterAsset($item, 'download_file', 'download_url', 'cms/applications/downloads'),
                     'download_name' => $downloadName,
-                    'image' => $this->storeRepeaterImage($item, 'image_file', 'image', 'cms/applications'),
+                    'app_version' => trim((string) ($item['app_version'] ?? '')),
+                    'android_requirement' => trim((string) ($item['android_requirement'] ?? '')),
+                    'screenshots' => $screenshots->all(),
+                    'image' => $image,
                 ];
             })),
 

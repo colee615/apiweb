@@ -30,7 +30,7 @@
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'featured' }" @click="go('featured')"><strong>Destacado</strong><span>Noticia principal</span></button>
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'notices' }" @click="go('notices')"><strong>Avisos</strong><span>Panel lateral destacado</span></button>
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'filters' }" @click="go('filters')"><strong>Filtros</strong><span>Categorías y búsqueda</span></button>
-                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'grid' }" @click="go('grid')"><strong>Noticias</strong><span>Tarjetas de noticias</span></button>
+                        <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'grid' }" @click="go('grid')"><strong>Noticias recientes</strong><span>Listado de noticias</span></button>
                         <button type="button" class="editor-nav-button" :class="{ 'active': tab === 'newsletter' }" @click="go('newsletter')"><strong>Boletín</strong><span>Suscripción y paginación</span></button>
                     </div>
                 </div>
@@ -71,8 +71,8 @@
 
                 <section class="section-card" x-show="tab === 'featured'">
                     <div class="section-header">
-                        <div><div class="section-eyebrow">Hero editorial</div><h3 class="section-title">Noticia destacada</h3><p class="section-copy">Bloque principal con texto editorial a la izquierda y medio visual limpio a la derecha.</p></div>
-                        <span class="pill pill-off">{{ count($featuredStory['items']) }} destacado(s)</span>
+                        <div><div class="section-eyebrow">Hero editorial</div><h3 class="section-title">Noticia destacada</h3><p class="section-copy">Bloque principal con texto editorial a la izquierda y medio visual limpio a la derecha.</p><div class="field-help">Usa “Pasar a recientes” para quitar una noticia del bloque principal y mostrarla en Noticias recientes.</div></div>
+                        <span class="pill pill-off" data-news-count="featured">{{ count($featuredStory['items']) }} destacado(s)</span>
                     </div>
                     <div class="subpanel">
                         <div class="grid grid-2">
@@ -85,7 +85,7 @@
                             <div data-rows>
                                 @foreach ($featuredStory['items'] as $item)
                                     <div class="repeater-card" data-row>
-                                        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Destacado' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
+                                        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Destacado' }}</strong></div><div class="actions"><button type="button" class="button button-secondary" data-news-move="recent">Pasar a recientes</button><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div></div>
                                         <div class="grid grid-3" style="margin-top:12px;">
                                             <div class="field"><label>Etiqueta destacada</label><input type="text" data-field="badge" value="{{ $item['badge'] ?? '' }}"></div>
                                             <div class="field"><label>Categoria</label><input type="text" data-field="category" value="{{ $item['category'] ?? '' }}"></div>
@@ -189,8 +189,8 @@
 
                 <section class="section-card" x-show="tab === 'grid'">
                     <div class="section-header">
-                        <div><div class="section-eyebrow">Contenido</div><h3 class="section-title">Grid de noticias</h3><p class="section-copy">Tarjetas con fecha, categoria, titular, extracto y medio visual limpio.</p></div>
-                        <span class="pill pill-off">{{ count($newsGrid['items']) }} noticia(s)</span>
+                        <div><div class="section-eyebrow">Contenido</div><h3 class="section-title">Noticias recientes</h3><p class="section-copy">Noticias que aparecen en el listado principal, con fecha, categoria, titular, extracto y medio visual.</p></div>
+                        <span class="pill pill-off" data-news-count="recent">{{ count($newsGrid['items']) }} noticia(s)</span>
                     </div>
                     <div class="subpanel">
                         <div class="grid grid-3">
@@ -205,7 +205,7 @@
                             <div data-rows>
                                 @foreach ($newsGrid['items'] as $item)
                                     <div class="repeater-card" data-row>
-                                        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Noticia' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
+                                        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Noticia' }}</strong></div><div class="actions"><button type="button" class="button button-secondary" data-news-move="featured">Destacar noticia</button><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div></div>
                                         <div class="grid grid-3" style="margin-top:12px;">
                                             <div class="field"><label>Fecha</label><input type="text" data-field="date" value="{{ $item['date'] ?? '' }}"></div>
                                             <div class="field"><label>Categoria</label><input type="text" data-field="category" value="{{ $item['category'] ?? '' }}"></div>
@@ -286,7 +286,7 @@
 
 <template id="featured-template">
     <div class="repeater-card" data-row>
-        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Destacado</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
+        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Destacado</strong></div><div class="actions"><button type="button" class="button button-secondary" data-news-move="recent">Pasar a recientes</button><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div></div>
         <div class="grid grid-3" style="margin-top:12px;">
             <div class="field"><label>Etiqueta destacada</label><input type="text" data-field="badge"></div>
             <div class="field"><label>Categoria</label><input type="text" data-field="category"></div>
@@ -351,7 +351,7 @@
 
 <template id="news-card-template">
     <div class="repeater-card" data-row>
-        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Noticia</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
+        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Noticia</strong></div><div class="actions"><button type="button" class="button button-secondary" data-news-move="featured">Destacar noticia</button><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div></div>
         <div class="grid grid-3" style="margin-top:12px;">
             <div class="field"><label>Fecha</label><input type="text" data-field="date"></div>
             <div class="field"><label>Categoria</label><input type="text" data-field="category"></div>

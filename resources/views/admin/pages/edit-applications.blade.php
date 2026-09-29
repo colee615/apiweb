@@ -81,6 +81,7 @@
                         <div data-rows>
                             @foreach (old('applications.items', $applications['items'] ?? []) as $item)
                                 @php($resourceType = ($item['resource_type'] ?? 'web') === 'app' ? 'app' : 'web')
+                                @php($extraScreenshots = array_slice(is_array($item['screenshots'] ?? null) ? $item['screenshots'] : [], 1))
                                 <div class="repeater-card" data-row>
                                     <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['name'] ?? 'Aplicación' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
                                     <div class="grid grid-3" style="margin-top:12px;">
@@ -103,8 +104,12 @@
                                         <div class="field" data-application-app-field><label>Nombre del archivo</label><input type="text" data-field="download_name" value="{{ $item['download_name'] ?? '' }}" placeholder="aplicacion.apk"></div>
                                         <div class="field" data-application-app-field><label>Subir instalador</label><input type="file" data-field="download_file" accept=".apk,.aab,.zip,application/vnd.android.package-archive,application/zip"></div>
                                         <div class="field-help" style="grid-column:1/-1;" data-application-app-field>Se usará primero Google Play. Si ese enlace está vacío, el botón descargará el APK, AAB o ZIP subido aquí (máximo 35 MB).</div>
+                                        <div class="field" data-application-app-field data-application-apk-field><label>Versión de la aplicación</label><input type="text" data-field="app_version" value="{{ old('applications.items.'.$loop->index.'.app_version', $item['app_version'] ?? '') }}" placeholder="Ej. 2.4.0"></div>
+                                        <div class="field" data-application-app-field data-application-apk-field><label>Requisito de Android</label><input type="text" data-field="android_requirement" value="{{ old('applications.items.'.$loop->index.'.android_requirement', $item['android_requirement'] ?? '') }}" placeholder="Ej. Android 8.0 o superior"></div>
                                         <div class="field"><label>Imagen actual</label><input type="text" data-field="image" value="{{ $item['image'] ?? '' }}"></div>
                                         <div class="field"><label>Subir captura o imagen</label><input type="file" data-field="image_file" accept="image/*"></div>
+                                        <div class="field" style="grid-column:1/-1;" data-application-app-field data-application-apk-field><label>Enlaces de capturas adicionales</label><textarea class="field-small" data-field="screenshots_text" placeholder="Un enlace de imagen por línea">{{ old('applications.items.'.$loop->index.'.screenshots_text', implode("\n", $extraScreenshots)) }}</textarea><small>La imagen principal se incluye automáticamente. Puedes agregar o quitar capturas enlazadas aquí.</small></div>
+                                        <div class="field" data-application-app-field data-application-apk-field><label>Subir más capturas</label><input type="file" data-field="screenshots_files" accept="image/jpeg,image/png,image/webp" multiple></div>
                                         <div class="field"><label>Estilo de la vista previa</label><input type="text" data-field="preview" value="{{ $item['preview'] ?? 'default' }}" placeholder="tracking, ems, default..."></div>
                                         <div class="field"><label>Etiqueta de la vista previa</label><input type="text" data-field="preview_label" value="{{ $item['preview_label'] ?? ($item['name'] ?? '') }}"></div>
                                         <div class="field"><label>Título de la vista previa</label><input type="text" data-field="preview_title" value="{{ $item['preview_title'] ?? ($item['name'] ?? '') }}"></div>
@@ -222,8 +227,12 @@
                     <div class="field" data-application-app-field><label>Nombre del archivo</label><input type="text" data-field="download_name" placeholder="aplicacion.apk"></div>
                     <div class="field" data-application-app-field><label>Subir instalador</label><input type="file" data-field="download_file" accept=".apk,.aab,.zip,application/vnd.android.package-archive,application/zip"></div>
                     <div class="field-help" style="grid-column:1/-1;" data-application-app-field>Se usará primero Google Play. Si está vacío, se descargará el instalador subido (máximo 35 MB).</div>
+                    <div class="field" data-application-app-field data-application-apk-field><label>Versión de la aplicación</label><input type="text" data-field="app_version" placeholder="Ej. 2.4.0"></div>
+                    <div class="field" data-application-app-field data-application-apk-field><label>Requisito de Android</label><input type="text" data-field="android_requirement" placeholder="Ej. Android 8.0 o superior"></div>
                     <div class="field"><label>Imagen actual</label><input type="text" data-field="image"></div>
                     <div class="field"><label>Subir captura</label><input type="file" data-field="image_file" accept="image/*"></div>
+                    <div class="field" style="grid-column:1/-1;" data-application-app-field data-application-apk-field><label>Enlaces de capturas adicionales</label><textarea class="field-small" data-field="screenshots_text" placeholder="Un enlace de imagen por línea"></textarea><small>La imagen principal se incluye automáticamente. Puedes agregar o quitar capturas enlazadas aquí.</small></div>
+                    <div class="field" data-application-app-field data-application-apk-field><label>Subir más capturas</label><input type="file" data-field="screenshots_files" accept="image/jpeg,image/png,image/webp" multiple></div>
                     <div class="field"><label>Estilo de la vista previa</label><input type="text" data-field="preview" value="default"></div>
                     <div class="field"><label>Etiqueta de la vista previa</label><input type="text" data-field="preview_label"></div>
                     <div class="field"><label>Título de la vista previa</label><input type="text" data-field="preview_title"></div>
