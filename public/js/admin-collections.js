@@ -156,6 +156,7 @@ document.addEventListener('click', function (event) {
         bindPreviewInput(collection);
         syncHeroMediaFields(collection);
         syncApplicationFields(collection);
+        if (typeof window.initAdminIconPicker === 'function') window.initAdminIconPicker(collection);
         updateNewsCollectionCounts();
     }
 });
