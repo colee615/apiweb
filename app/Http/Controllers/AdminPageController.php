@@ -570,6 +570,7 @@ class AdminPageController extends Controller
             $rules['applications.items.*.app_version'] = ['nullable', 'string', 'max:40'];
             $rules['applications.items.*.android_requirement'] = ['nullable', 'string', 'max:100'];
             $rules['applications.items.*.screenshots_text'] = ['nullable', 'string', 'max:12000'];
+            $rules['applications.items.*.screenshots_order'] = ['nullable', 'string', 'max:12000'];
             $rules['applications.items.*.screenshots_files'] = ['nullable', 'array', 'max:10'];
             $rules['applications.items.*.screenshots_files.*'] = ['file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'];
             $rules['applications_highlights.items'] = ['nullable', 'array'];
@@ -1636,20 +1637,42 @@ class AdminPageController extends Controller
                     ? $downloadFile->getClientOriginalName()
                     : ($item['download_name'] ?? '');
                 $image = $this->storeRepeaterImage($item, 'image_file', 'image', 'cms/applications');
-                $screenshots = collect(preg_split('/\r\n|\r|\n/', (string) ($item['screenshots_text'] ?? '')))
+                $existingScreenshots = collect(preg_split('/\r\n|\r|\n/', (string) ($item['screenshots_text'] ?? '')))
                     ->map(fn ($url) => ContentSecurity::sanitizeAssetUrl(trim($url)))
-                    ->filter()
-                    ->merge(collect($item['screenshots_files'] ?? [])->filter(fn ($file) => $file instanceof \Illuminate\Http\UploadedFile)->map(function ($file) {
+                    ->values();
+                $uploadedScreenshots = collect($item['screenshots_files'] ?? [])
+                    ->filter(fn ($file) => $file instanceof \Illuminate\Http\UploadedFile)
+                    ->values()
+                    ->map(function ($file) {
                         $path = $file->store('cms/applications/screenshots', 'public');
 
                         return $this->normalizeAssetUrl(Storage::disk('public')->url($path));
-                    }))
-                    ->filter()
-                    ->unique()
+                    })
                     ->values();
+                $screenshotOrder = json_decode((string) ($item['screenshots_order'] ?? ''), true);
 
-                if ($image) {
-                    $screenshots->prepend($image);
+                if (is_array($screenshotOrder)) {
+                    $screenshots = collect($screenshotOrder)
+                        ->map(function ($reference) use ($existingScreenshots, $uploadedScreenshots) {
+                            if (! is_string($reference) || ! preg_match('/^(url|file):(\d+)$/', $reference, $matches)) {
+                                return null;
+                            }
+
+                            $index = (int) $matches[2];
+
+                            return $matches[1] === 'url'
+                                ? ($existingScreenshots[$index] ?? null)
+                                : ($uploadedScreenshots[$index] ?? null);
+                        })
+                        ->filter()
+                        ->unique()
+                        ->values();
+                } else {
+                    $screenshots = $existingScreenshots
+                        ->merge($uploadedScreenshots)
+                        ->filter()
+                        ->unique()
+                        ->values();
                 }
 
                 return [

@@ -81,7 +81,13 @@
                         <div data-rows>
                             @foreach (old('applications.items', $applications['items'] ?? []) as $item)
                                 @php($resourceType = ($item['resource_type'] ?? 'web') === 'app' ? 'app' : 'web')
-                                @php($extraScreenshots = array_slice(is_array($item['screenshots'] ?? null) ? $item['screenshots'] : [], 1))
+                                @php
+                                    $primaryImage = trim((string) ($item['image'] ?? ''));
+                                    $extraScreenshots = array_values(array_filter(
+                                        is_array($item['screenshots'] ?? null) ? $item['screenshots'] : [],
+                                        fn ($screenshot) => trim((string) $screenshot) !== '' && trim((string) $screenshot) !== $primaryImage
+                                    ));
+                                @endphp
                                 <div class="repeater-card" data-row>
                                     <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['name'] ?? 'Aplicación' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
                                     <div class="grid grid-3" style="margin-top:12px;">
@@ -108,8 +114,34 @@
                                         <div class="field" data-application-app-field data-application-apk-field><label>Requisito de Android</label><input type="text" data-field="android_requirement" value="{{ old('applications.items.'.$loop->index.'.android_requirement', $item['android_requirement'] ?? '') }}" placeholder="Ej. Android 8.0 o superior"></div>
                                         <div class="field"><label>Imagen actual</label><input type="text" data-field="image" value="{{ $item['image'] ?? '' }}"></div>
                                         <div class="field"><label>Subir captura o imagen</label><input type="file" data-field="image_file" accept="image/*"></div>
-                                        <div class="field" style="grid-column:1/-1;" data-application-app-field><label>Enlaces de capturas adicionales</label><textarea class="field-small" data-field="screenshots_text" placeholder="Un enlace de imagen por línea">{{ old('applications.items.'.$loop->index.'.screenshots_text', implode("\n", $extraScreenshots)) }}</textarea><small>La imagen principal se incluye automáticamente. Puedes agregar o quitar capturas enlazadas aquí.</small></div>
-                                        <div class="field" data-application-app-field><label>Subir capturas para la vista previa</label><input type="file" data-field="screenshots_files" accept="image/jpeg,image/png,image/webp" multiple></div>
+                                        <div class="field cb-screenshot-manager" style="grid-column:1/-1;" data-application-app-field data-screenshot-manager>
+                                            <label>Capturas de la vista previa</label>
+                                            <p class="field-help">Arrastra las capturas para ordenarlas, usa las flechas o quita las que ya no quieras. La portada de la tarjeta no se incluye.</p>
+                                            <input type="hidden" data-field="screenshots_text" value="">
+                                            <input type="hidden" data-field="screenshots_order" value="[]">
+                                            <div class="cb-screenshot-list" data-screenshot-list>
+                                                @foreach ($extraScreenshots as $screenshot)
+                                                    <figure class="cb-screenshot-item" data-screenshot-entry data-screenshot-kind="url" data-screenshot-url="{{ $screenshot }}">
+                                                        <div class="cb-screenshot-thumb"><img src="{{ $screenshot }}" alt="Captura {{ $loop->iteration }}" loading="lazy"></div>
+                                                        <figcaption class="cb-screenshot-caption">
+                                                            <span>Captura {{ $loop->iteration }}</span>
+                                                            <div class="cb-screenshot-actions">
+                                                                <button type="button" data-screenshot-drag aria-label="Arrastrar captura {{ $loop->iteration }}" title="Arrastrar para ordenar">⠿</button>
+                                                                <button type="button" data-screenshot-action="up" aria-label="Mover captura {{ $loop->iteration }} arriba" title="Mover arriba" {{ $loop->first ? 'disabled' : '' }}>↑</button>
+                                                                <button type="button" data-screenshot-action="down" aria-label="Mover captura {{ $loop->iteration }} abajo" title="Mover abajo" {{ $loop->last ? 'disabled' : '' }}>↓</button>
+                                                                <button type="button" class="is-remove" data-screenshot-action="remove" aria-label="Quitar captura {{ $loop->iteration }}" title="Quitar">×</button>
+                                                            </div>
+                                                        </figcaption>
+                                                    </figure>
+                                                @endforeach
+                                            </div>
+                                            <p class="cb-screenshot-empty" data-screenshot-empty {{ count($extraScreenshots) ? 'hidden' : '' }}>Todavía no hay capturas. Sube imágenes para agregarlas a la vista previa.</p>
+                                            <div class="cb-screenshot-upload">
+                                                <label>Agregar capturas</label>
+                                                <input type="file" data-field="screenshots_files" accept="image/jpeg,image/png,image/webp" multiple>
+                                                <small>JPG, PNG o WebP. Puedes agregar varias y ordenarlas antes de guardar.</small>
+                                            </div>
+                                        </div>
                                         <div class="field"><label>Estilo de la vista previa</label><input type="text" data-field="preview" value="{{ $item['preview'] ?? 'default' }}" placeholder="tracking, ems, default..."></div>
                                         <div class="field"><label>Etiqueta de la vista previa</label><input type="text" data-field="preview_label" value="{{ $item['preview_label'] ?? ($item['name'] ?? '') }}"></div>
                                         <div class="field"><label>Título de la vista previa</label><input type="text" data-field="preview_title" value="{{ $item['preview_title'] ?? ($item['name'] ?? '') }}"></div>
@@ -231,8 +263,19 @@
                     <div class="field" data-application-app-field data-application-apk-field><label>Requisito de Android</label><input type="text" data-field="android_requirement" placeholder="Ej. Android 8.0 o superior"></div>
                     <div class="field"><label>Imagen actual</label><input type="text" data-field="image"></div>
                     <div class="field"><label>Subir captura</label><input type="file" data-field="image_file" accept="image/*"></div>
-                    <div class="field" style="grid-column:1/-1;" data-application-app-field><label>Enlaces de capturas adicionales</label><textarea class="field-small" data-field="screenshots_text" placeholder="Un enlace de imagen por línea"></textarea><small>La imagen principal se incluye automáticamente. Puedes agregar o quitar capturas enlazadas aquí.</small></div>
-                    <div class="field" data-application-app-field><label>Subir capturas para la vista previa</label><input type="file" data-field="screenshots_files" accept="image/jpeg,image/png,image/webp" multiple></div>
+                    <div class="field cb-screenshot-manager" style="grid-column:1/-1;" data-application-app-field data-screenshot-manager>
+                        <label>Capturas de la vista previa</label>
+                        <p class="field-help">Arrastra las capturas para ordenarlas, usa las flechas o quita las que ya no quieras. La portada de la tarjeta no se incluye.</p>
+                        <input type="hidden" data-field="screenshots_text" value="">
+                        <input type="hidden" data-field="screenshots_order" value="[]">
+                        <div class="cb-screenshot-list" data-screenshot-list></div>
+                        <p class="cb-screenshot-empty" data-screenshot-empty>Todavía no hay capturas. Sube imágenes para agregarlas a la vista previa.</p>
+                        <div class="cb-screenshot-upload">
+                            <label>Agregar capturas</label>
+                            <input type="file" data-field="screenshots_files" accept="image/jpeg,image/png,image/webp" multiple>
+                            <small>JPG, PNG o WebP. Puedes agregar varias y ordenarlas antes de guardar.</small>
+                        </div>
+                    </div>
                     <div class="field"><label>Estilo de la vista previa</label><input type="text" data-field="preview" value="default"></div>
                     <div class="field"><label>Etiqueta de la vista previa</label><input type="text" data-field="preview_label"></div>
                     <div class="field"><label>Título de la vista previa</label><input type="text" data-field="preview_title"></div>

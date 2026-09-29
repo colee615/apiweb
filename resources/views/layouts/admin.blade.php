@@ -18,7 +18,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/admin.css') }}?v=3">
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}?v=4">
 </head>
 <body data-admin-page="{{ $page->slug ?? '' }}">
 <a class="skip-link" href="{{ request()->routeIs('admin.login*') ? '#login-content' : '#main-content' }}">Saltar al contenido</a>
@@ -98,7 +98,7 @@
 
     @if ((request()->routeIs('admin.pages.edit') && !$isHistoryMode) || request()->routeIs('admin.global.edit'))
         @include('admin.pages.partials.collections')
-        <script src="{{ asset('js/admin-collections.js') }}?v=5" defer></script>
+        <script src="{{ asset('js/admin-collections.js') }}?v=6" defer></script>
         <script src="{{ asset('js/admin-media.js') }}?v=2" defer></script>
         <script src="{{ asset('js/admin-icon-catalog.js') }}?v=1" defer></script>
         <script src="{{ asset('js/admin-icon-picker.js') }}?v=1" defer></script>

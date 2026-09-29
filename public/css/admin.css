@@ -777,6 +777,26 @@ button:focus-visible,a:focus-visible,summary:focus-visible {
     color: var(--muted);
     margin-top: 7px;
 }
+.cb-screenshot-manager { display: grid; gap: 12px; }
+.cb-screenshot-manager > label,
+.cb-screenshot-upload > label { display: block; margin: 0; color: var(--text); font-size: 13px; font-weight: 700; }
+.cb-screenshot-manager > .field-help { margin: -5px 0 0; }
+.cb-screenshot-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.cb-screenshot-item { min-width: 0; margin: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: #fff; box-shadow: 0 5px 16px rgba(16, 37, 66, .06); }
+.cb-screenshot-thumb { display: grid; height: 220px; place-items: center; overflow: hidden; background: linear-gradient(145deg, #eef3fa, #f9fbfe); }
+.cb-screenshot-thumb img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.cb-screenshot-item.is-unavailable .cb-screenshot-thumb::after { content: 'No se pudo cargar la imagen'; padding: 12px; color: var(--muted); font-size: 12px; text-align: center; }
+.cb-screenshot-item.is-unavailable .cb-screenshot-thumb img { display: none; }
+.cb-screenshot-caption { display: flex; min-height: 46px; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 9px; border-top: 1px solid var(--line); }
+.cb-screenshot-name { min-width: 0; overflow: hidden; color: var(--text); font-size: 11px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.cb-screenshot-actions { display: flex; flex: 0 0 auto; gap: 3px; }
+.cb-screenshot-actions button { display: grid; width: 26px; height: 28px; place-items: center; border: 1px solid var(--line); border-radius: 7px; background: #fff; color: var(--primary); font: inherit; font-size: 15px; font-weight: 800; cursor: pointer; }
+.cb-screenshot-actions button[data-screenshot-drag] { cursor: grab; }
+.cb-screenshot-actions button.is-remove { color: #bd3c3c; }
+.cb-screenshot-actions button:disabled { opacity: .35; cursor: not-allowed; }
+.cb-screenshot-empty { margin: 0; padding: 14px; border: 1px dashed var(--line-strong); border-radius: 12px; color: var(--muted); font-size: 12px; }
+.cb-screenshot-upload { display: grid; max-width: 380px; gap: 5px; }
+.cb-screenshot-upload small { color: var(--muted); font-size: 12px; line-height: 1.5; }
 .field-help strong {
     color: var(--accent);
 }
