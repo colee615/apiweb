@@ -379,7 +379,7 @@ class AdminPageController extends Controller
             'app_banner.items.*.image_file.max' => 'Cada imagen del banner debe pesar como maximo 15 MB.',
             'applications.background_file.max' => 'La imagen de fondo de aplicaciones debe pesar como maximo 15 MB.',
             'applications.items.*.image_file.max' => 'La imagen de una aplicacion debe pesar como maximo 15 MB.',
-            'applications.items.*.download_file.max' => 'El instalador de una aplicacion debe pesar como maximo 35 MB.',
+            'applications.items.*.download_file.max' => 'El instalador de una aplicacion debe pesar como maximo 180 MB.',
             'applications.items.*.download_file.extensions' => 'El instalador debe ser un archivo APK, AAB o ZIP.',
             'tramites.items.*.file.max' => 'El archivo del trámite debe pesar como máximo 15 MB.',
             'tramites.items.*.files.*.max' => 'Cada archivo de Información Postal debe pesar como máximo 15 MB.',
@@ -565,7 +565,7 @@ class AdminPageController extends Controller
             $rules['applications.items.*.play_store_url'] = ['nullable', 'string', 'max:2048'];
             $rules['applications.items.*.download_url'] = ['nullable', 'string', 'max:2048'];
             $rules['applications.items.*.download_name'] = ['nullable', 'string', 'max:255'];
-            $rules['applications.items.*.download_file'] = ['nullable', 'file', 'extensions:apk,aab,zip', 'max:35840'];
+            $rules['applications.items.*.download_file'] = ['nullable', 'file', 'extensions:apk,aab,zip', 'max:184320'];
             $rules['applications.items.*.image_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'];
             $rules['applications.items.*.app_version'] = ['nullable', 'string', 'max:40'];
             $rules['applications.items.*.android_requirement'] = ['nullable', 'string', 'max:100'];
