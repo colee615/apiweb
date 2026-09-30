@@ -4,6 +4,11 @@
     $featuredStory = $editorData['featured_story'];
     $importantNotices = $editorData['important_notices'];
     $categoryFilters = $editorData['category_filters'];
+    $newsCategoryLabels = collect($categoryFilters['items'] ?? [])
+        ->map(fn ($filter) => trim((string) ($filter['label'] ?? '')))
+        ->filter()
+        ->unique()
+        ->values();
     $newsGrid = $editorData['news_grid'];
     $newsletter = $editorData['newsletter'];
     $pagination = $editorData['pagination'];
@@ -88,7 +93,11 @@
                                         <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Destacado' }}</strong></div><div class="actions"><button type="button" class="button button-secondary" data-news-move="recent">Pasar a recientes</button><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div></div>
                                         <div class="grid grid-3" style="margin-top:12px;">
                                             <div class="field"><label>Etiqueta destacada</label><input type="text" data-field="badge" value="{{ $item['badge'] ?? '' }}"></div>
-                                            <div class="field"><label>Categoria</label><input type="text" data-field="category" value="{{ $item['category'] ?? '' }}"></div>
+                                            @php
+                                                $itemCategory = trim((string) ($item['category'] ?? ''));
+                                                $itemCategoryMatch = $newsCategoryLabels->first(fn ($categoryLabel) => strcasecmp($categoryLabel, $itemCategory) === 0);
+                                            @endphp
+                                            <div class="field"><label>Categoria</label><select data-field="category" data-news-category><option value="">Selecciona una categoria</option>@foreach ($newsCategoryLabels as $categoryLabel)<option value="{{ $categoryLabel }}" {{ $itemCategoryMatch === $categoryLabel ? 'selected' : '' }}>{{ $categoryLabel }}</option>@endforeach @if ($itemCategory !== '' && $itemCategoryMatch === null)<option value="{{ $itemCategory }}" selected>{{ $itemCategory }} (sin filtro)</option>@endif</select></div>
                                             <div class="field"><label>Enlace noticia</label><input type="text" data-field="article_url" value="{{ $item['article_url'] ?? '' }}"></div>
                                             <div class="field"><label>Slug detalle</label><input type="text" data-field="slug" value="{{ $item['slug'] ?? '' }}" placeholder="mi-noticia"></div>
                                             <div class="field"><label>Fecha</label><input type="text" data-field="date" value="{{ $item['date'] ?? '' }}" placeholder="septiembre 11, 2026"></div>
@@ -208,7 +217,11 @@
                                         <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Noticia' }}</strong></div><div class="actions"><button type="button" class="button button-secondary" data-news-move="featured">Destacar noticia</button><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div></div>
                                         <div class="grid grid-3" style="margin-top:12px;">
                                             <div class="field"><label>Fecha</label><input type="text" data-field="date" value="{{ $item['date'] ?? '' }}"></div>
-                                            <div class="field"><label>Categoria</label><input type="text" data-field="category" value="{{ $item['category'] ?? '' }}"></div>
+                                            @php
+                                                $itemCategory = trim((string) ($item['category'] ?? ''));
+                                                $itemCategoryMatch = $newsCategoryLabels->first(fn ($categoryLabel) => strcasecmp($categoryLabel, $itemCategory) === 0);
+                                            @endphp
+                                            <div class="field"><label>Categoria</label><select data-field="category" data-news-category><option value="">Selecciona una categoria</option>@foreach ($newsCategoryLabels as $categoryLabel)<option value="{{ $categoryLabel }}" {{ $itemCategoryMatch === $categoryLabel ? 'selected' : '' }}>{{ $categoryLabel }}</option>@endforeach @if ($itemCategory !== '' && $itemCategoryMatch === null)<option value="{{ $itemCategory }}" selected>{{ $itemCategory }} (sin filtro)</option>@endif</select></div>
                                             <div class="field"><label>Enlace noticia</label><input type="text" data-field="article_url" value="{{ $item['article_url'] ?? '' }}"></div>
                                             <div class="field"><label>Slug detalle</label><input type="text" data-field="slug" value="{{ $item['slug'] ?? '' }}" placeholder="mi-noticia"></div>
                                             <div class="field"><label>Ubicacion</label><input type="text" data-field="location" value="{{ $item['location'] ?? '' }}" placeholder="La Paz"></div>
@@ -289,7 +302,7 @@
         <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Destacado</strong></div><div class="actions"><button type="button" class="button button-secondary" data-news-move="recent">Pasar a recientes</button><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div></div>
         <div class="grid grid-3" style="margin-top:12px;">
             <div class="field"><label>Etiqueta destacada</label><input type="text" data-field="badge"></div>
-            <div class="field"><label>Categoria</label><input type="text" data-field="category"></div>
+            <div class="field"><label>Categoria</label><select data-field="category" data-news-category><option value="">Selecciona una categoria</option>@foreach ($newsCategoryLabels as $categoryLabel)<option value="{{ $categoryLabel }}">{{ $categoryLabel }}</option>@endforeach</select></div>
             <div class="field"><label>Enlace noticia</label><input type="text" data-field="article_url"></div>
             <div class="field"><label>Slug detalle</label><input type="text" data-field="slug" placeholder="mi-noticia"></div>
             <div class="field"><label>Fecha</label><input type="text" data-field="date" placeholder="septiembre 11, 2026"></div>
@@ -354,7 +367,7 @@
         <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Noticia</strong></div><div class="actions"><button type="button" class="button button-secondary" data-news-move="featured">Destacar noticia</button><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div></div>
         <div class="grid grid-3" style="margin-top:12px;">
             <div class="field"><label>Fecha</label><input type="text" data-field="date"></div>
-            <div class="field"><label>Categoria</label><input type="text" data-field="category"></div>
+            <div class="field"><label>Categoria</label><select data-field="category" data-news-category><option value="">Selecciona una categoria</option>@foreach ($newsCategoryLabels as $categoryLabel)<option value="{{ $categoryLabel }}">{{ $categoryLabel }}</option>@endforeach</select></div>
             <div class="field"><label>Enlace noticia</label><input type="text" data-field="article_url"></div>
             <div class="field"><label>Slug detalle</label><input type="text" data-field="slug" placeholder="mi-noticia"></div>
             <div class="field"><label>Ubicacion</label><input type="text" data-field="location" placeholder="La Paz"></div>

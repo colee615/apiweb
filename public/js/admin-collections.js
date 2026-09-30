@@ -95,6 +95,28 @@ function syncApplicationFields(root = document) {
     });
 }
 
+function syncApplicationCategoryOptions() {
+    const collection = document.querySelector('[data-collection][data-base="applications[items]"]');
+    const list = document.getElementById('application-category-options');
+    if (!collection || !list) return;
+
+    const seen = new Set();
+    const categories = [];
+    collection.querySelectorAll('[data-field="category"]').forEach(function (field) {
+        const label = field.value.trim();
+        const key = label.toLocaleLowerCase();
+        if (!label || seen.has(key)) return;
+        seen.add(key);
+        categories.push(label);
+    });
+
+    list.replaceChildren(...categories.map(function (label) {
+        const option = document.createElement('option');
+        option.value = label;
+        return option;
+    }));
+}
+
 function syncApplicationApkFields(root = document) {
     root.querySelectorAll('[data-application-apk-field]').forEach(function (field) {
         const row = field.closest('[data-row]');
@@ -267,6 +289,73 @@ function updateNewsCollectionCounts() {
     });
 }
 
+function syncNewsCategoryOptions() {
+    const filterCollection = document.querySelector('[data-collection][data-base="category_filters[items]"]');
+    if (!filterCollection) return;
+
+    const choices = [];
+    const seen = new Set();
+    filterCollection.querySelectorAll('[data-row]').forEach(function (row) {
+        const labelField = row.querySelector('[data-field="label"]');
+        const label = labelField && labelField.value.trim();
+        const categoryKey = label && label.toLocaleLowerCase();
+        if (!label || seen.has(categoryKey)) return;
+        seen.add(categoryKey);
+
+        const activeField = row.querySelector('[data-field="is_active"]');
+        choices.push({
+            value: label,
+            label: activeField && !activeField.checked ? `${label} (inactivo)` : label
+        });
+    });
+
+    document.querySelectorAll('[data-news-category]').forEach(function (select) {
+        const selectedValue = select.value;
+        const matchingChoice = choices.find(choice => choice.value.toLocaleLowerCase() === selectedValue.toLocaleLowerCase());
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = 'Selecciona una categoria';
+        select.replaceChildren(placeholder);
+
+        choices.forEach(function (choice) {
+            const option = document.createElement('option');
+            option.value = choice.value;
+            option.textContent = choice.label;
+            select.appendChild(option);
+        });
+
+        if (selectedValue && !matchingChoice) {
+            const legacyOption = document.createElement('option');
+            legacyOption.value = selectedValue;
+            legacyOption.textContent = `${selectedValue} (sin filtro)`;
+            select.appendChild(legacyOption);
+        }
+
+        const valueToSelect = matchingChoice ? matchingChoice.value : selectedValue;
+        select.value = valueToSelect && [...select.options].some(option => option.value === valueToSelect)
+            ? valueToSelect
+            : '';
+    });
+}
+
+document.addEventListener('input', function (event) {
+    if (event.target.closest('[data-collection][data-base="category_filters[items]"]')) {
+        syncNewsCategoryOptions();
+    }
+    if (event.target.matches('[data-field="category"]') && event.target.closest('[data-collection][data-base="applications[items]"]')) {
+        syncApplicationCategoryOptions();
+    }
+});
+
+document.addEventListener('change', function (event) {
+    if (event.target.closest('[data-collection][data-base="category_filters[items]"]')) {
+        syncNewsCategoryOptions();
+    }
+    if (event.target.matches('[data-field="category"]') && event.target.closest('[data-collection][data-base="applications[items]"]')) {
+        syncApplicationCategoryOptions();
+    }
+});
+
 document.addEventListener('click', function (event) {
     const screenshotAction = event.target.closest('[data-screenshot-action]');
     if (screenshotAction) {
@@ -297,6 +386,8 @@ document.addEventListener('click', function (event) {
         event.target.closest('[data-row]').remove();
         reindexCollection(collection);
         updateNewsCollectionCounts();
+        syncNewsCategoryOptions();
+        syncApplicationCategoryOptions();
     }
 
     if (event.target.matches('[data-add-row]')) {
@@ -320,6 +411,8 @@ document.addEventListener('click', function (event) {
         syncApplicationFields(collection);
         if (typeof window.initAdminIconPicker === 'function') window.initAdminIconPicker(collection);
         updateNewsCollectionCounts();
+        syncNewsCategoryOptions();
+        syncApplicationCategoryOptions();
     }
 });
 
@@ -385,6 +478,8 @@ bindScreenshotManagers(document);
 syncHeroMediaFields(document);
 syncApplicationFields(document);
 syncApplicationApkFields(document);
+syncNewsCategoryOptions();
+syncApplicationCategoryOptions();
 document.querySelectorAll('[data-preview-image][src]').forEach(function (img) {
     if (img.dataset.noInlinePreview === '1') return;
     if (img.getAttribute('src')) img.style.display = 'block';

@@ -6,6 +6,11 @@
     $headerSettings = $header['settings'] ?? [];
     $applications = $editorData['applications'] ?? [];
     $applicationSettings = $applications['settings'] ?? [];
+    $applicationCategoryLabels = collect(old('applications.items', $applications['items'] ?? []))
+        ->map(fn ($item) => trim((string) ($item['category'] ?? '')))
+        ->filter()
+        ->unique()
+        ->values();
     $highlights = $editorData['applications_highlights']['items'] ?? [];
     $footer = $editorData['footer'] ?? [];
     $footerSettings = $footer['settings'] ?? [];
@@ -30,6 +35,11 @@
     <form id="page-edit-form" method="POST" action="{{ route('admin.pages.update', $page) }}" class="stack" data-editor-form enctype="multipart/form-data">
             @csrf
             @method('PUT')
+            <datalist id="application-category-options">
+                @foreach ($applicationCategoryLabels as $categoryLabel)
+                    <option value="{{ $categoryLabel }}"></option>
+                @endforeach
+            </datalist>
 
             <section class="section-card">
                 <div class="section-header">
@@ -80,8 +90,8 @@
                     <div class="stack" data-collection data-base="applications[items]" data-template="application-template">
                         <div data-rows>
                             @foreach (old('applications.items', $applications['items'] ?? []) as $item)
-                                @php($resourceType = ($item['resource_type'] ?? 'web') === 'app' ? 'app' : 'web')
                                 @php
+                                    $resourceType = ($item['resource_type'] ?? 'web') === 'app' ? 'app' : 'web';
                                     $primaryImage = trim((string) ($item['image'] ?? ''));
                                     $extraScreenshots = array_values(array_filter(
                                         is_array($item['screenshots'] ?? null) ? $item['screenshots'] : [],
@@ -99,7 +109,7 @@
                                                 <option value="app" {{ $resourceType === 'app' ? 'selected' : '' }}>Aplicativo</option>
                                             </select>
                                         </div>
-                                        <div class="field"><label>Categoría</label><input type="text" data-field="category" value="{{ $item['category'] ?? 'Otros' }}"></div>
+                                        <div class="field"><label>Categoría</label><input type="text" data-field="category" list="application-category-options" value="{{ $item['category'] ?? 'Otros' }}" placeholder="Ej. Operativos, Comerciales..."></div>
                                         <div class="field" style="grid-column:1/-1;"><label>Descripción</label><textarea class="field-small" data-field="description">{{ $item['description'] ?? '' }}</textarea></div>
                                         <div class="field"><label>Ícono</label><input type="text" data-field="icon" value="{{ $item['icon'] ?? 'grid' }}" placeholder="package, document, users..."></div>
                                         <div class="field"><label>Color</label><input type="text" data-field="color" value="{{ $item['color'] ?? '#20539a' }}" placeholder="#20539a"></div>
@@ -248,7 +258,7 @@
                 <div class="grid grid-3" style="margin-top:12px;">
                     <div class="field"><label>Nombre</label><input type="text" data-field="name"></div>
                     <div class="field"><label>Tipo de acceso</label><select data-field="resource_type" data-application-type><option value="web" selected>Sitio web</option><option value="app">Aplicativo</option></select></div>
-                    <div class="field"><label>Categoría</label><input type="text" data-field="category" value="Otros"></div>
+                    <div class="field"><label>Categoría</label><input type="text" data-field="category" list="application-category-options" value="Otros" placeholder="Ej. Operativos, Comerciales..."></div>
                     <div class="field" style="grid-column:1/-1;"><label>Descripción</label><textarea class="field-small" data-field="description"></textarea></div>
                     <div class="field"><label>Ícono</label><input type="text" data-field="icon" value="grid"></div>
                     <div class="field"><label>Color</label><input type="text" data-field="color" value="#20539a"></div>
