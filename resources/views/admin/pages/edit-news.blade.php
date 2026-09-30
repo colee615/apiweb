@@ -206,6 +206,9 @@
                             <div class="field"><label>Título de seccion</label><input type="text" name="news_grid[title]" value="{{ old('news_grid.title', $newsGrid['settings']['title'] ?? '') }}"></div>
                             <div class="field"><label>Subtitulo</label><input type="text" name="news_grid[subtitle]" value="{{ old('news_grid.subtitle', $newsGrid['settings']['subtitle'] ?? '') }}"></div>
                             <div class="field"><label>Texto botón</label><input type="text" name="news_grid[cta_label]" value="{{ old('news_grid.cta_label', $newsGrid['settings']['cta_label'] ?? 'Leer mas') }}"></div>
+                            <div class="field"><label>Etiqueta superior</label><input type="text" name="news_grid[eyebrow]" value="{{ old('news_grid.eyebrow', $newsGrid['settings']['eyebrow'] ?? '') }}" maxlength="40"></div>
+                            <div class="field"><label>Texto del enlace a todas las noticias</label><input type="text" name="news_grid[view_all_label]" value="{{ old('news_grid.view_all_label', $newsGrid['settings']['view_all_label'] ?? '') }}" maxlength="80"></div>
+                            <div class="field"><label>Enlace a todas las noticias</label><input type="text" name="news_grid[view_all_url]" value="{{ old('news_grid.view_all_url', $newsGrid['settings']['view_all_url'] ?? '') }}" maxlength="2048" placeholder="/noticias"></div>
                         </div>
                     </div>
                     <div class="subpanel">

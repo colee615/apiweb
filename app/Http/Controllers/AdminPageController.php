@@ -472,6 +472,9 @@ class AdminPageController extends Controller
             'featured_story.items.*.poster_file' => 'portada del video destacado',
             'news_grid.items.*.media_file' => 'archivo de una noticia',
             'news_grid.items.*.poster_file' => 'portada del video de una noticia',
+            'news_grid.eyebrow' => 'etiqueta superior de noticias',
+            'news_grid.view_all_label' => 'texto del enlace a todas las noticias',
+            'news_grid.view_all_url' => 'enlace a todas las noticias',
             'footer.seal_logo_file' => 'logo inferior del footer',
             'header.news_ticker_label' => 'etiqueta de novedades',
             'header.ticker_items.*.label' => 'titular de novedad',
@@ -540,6 +543,9 @@ class AdminPageController extends Controller
         }
 
         if ($this->isNewsPage($page)) {
+            $rules['news_grid.eyebrow'] = ['nullable', 'string', 'max:40'];
+            $rules['news_grid.view_all_label'] = ['nullable', 'string', 'max:80'];
+            $rules['news_grid.view_all_url'] = ['nullable', 'string', 'max:2048'];
             $rules['featured_story.items.*.media_type'] = ['nullable', 'string', Rule::in(['image', 'video'])];
             $rules['featured_story.items.*.media_file'] = ['nullable', 'file', 'mimetypes:image/jpeg,image/png,image/webp,image/svg+xml,video/mp4,video/webm', 'max:15360'];
             $rules['featured_story.items.*.poster_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'];
@@ -1080,6 +1086,9 @@ class AdminPageController extends Controller
                     'title' => '',
                     'subtitle' => '',
                     'cta_label' => 'Leer mas',
+                    'eyebrow' => '',
+                    'view_all_label' => '',
+                    'view_all_url' => '',
                 ]),
                 'items' => $this->sectionItems($page, 'news_grid'),
             ],
@@ -2791,6 +2800,9 @@ class AdminPageController extends Controller
                 'title' => $request->input('news_grid.title'),
                 'subtitle' => $request->input('news_grid.subtitle'),
                 'cta_label' => $request->input('news_grid.cta_label'),
+                'eyebrow' => $request->input('news_grid.eyebrow'),
+                'view_all_label' => $request->input('news_grid.view_all_label'),
+                'view_all_url' => ContentSecurity::sanitizeLinkUrl($request->input('news_grid.view_all_url')) ?? '',
             ], $this->mapRepeaterItems(data_get($form, 'news_grid.items', []), 'news_card', function ($item) {
                 $mediaType = ($item['media_type'] ?? '') === 'video' ? 'video' : 'image';
                 $mediaUrl = $this->storeRepeaterAsset($item, 'media_file', 'media_url', 'cms/news/cards');
