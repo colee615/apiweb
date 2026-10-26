@@ -82,6 +82,7 @@ class AdminPageController extends Controller
             'theme.accent_color' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'],
             'announcement_modal.items' => ['nullable', 'array'],
             'announcement_modal.items.*.poster_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'],
+            'announcement_modal.items.*.item_active' => ['nullable', 'boolean'],
             'header.ticker_items' => ['nullable', 'array'],
             'header.links' => ['nullable', 'array'],
             'footer.help_links' => ['nullable', 'array'],
@@ -125,7 +126,7 @@ class AdminPageController extends Controller
                 'poster_title' => $item['poster_title'] ?? '',
                 'poster_caption' => $item['poster_caption'] ?? '',
             ];
-        });
+        }, true);
         $announcementSettings = [
             'enabled' => $request->boolean('announcement_modal.enabled'),
             'show_once' => $request->boolean('announcement_modal.show_once'),
@@ -496,6 +497,7 @@ class AdminPageController extends Controller
             'theme.logo_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'announcement_modal.poster_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'],
             'announcement_modal.items.*.poster_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'],
+            'announcement_modal.items.*.item_active' => ['nullable', 'boolean'],
             'app_banner.background_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'],
             'app_banner.items.*.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'],
             'app_banner.items.*.duration_seconds' => ['nullable', 'integer', 'min:1', 'max:300'],
@@ -546,9 +548,12 @@ class AdminPageController extends Controller
             $rules['news_grid.eyebrow'] = ['nullable', 'string', 'max:40'];
             $rules['news_grid.view_all_label'] = ['nullable', 'string', 'max:80'];
             $rules['news_grid.view_all_url'] = ['nullable', 'string', 'max:2048'];
+            $rules['featured_story.items.*.item_active'] = ['nullable', 'boolean'];
+            $rules['important_notices.items.*.item_active'] = ['nullable', 'boolean'];
             $rules['featured_story.items.*.media_type'] = ['nullable', 'string', Rule::in(['image', 'video'])];
             $rules['featured_story.items.*.media_file'] = ['nullable', 'file', 'mimetypes:image/jpeg,image/png,image/webp,image/svg+xml,video/mp4,video/webm', 'max:15360'];
             $rules['featured_story.items.*.poster_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'];
+            $rules['news_grid.items.*.item_active'] = ['nullable', 'boolean'];
             $rules['news_grid.items.*.media_type'] = ['nullable', 'string', Rule::in(['image', 'video'])];
             $rules['news_grid.items.*.media_file'] = ['nullable', 'file', 'mimetypes:image/jpeg,image/png,image/webp,image/svg+xml,video/mp4,video/webm', 'max:15360'];
             $rules['news_grid.items.*.poster_file'] = ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:15360'];
@@ -1846,7 +1851,7 @@ class AdminPageController extends Controller
                 'poster_title' => $item['poster_title'] ?? '',
                 'poster_caption' => $item['poster_caption'] ?? '',
             ];
-        });
+        }, true);
 
         $announcementSettings = [
             'enabled' => $request->boolean('announcement_modal.enabled'),
@@ -2770,7 +2775,7 @@ class AdminPageController extends Controller
                     'poster_image' => $this->storeRepeaterImage($item, 'poster_file', 'poster_image', 'cms/news/featured'),
                     'article_url' => ContentSecurity::sanitizeLinkUrl($item['article_url'] ?? '') ?? '',
                 ];
-            })),
+            }, true)),
 
             $this->makeSectionPayload($page, 'important_notices', 'Avisos importantes', 'important_notices', 1, [
                 'title' => $request->input('important_notices.title') ?: 'Avisos importantes',
@@ -2784,7 +2789,7 @@ class AdminPageController extends Controller
                     'tone' => $item['tone'] ?? 'info',
                     'url' => ContentSecurity::sanitizeLinkUrl($item['url'] ?? '') ?? '',
                 ];
-            })),
+            }, true)),
 
             $this->makeSectionPayload($page, 'category_filters', 'Filtros de categoria', 'category_filters', 2, [
                 'search_placeholder' => $request->input('category_filters.search_placeholder'),
@@ -2823,7 +2828,7 @@ class AdminPageController extends Controller
                     'poster_image' => $this->storeRepeaterImage($item, 'poster_file', 'poster_image', 'cms/news/cards'),
                     'article_url' => ContentSecurity::sanitizeLinkUrl($item['article_url'] ?? '') ?? '',
                 ];
-            })),
+            }, true)),
 
             $this->makeSectionPayload($page, 'newsletter', 'Boletin', 'newsletter', 4, [
                 'badge' => $request->input('newsletter.badge'),
@@ -2870,7 +2875,7 @@ class AdminPageController extends Controller
         ];
     }
 
-    protected function mapRepeaterItems(array $items, string $type, callable $dataMapper): array
+    protected function mapRepeaterItems(array $items, string $type, callable $dataMapper, bool $respectItemActive = false): array
     {
         return collect($items)
             ->filter(function ($item) {
@@ -2886,13 +2891,15 @@ class AdminPageController extends Controller
                     || (($item['iconImage_file'] ?? null) instanceof \Illuminate\Http\UploadedFile);
             })
             ->values()
-            ->map(function ($item, $index) use ($type, $dataMapper) {
+            ->map(function ($item, $index) use ($type, $dataMapper, $respectItemActive) {
                 return [
                     'id' => $item['id'] ?? null,
                     'name' => $item['title'] ?? $item['label'] ?? $item['name'] ?? null,
                     'type' => $type,
                     'sort_order' => $index,
-                    'is_active' => true,
+                    'is_active' => $respectItemActive
+                        ? filter_var($item['item_active'] ?? true, FILTER_VALIDATE_BOOLEAN)
+                        : true,
                     'data' => $dataMapper($item),
                 ];
             })
@@ -3067,6 +3074,7 @@ class AdminPageController extends Controller
                         'name' => $item->name,
                         'type' => $item->type,
                         'sort_order' => $item->sort_order,
+                        'item_active' => (bool) $item->is_active,
                     ]
                 ));
             })

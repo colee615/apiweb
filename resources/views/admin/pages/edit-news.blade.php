@@ -90,7 +90,7 @@
                             <div data-rows>
                                 @foreach ($featuredStory['items'] as $item)
                                     <div class="repeater-card" data-row>
-                                        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Destacado' }}</strong></div><div class="actions"><button type="button" class="button button-secondary" data-news-move="recent">Pasar a recientes</button><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div></div>
+                                        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Destacado' }}</strong></div><div class="actions"><button type="button" class="button button-secondary" data-news-move="recent">Pasar a recientes</button><div class="field" style="min-width:160px; margin:0;"><label>Estado de publicación</label><select data-field="item_active"><option value="1" {{ !empty($item['item_active']) ? 'selected' : '' }}>Activo</option><option value="0" {{ empty($item['item_active']) ? 'selected' : '' }}>Inactivo</option></select></div></div></div>
                                         <div class="grid grid-3" style="margin-top:12px;">
                                             <div class="field"><label>Etiqueta destacada</label><input type="text" data-field="badge" value="{{ $item['badge'] ?? '' }}"></div>
                                             @php
@@ -145,7 +145,7 @@
                             <div data-rows>
                                 @foreach ($importantNotices['items'] as $item)
                                     <div class="repeater-card" data-row>
-                                        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Aviso' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
+                                        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Aviso' }}</strong></div><div class="actions"><div class="field" style="min-width:160px; margin:0;"><label>Estado de publicación</label><select data-field="item_active"><option value="1" {{ !empty($item['item_active']) ? 'selected' : '' }}>Activo</option><option value="0" {{ empty($item['item_active']) ? 'selected' : '' }}>Inactivo</option></select></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div></div>
                                         <div class="grid grid-4" style="margin-top:12px;">
                                             <div class="field" style="grid-column:1 / span 2;"><label>Título</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
                                             <div class="field"><label>Fecha</label><input type="text" data-field="date" value="{{ $item['date'] ?? '' }}"></div>
@@ -217,7 +217,7 @@
                             <div data-rows>
                                 @foreach ($newsGrid['items'] as $item)
                                     <div class="repeater-card" data-row>
-                                        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Noticia' }}</strong></div><div class="actions"><button type="button" class="button button-secondary" data-news-move="featured">Destacar noticia</button><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div></div>
+                                        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Noticia' }}</strong></div><div class="actions"><button type="button" class="button button-secondary" data-news-move="featured">Destacar noticia</button><div class="field" style="min-width:160px; margin:0;"><label>Estado de publicación</label><select data-field="item_active"><option value="1" {{ !empty($item['item_active']) ? 'selected' : '' }}>Activo</option><option value="0" {{ empty($item['item_active']) ? 'selected' : '' }}>Inactivo</option></select></div></div></div>
                                         <div class="grid grid-3" style="margin-top:12px;">
                                             <div class="field"><label>Fecha</label><input type="text" data-field="date" value="{{ $item['date'] ?? '' }}"></div>
                                             @php
@@ -302,7 +302,7 @@
 
 <template id="featured-template">
     <div class="repeater-card" data-row>
-        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Destacado</strong></div><div class="actions"><button type="button" class="button button-secondary" data-news-move="recent">Pasar a recientes</button><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div></div>
+        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Destacado</strong></div><div class="actions"><button type="button" class="button button-secondary" data-news-move="recent">Pasar a recientes</button><div class="field" style="min-width:160px; margin:0;"><label>Estado de publicación</label><select data-field="item_active"><option value="1" selected>Activo</option><option value="0">Inactivo</option></select></div></div></div>
         <div class="grid grid-3" style="margin-top:12px;">
             <div class="field"><label>Etiqueta destacada</label><input type="text" data-field="badge"></div>
             <div class="field"><label>Categoria</label><select data-field="category" data-news-category><option value="">Selecciona una categoria</option>@foreach ($newsCategoryLabels as $categoryLabel)<option value="{{ $categoryLabel }}">{{ $categoryLabel }}</option>@endforeach</select></div>
@@ -333,7 +333,7 @@
 
 <template id="notice-template">
     <div class="repeater-card" data-row>
-        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Aviso</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
+        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Aviso</strong></div><div class="actions"><div class="field" style="min-width:160px; margin:0;"><label>Estado de publicación</label><select data-field="item_active"><option value="1" selected>Activo</option><option value="0">Inactivo</option></select></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div></div>
         <div class="grid grid-4" style="margin-top:12px;">
             <div class="field" style="grid-column:1 / span 2;"><label>Título</label><input type="text" data-field="title"></div>
             <div class="field"><label>Fecha</label><input type="text" data-field="date"></div>
@@ -367,7 +367,7 @@
 
 <template id="news-card-template">
     <div class="repeater-card" data-row>
-        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Noticia</strong></div><div class="actions"><button type="button" class="button button-secondary" data-news-move="featured">Destacar noticia</button><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div></div>
+        <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>Noticia</strong></div><div class="actions"><button type="button" class="button button-secondary" data-news-move="featured">Destacar noticia</button><div class="field" style="min-width:160px; margin:0;"><label>Estado de publicación</label><select data-field="item_active"><option value="1" selected>Activo</option><option value="0">Inactivo</option></select></div></div></div>
         <div class="grid grid-3" style="margin-top:12px;">
             <div class="field"><label>Fecha</label><input type="text" data-field="date"></div>
             <div class="field"><label>Categoria</label><select data-field="category" data-news-category><option value="">Selecciona una categoria</option>@foreach ($newsCategoryLabels as $categoryLabel)<option value="{{ $categoryLabel }}">{{ $categoryLabel }}</option>@endforeach</select></div>

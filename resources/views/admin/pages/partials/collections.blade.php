@@ -137,7 +137,7 @@
                     <span class="drag-handle" data-drag>::</span>
                     <strong>Nuevo popup</strong>
                 </div>
-                <button type="button" class="button button-danger" data-remove-row>Eliminar</button>
+                <div class="field" style="min-width:150px; margin:0;"><label>Estado</label><select data-field="item_active"><option value="1" selected>Activo</option><option value="0">Inactivo</option></select></div>
             </div>
             <div class="grid grid-2" style="margin-top:12px;">
                 <div class="field"><label>Nombre interno</label><input type="text" data-field="title"></div>

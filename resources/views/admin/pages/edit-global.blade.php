@@ -96,7 +96,7 @@
                                 <div data-rows>
                                     @foreach (old('announcement_modal.items', $announcement['items'] ?? []) as $item)
                                         <div class="repeater-card" data-row>
-                                            <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Popup institucional' }}</strong></div><button type="button" class="button button-danger" data-remove-row>Eliminar</button></div>
+                                            <div class="toolbar"><div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['title'] ?? 'Popup institucional' }}</strong></div><div class="field" style="min-width:150px; margin:0;"><label>Estado</label><select data-field="item_active"><option value="1" {{ !empty($item['item_active']) ? 'selected' : '' }}>Activo</option><option value="0" {{ empty($item['item_active']) ? 'selected' : '' }}>Inactivo</option></select></div></div>
                                             <div class="announcement-form-grid" style="margin-top:12px;">
                                                 <div class="field"><label>Nombre interno</label><input type="text" data-field="title" value="{{ $item['title'] ?? '' }}"></div>
                                                 <div class="field"><label>Texto alternativo</label><input type="text" data-field="poster_alt" value="{{ $item['poster_alt'] ?? 'Comunicado institucional' }}"></div>
