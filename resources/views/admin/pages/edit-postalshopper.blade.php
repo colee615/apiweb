@@ -95,8 +95,12 @@
                     <div>
                         <div class="section-eyebrow">Cobertura</div>
                         <h3 class="section-title">Banderas y destinos Postal Shopper</h3>
-                        <p class="section-copy">Agrega destinos, cambia su estado y define a qué página debe llevar cada tarjeta. Usa un emoji de bandera, por ejemplo 🇺🇸.</p>
+                        <p class="section-copy">Agrega destinos, cambia su estado y define a qué página debe llevar cada tarjeta. Puedes usar el emoji, una ruta de imagen o una URL segura.</p>
                     </div>
+                </div>
+                <div class="grid grid-2" style="margin-bottom:18px;">
+                    <div class="field"><label>Título de la tarjeta promocional</label><input type="text" name="postalshopper_destinations[upcoming_label]" value="{{ old('postalshopper_destinations.upcoming_label', $destinations['settings']['upcoming_label'] ?? 'Nuevos destinos') }}"></div>
+                    <div class="field"><label>Estado de la tarjeta promocional</label><input type="text" name="postalshopper_destinations[upcoming_status]" value="{{ old('postalshopper_destinations.upcoming_status', $destinations['settings']['upcoming_status'] ?? 'Muy pronto') }}"></div>
                 </div>
                 <div class="subpanel">
                     <div class="toolbar"><div><h4>Destinos visibles</h4></div><button type="button" class="button button-secondary" data-add-row>Agregar destino</button></div>
@@ -113,7 +117,7 @@
                                     </div>
                                     <div class="grid grid-2" style="margin-top:12px;">
                                         <div class="field"><label>País / nombre</label><input type="text" data-field="label" value="{{ $item['label'] ?? '' }}" placeholder="Estados Unidos"></div>
-                                        <div class="field"><label>Bandera (emoji)</label><input type="text" data-field="flag" value="{{ $item['flag'] ?? '' }}" placeholder="🇺🇸"></div>
+                                        <div class="field"><label>Bandera (emoji o imagen)</label><input type="text" data-field="flag" value="{{ $item['flag'] ?? '' }}" placeholder="🇺🇸 o /flags/us.svg"></div>
                                         <div class="field"><label>Estado mostrado</label><input type="text" data-field="status" value="{{ $item['status'] ?? '' }}" placeholder="Disponible / Muy pronto"></div>
                                         <div class="field"><label>Enlace de redirección</label><input type="text" data-field="url" value="{{ $item['url'] ?? '' }}" placeholder="/contacto o https://... "></div>
                                     </div>
@@ -247,7 +251,7 @@
                 </div>
                 <div class="grid grid-2" style="margin-top:12px;">
                     <div class="field"><label>País / nombre</label><input type="text" data-field="label" placeholder="Estados Unidos"></div>
-                    <div class="field"><label>Bandera (emoji)</label><input type="text" data-field="flag" placeholder="🇺🇸"></div>
+                    <div class="field"><label>Bandera (emoji o imagen)</label><input type="text" data-field="flag" placeholder="🇺🇸 o /flags/us.svg"></div>
                     <div class="field"><label>Estado mostrado</label><input type="text" data-field="status" placeholder="Disponible / Muy pronto"></div>
                     <div class="field"><label>Enlace de redirección</label><input type="text" data-field="url" placeholder="/contacto o https://..."></div>
                 </div>

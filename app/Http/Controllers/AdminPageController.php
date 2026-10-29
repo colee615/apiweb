@@ -404,6 +404,8 @@ class AdminPageController extends Controller
             'postalshopper_destinations.items.*.flag.max' => 'La bandera de cada destino no debe superar los 16 caracteres.',
             'postalshopper_destinations.items.*.status.max' => 'El estado de cada destino no debe superar los 40 caracteres.',
             'postalshopper_destinations.items.*.url.max' => 'El enlace de cada destino no debe superar los 2048 caracteres.',
+            'postalshopper_destinations.upcoming_label.max' => 'El título de próximos destinos no debe superar los 60 caracteres.',
+            'postalshopper_destinations.upcoming_status.max' => 'El estado de próximos destinos no debe superar los 40 caracteres.',
             'encomienda_hero.visual_image_file.max' => 'La imagen del hero de Encomienda debe pesar como maximo 15 MB.',
             'encomienda_intro.image_file.max' => 'La imagen introductoria de Encomienda debe pesar como maximo 15 MB.',
             'footer.social_links.*.image_file.max' => 'Cada icono social del footer debe pesar como maximo 15 MB.',
@@ -527,6 +529,8 @@ class AdminPageController extends Controller
             'postalshopper_destinations.items.*.status' => ['nullable', 'string', 'max:40'],
             'postalshopper_destinations.items.*.url' => ['nullable', 'string', 'max:2048'],
             'postalshopper_destinations.items.*.item_active' => ['nullable', 'boolean'],
+            'postalshopper_destinations.upcoming_label' => ['nullable', 'string', 'max:60'],
+            'postalshopper_destinations.upcoming_status' => ['nullable', 'string', 'max:40'],
             'encomienda_hero.visual_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'encomienda_intro.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'footer.seal_logo_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
@@ -1586,8 +1590,14 @@ class AdminPageController extends Controller
                 'items' => $this->sectionItems($page, 'postalshopper_intro'),
             ],
             'postalshopper_destinations' => [
-                'settings' => $this->sectionSettings($page, 'postalshopper_destinations', []),
-                'items' => $this->sectionItems($page, 'postalshopper_destinations'),
+                'settings' => $this->sectionSettings($page, 'postalshopper_destinations', [
+                    'upcoming_label' => 'Nuevos destinos',
+                    'upcoming_status' => 'Muy pronto',
+                ]),
+                'items' => collect($this->sectionItems($page, 'postalshopper_destinations'))
+                    ->reject(fn ($item) => mb_strtolower(trim((string) ($item['label'] ?? ''))) === 'nuevos destinos')
+                    ->values()
+                    ->all(),
             ],
             'postalshopper_steps' => [
                 'settings' => $this->sectionSettings($page, 'postalshopper_steps', [
@@ -2619,7 +2629,10 @@ class AdminPageController extends Controller
                 ];
             })),
 
-            $this->makeSectionPayload($page, 'postalshopper_destinations', 'Postal Shopper Destinos', 'postalshopper_destinations', 2, [], $this->mapRepeaterItems(data_get($form, 'postalshopper_destinations.items', []), 'postalshopper_destination', function ($item) {
+            $this->makeSectionPayload($page, 'postalshopper_destinations', 'Postal Shopper Destinos', 'postalshopper_destinations', 2, [
+                'upcoming_label' => $request->input('postalshopper_destinations.upcoming_label'),
+                'upcoming_status' => $request->input('postalshopper_destinations.upcoming_status'),
+            ], $this->mapRepeaterItems(data_get($form, 'postalshopper_destinations.items', []), 'postalshopper_destination', function ($item) {
                 return [
                     'label' => $item['label'] ?? '',
                     'flag' => $item['flag'] ?? '',
