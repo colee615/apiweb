@@ -2,6 +2,7 @@
 
 @php
     $hero = $editorData['postalshopper_hero'];
+    $destinations = $editorData['postalshopper_destinations'];
     $intro = $editorData['postalshopper_intro'];
     $steps = $editorData['postalshopper_steps'];
     $benefits = $editorData['postalshopper_benefits'];
@@ -80,6 +81,41 @@
                                     <div class="grid grid-2" style="margin-top:12px;">
                                         <div class="field"><label>Valor</label><input type="text" data-field="value" value="{{ $item['value'] ?? '' }}"></div>
                                         <div class="field"><label>Label</label><input type="text" data-field="label" value="{{ $item['label'] ?? '' }}"></div>
+                                    </div>
+                                    <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-card">
+                <div class="section-header">
+                    <div>
+                        <div class="section-eyebrow">Cobertura</div>
+                        <h3 class="section-title">Banderas y destinos Postal Shopper</h3>
+                        <p class="section-copy">Agrega destinos, cambia su estado y define a qué página debe llevar cada tarjeta. Usa un emoji de bandera, por ejemplo 🇺🇸.</p>
+                    </div>
+                </div>
+                <div class="subpanel">
+                    <div class="toolbar"><div><h4>Destinos visibles</h4></div><button type="button" class="button button-secondary" data-add-row>Agregar destino</button></div>
+                    <div class="stack" data-collection data-base="postalshopper_destinations[items]" data-template="postalshopper-destination-template">
+                        <div class="stack" data-rows>
+                            @foreach (old('postalshopper_destinations.items', $destinations['items'] ?? []) as $item)
+                                <div class="repeater-card" data-row>
+                                    <div class="toolbar">
+                                        <div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['label'] ?? 'Destino' }}</strong></div>
+                                        <div class="actions">
+                                            <div class="field" style="min-width:140px; margin:0;"><label>Estado</label><select data-field="item_active"><option value="1" {{ ($item['item_active'] ?? true) ? 'selected' : '' }}>Visible</option><option value="0" {{ !($item['item_active'] ?? true) ? 'selected' : '' }}>Oculto</option></select></div>
+                                            <button type="button" class="button button-danger" data-remove-row>Eliminar</button>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-2" style="margin-top:12px;">
+                                        <div class="field"><label>País / nombre</label><input type="text" data-field="label" value="{{ $item['label'] ?? '' }}" placeholder="Estados Unidos"></div>
+                                        <div class="field"><label>Bandera (emoji)</label><input type="text" data-field="flag" value="{{ $item['flag'] ?? '' }}" placeholder="🇺🇸"></div>
+                                        <div class="field"><label>Estado mostrado</label><input type="text" data-field="status" value="{{ $item['status'] ?? '' }}" placeholder="Disponible / Muy pronto"></div>
+                                        <div class="field"><label>Enlace de redirección</label><input type="text" data-field="url" value="{{ $item['url'] ?? '' }}" placeholder="/contacto o https://... "></div>
                                     </div>
                                     <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                 </div>
@@ -195,6 +231,25 @@
                     <div class="field"><label>Label</label><input type="text" data-field="label"></div>
                     <div class="field"><label>Logo actual</label><input type="text" data-field="logo" placeholder="/storage/cms/postalshopper/logos/logo.svg"></div>
                     <div class="field"><label>Subir logo</label><input type="file" data-field="logo_file" accept="image/*" data-preview-input></div>
+                </div>
+                <input type="hidden" data-field="id">
+            </div>
+        </template>
+
+        <template id="postalshopper-destination-template">
+            <div class="repeater-card" data-row>
+                <div class="toolbar">
+                    <div class="actions"><span class="drag-handle" data-drag>::</span><strong>Nuevo destino</strong></div>
+                    <div class="actions">
+                        <div class="field" style="min-width:140px; margin:0;"><label>Estado</label><select data-field="item_active"><option value="1" selected>Visible</option><option value="0">Oculto</option></select></div>
+                        <button type="button" class="button button-danger" data-remove-row>Eliminar</button>
+                    </div>
+                </div>
+                <div class="grid grid-2" style="margin-top:12px;">
+                    <div class="field"><label>País / nombre</label><input type="text" data-field="label" placeholder="Estados Unidos"></div>
+                    <div class="field"><label>Bandera (emoji)</label><input type="text" data-field="flag" placeholder="🇺🇸"></div>
+                    <div class="field"><label>Estado mostrado</label><input type="text" data-field="status" placeholder="Disponible / Muy pronto"></div>
+                    <div class="field"><label>Enlace de redirección</label><input type="text" data-field="url" placeholder="/contacto o https://..."></div>
                 </div>
                 <input type="hidden" data-field="id">
             </div>

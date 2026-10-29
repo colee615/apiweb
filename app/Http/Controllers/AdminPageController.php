@@ -400,6 +400,10 @@ class AdminPageController extends Controller
             'casillas_hero.background_image_file.max' => 'La imagen de fondo del hero de Casillas debe pesar como maximo 15 MB.',
             'postalshopper_hero.background_image_file.max' => 'La imagen de fondo del hero de Postal Shopper debe pesar como maximo 15 MB.',
             'postalshopper_intro.items.*.logo_file.max' => 'Cada logo de tienda debe pesar como maximo 15 MB.',
+            'postalshopper_destinations.items.*.label.max' => 'El nombre de cada destino no debe superar los 100 caracteres.',
+            'postalshopper_destinations.items.*.flag.max' => 'La bandera de cada destino no debe superar los 16 caracteres.',
+            'postalshopper_destinations.items.*.status.max' => 'El estado de cada destino no debe superar los 40 caracteres.',
+            'postalshopper_destinations.items.*.url.max' => 'El enlace de cada destino no debe superar los 2048 caracteres.',
             'encomienda_hero.visual_image_file.max' => 'La imagen del hero de Encomienda debe pesar como maximo 15 MB.',
             'encomienda_intro.image_file.max' => 'La imagen introductoria de Encomienda debe pesar como maximo 15 MB.',
             'footer.social_links.*.image_file.max' => 'Cada icono social del footer debe pesar como maximo 15 MB.',
@@ -517,6 +521,12 @@ class AdminPageController extends Controller
             'casillas_hero.background_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'postalshopper_hero.background_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'postalshopper_intro.items.*.logo_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'postalshopper_destinations.items' => ['nullable', 'array'],
+            'postalshopper_destinations.items.*.label' => ['nullable', 'string', 'max:100'],
+            'postalshopper_destinations.items.*.flag' => ['nullable', 'string', 'max:16'],
+            'postalshopper_destinations.items.*.status' => ['nullable', 'string', 'max:40'],
+            'postalshopper_destinations.items.*.url' => ['nullable', 'string', 'max:2048'],
+            'postalshopper_destinations.items.*.item_active' => ['nullable', 'boolean'],
             'encomienda_hero.visual_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'encomienda_intro.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'footer.seal_logo_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
@@ -1575,6 +1585,10 @@ class AdminPageController extends Controller
                 ]),
                 'items' => $this->sectionItems($page, 'postalshopper_intro'),
             ],
+            'postalshopper_destinations' => [
+                'settings' => $this->sectionSettings($page, 'postalshopper_destinations', []),
+                'items' => $this->sectionItems($page, 'postalshopper_destinations'),
+            ],
             'postalshopper_steps' => [
                 'settings' => $this->sectionSettings($page, 'postalshopper_steps', [
                     'title' => '',
@@ -2605,7 +2619,16 @@ class AdminPageController extends Controller
                 ];
             })),
 
-            $this->makeSectionPayload($page, 'postalshopper_intro', 'Postal Shopper Intro', 'postalshopper_intro', 2, [
+            $this->makeSectionPayload($page, 'postalshopper_destinations', 'Postal Shopper Destinos', 'postalshopper_destinations', 2, [], $this->mapRepeaterItems(data_get($form, 'postalshopper_destinations.items', []), 'postalshopper_destination', function ($item) {
+                return [
+                    'label' => $item['label'] ?? '',
+                    'flag' => $item['flag'] ?? '',
+                    'status' => $item['status'] ?? '',
+                    'url' => ContentSecurity::sanitizeLinkUrl($item['url'] ?? '') ?? '',
+                ];
+            }, true)),
+
+            $this->makeSectionPayload($page, 'postalshopper_intro', 'Postal Shopper Intro', 'postalshopper_intro', 3, [
                 'eyebrow' => $request->input('postalshopper_intro.eyebrow'),
                 'title' => $request->input('postalshopper_intro.title'),
                 'paragraph_one' => $request->input('postalshopper_intro.paragraph_one'),
@@ -2617,7 +2640,7 @@ class AdminPageController extends Controller
                 ];
             })),
 
-            $this->makeSectionPayload($page, 'postalshopper_steps', 'Postal Shopper Pasos', 'postalshopper_steps', 3, [
+            $this->makeSectionPayload($page, 'postalshopper_steps', 'Postal Shopper Pasos', 'postalshopper_steps', 4, [
                 'title' => $request->input('postalshopper_steps.title'),
                 'subtitle' => $request->input('postalshopper_steps.subtitle'),
             ], $this->mapRepeaterItems(data_get($form, 'postalshopper_steps.items', []), 'postalshopper_step_card', function ($item) {
@@ -2629,7 +2652,7 @@ class AdminPageController extends Controller
                 ];
             })),
 
-            $this->makeSectionPayload($page, 'postalshopper_benefits', 'Postal Shopper Beneficios', 'postalshopper_benefits', 4, [
+            $this->makeSectionPayload($page, 'postalshopper_benefits', 'Postal Shopper Beneficios', 'postalshopper_benefits', 5, [
                 'title' => $request->input('postalshopper_benefits.title'),
                 'subtitle' => $request->input('postalshopper_benefits.subtitle'),
                 'banner_title' => $request->input('postalshopper_benefits.banner_title'),
@@ -2644,7 +2667,7 @@ class AdminPageController extends Controller
                 ];
             })),
 
-            $this->preserveExistingSectionPayload($page, 'footer', 5),
+            $this->preserveExistingSectionPayload($page, 'footer', 6),
         ]));
     }
 
