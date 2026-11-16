@@ -59,6 +59,32 @@ class SitePagePayloadBuilder
     public function buildPublic(SitePage $page): array
     {
         $payload = $this->build($page);
+
+        if ($page->slug === 'postalshopper') {
+            $postalShopperSectionKeys = [
+                'postalshopper_hero',
+                'postalshopper_destinations',
+                'postalshopper_intro',
+                'postalshopper_steps',
+                'postalshopper_calculator',
+                'postalshopper_benefits',
+            ];
+            $inactiveSections = $page->sections()
+                ->where('is_active', false)
+                ->whereIn('key', $postalShopperSectionKeys)
+                ->get(['key', 'sort_order'])
+                ->map(fn ($section) => [
+                    'key' => $section->key,
+                    'sort_order' => $section->sort_order,
+                    'is_active' => false,
+                    'settings' => [],
+                    'items' => [],
+                ]);
+            $sections = collect($payload['sections'])->concat($inactiveSections)->sortBy('sort_order')->values();
+            $payload['sections'] = $sections->all();
+            $payload['section_map'] = $sections->keyBy('key')->all();
+        }
+
         $home = $page->slug === 'home'
             ? $page
             : SitePage::query()->where('slug', 'home')->with([

@@ -8,6 +8,7 @@ class ContentSecurity
         'logo_url',
         'logo',
         'background_image',
+        'tutorial_image',
         'iconImage',
         'image',
         'src',
@@ -24,6 +25,8 @@ class ContentSecurity
         'view_all_url',
         'primary_button_url',
         'secondary_button_url',
+        'tutorial_url',
+        'banner_button_url',
     ];
 
     public const COLOR_KEYS = [

@@ -400,12 +400,16 @@ class AdminPageController extends Controller
             'casillas_hero.background_image_file.max' => 'La imagen de fondo del hero de Casillas debe pesar como maximo 15 MB.',
             'postalshopper_hero.background_image_file.max' => 'La imagen de fondo del hero de Postal Shopper debe pesar como maximo 15 MB.',
             'postalshopper_intro.items.*.logo_file.max' => 'Cada logo de tienda debe pesar como maximo 15 MB.',
-            'postalshopper_destinations.items.*.label.max' => 'El nombre de cada destino no debe superar los 100 caracteres.',
-            'postalshopper_destinations.items.*.flag.max' => 'La bandera de cada destino no debe superar los 16 caracteres.',
-            'postalshopper_destinations.items.*.status.max' => 'El estado de cada destino no debe superar los 40 caracteres.',
-            'postalshopper_destinations.items.*.url.max' => 'El enlace de cada destino no debe superar los 2048 caracteres.',
-            'postalshopper_destinations.upcoming_label.max' => 'El título de próximos destinos no debe superar los 60 caracteres.',
-            'postalshopper_destinations.upcoming_status.max' => 'El estado de próximos destinos no debe superar los 40 caracteres.',
+            'postalshopper_steps.tutorial_image_file.max' => 'La miniatura del tutorial de Postal Shopper debe pesar como maximo 15 MB.',
+            'postalshopper_calculator.image_file.max' => 'La imagen de la calculadora de Postal Shopper debe pesar como maximo 15 MB.',
+            'postalshopper_calculator.items.*.weight.distinct' => 'Cada peso de la calculadora debe ser único.',
+            'postalshopper_calculator.items.*.price.numeric' => 'Cada tarifa debe ser un número válido.',
+            'postalshopper_destinations.items.*.label.max' => 'El nombre de cada servicio no debe superar los 100 caracteres.',
+            'postalshopper_destinations.items.*.flag.max' => 'La bandera o imagen de cada servicio no debe superar los 2048 caracteres.',
+            'postalshopper_destinations.items.*.status.max' => 'El estado de cada servicio no debe superar los 40 caracteres.',
+            'postalshopper_destinations.items.*.url.max' => 'El enlace de cada servicio no debe superar los 2048 caracteres.',
+            'postalshopper_destinations.upcoming_label.max' => 'El título de la tarjeta informativa no debe superar los 60 caracteres.',
+            'postalshopper_destinations.upcoming_status.max' => 'El estado de la tarjeta informativa no debe superar los 40 caracteres.',
             'encomienda_hero.visual_image_file.max' => 'La imagen del hero de Encomienda debe pesar como maximo 15 MB.',
             'encomienda_intro.image_file.max' => 'La imagen introductoria de Encomienda debe pesar como maximo 15 MB.',
             'footer.social_links.*.image_file.max' => 'Cada icono social del footer debe pesar como maximo 15 MB.',
@@ -461,6 +465,10 @@ class AdminPageController extends Controller
             'casillas_hero.background_image_file' => 'imagen de fondo del hero de Casillas',
             'postalshopper_hero.background_image_file' => 'imagen de fondo del hero de Postal Shopper',
             'postalshopper_intro.items.*.logo_file' => 'logo de tienda de Postal Shopper',
+            'postalshopper_steps.tutorial_image_file' => 'miniatura del tutorial de Postal Shopper',
+            'postalshopper_calculator.image_file' => 'imagen de la calculadora de Postal Shopper',
+            'postalshopper_calculator.items.*.weight' => 'peso de la tarifa',
+            'postalshopper_calculator.items.*.price' => 'precio de la tarifa',
             'encomienda_hero.visual_image_file' => 'imagen del hero de Encomienda',
             'encomienda_intro.image_file' => 'imagen introductoria de Encomienda',
             'footer.social_links.*.image_file' => 'icono social del footer',
@@ -523,14 +531,20 @@ class AdminPageController extends Controller
             'casillas_hero.background_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'postalshopper_hero.background_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'postalshopper_intro.items.*.logo_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'postalshopper_steps.tutorial_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'postalshopper_calculator.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'postalshopper_destinations.items' => ['nullable', 'array'],
             'postalshopper_destinations.items.*.label' => ['nullable', 'string', 'max:100'],
-            'postalshopper_destinations.items.*.flag' => ['nullable', 'string', 'max:16'],
+            'postalshopper_destinations.items.*.flag' => ['nullable', 'string', 'max:2048'],
             'postalshopper_destinations.items.*.status' => ['nullable', 'string', 'max:40'],
             'postalshopper_destinations.items.*.url' => ['nullable', 'string', 'max:2048'],
             'postalshopper_destinations.items.*.item_active' => ['nullable', 'boolean'],
             'postalshopper_destinations.upcoming_label' => ['nullable', 'string', 'max:60'],
             'postalshopper_destinations.upcoming_status' => ['nullable', 'string', 'max:40'],
+            'postalshopper_destinations.upcoming_enabled' => ['nullable', 'boolean'],
+            'postalshopper_calculator.items' => ['required', 'array', 'min:1'],
+            'postalshopper_calculator.items.*.weight' => ['required', 'integer', 'min:1', 'max:1000', 'distinct'],
+            'postalshopper_calculator.items.*.price' => ['required', 'numeric', 'min:0', 'max:1000000'],
             'encomienda_hero.visual_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'encomienda_intro.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'footer.seal_logo_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
@@ -1558,29 +1572,12 @@ class AdminPageController extends Controller
                 'accent_color' => $theme['accent_color'] ?? '#ffcc18',
             ],
             'postalshopper_hero' => [
-                'settings' => $this->sectionSettings($page, 'postalshopper_hero', [
-                    'badge' => '',
-                    'title_line_one_white' => '',
-                    'title_line_one_yellow' => '',
-                    'title_line_two_white' => '',
-                    'title_line_two_yellow' => '',
-                    'title_line_three_yellow' => '',
-                    'lead_text' => '',
-                    'subtitle' => '',
-                    'primary_button_label' => '',
-                    'primary_button_url' => '',
-                    'secondary_button_label' => '',
-                    'secondary_button_url' => '',
-                    'background_image' => '',
-                    'map_origin_country' => '',
-                    'map_origin_city' => '',
-                    'map_destination_country' => '',
-                    'map_destination_city' => '',
-                    'map_caption' => '',
-                ]),
+                'is_active' => $this->sectionIsActive($page, 'postalshopper_hero'),
+                'settings' => $this->postalshopperHeroSettings($page),
                 'items' => $this->sectionItems($page, 'postalshopper_hero'),
             ],
             'postalshopper_intro' => [
+                'is_active' => $this->sectionIsActive($page, 'postalshopper_intro'),
                 'settings' => $this->sectionSettings($page, 'postalshopper_intro', [
                     'eyebrow' => '',
                     'title' => '',
@@ -1590,9 +1587,11 @@ class AdminPageController extends Controller
                 'items' => $this->sectionItems($page, 'postalshopper_intro'),
             ],
             'postalshopper_destinations' => [
+                'is_active' => $this->sectionIsActive($page, 'postalshopper_destinations'),
                 'settings' => $this->sectionSettings($page, 'postalshopper_destinations', [
-                    'upcoming_label' => 'Nuevos destinos',
+                    'upcoming_label' => 'Nuevos envíos',
                     'upcoming_status' => 'Muy pronto',
+                    'upcoming_enabled' => true,
                 ]),
                 'items' => collect($this->sectionItems($page, 'postalshopper_destinations'))
                     ->reject(fn ($item) => mb_strtolower(trim((string) ($item['label'] ?? ''))) === 'nuevos destinos')
@@ -1600,13 +1599,32 @@ class AdminPageController extends Controller
                     ->all(),
             ],
             'postalshopper_steps' => [
-                'settings' => $this->sectionSettings($page, 'postalshopper_steps', [
-                    'title' => '',
-                    'subtitle' => '',
+                'is_active' => $this->sectionIsActive($page, 'postalshopper_steps'),
+                'settings' => $this->postalshopperStepSettings($page),
+                'items' => $this->postalshopperStepItems($page),
+            ],
+            'postalshopper_calculator' => [
+                'is_active' => $this->sectionIsActive($page, 'postalshopper_calculator'),
+                'settings' => $this->sectionSettings($page, 'postalshopper_calculator', [
+                    'eyebrow' => 'COTIZADOR DE ENVÍOS',
+                    'title' => 'Cotiza tu paquete',
+                    'title_accent' => 'en segundos.',
+                    'description' => 'Consulta una tarifa estimada para tu envío.',
+                    'weight_title' => 'Elige el peso del paquete',
+                    'weight_help' => 'Selecciona entre 1 y 5 libras',
+                    'weight_unit_singular' => 'libra',
+                    'weight_unit_plural' => 'libras',
+                    'currency_label' => '$us',
+                    'total_label' => 'Tarifa estimada',
+                    'image' => '',
+                    'image_alt' => 'Cartero con un paquete y una calculadora de envíos',
+                    'caption_label' => 'POSTAL SHOPPER',
+                    'caption_text' => 'Tus compras, de Miami a Bolivia',
                 ]),
-                'items' => $this->sectionItems($page, 'postalshopper_steps'),
+                'items' => $this->postalshopperCalculatorItems($page),
             ],
             'postalshopper_benefits' => [
+                'is_active' => $this->sectionIsActive($page, 'postalshopper_benefits'),
                 'settings' => $this->sectionSettings($page, 'postalshopper_benefits', [
                     'title' => '',
                     'subtitle' => '',
@@ -1616,8 +1634,46 @@ class AdminPageController extends Controller
                     'banner_button_url' => '',
                 ]),
                 'items' => $this->sectionItems($page, 'postalshopper_benefits'),
-            ],
+            },
         ];
+    }
+
+    protected function postalshopperHeroSettings(SitePage $page): array
+    {
+        $settings = $this->sectionSettings($page, 'postalshopper_hero', [
+            'badge' => '',
+            'title_line_one_white' => '',
+            'title_line_one_yellow' => '',
+            'title_line_two_white' => '',
+            'title_line_two_yellow' => '',
+            'title_line_three_yellow' => '',
+            'lead_text' => '',
+            'subtitle' => '',
+            'primary_button_label' => 'Cómo funciona',
+            'primary_button_url' => '',
+            'secondary_button_label' => 'Registrarme gratis',
+            'secondary_button_url' => '',
+            'background_image' => '',
+            'map_origin_country' => '',
+            'map_origin_city' => '',
+            'map_destination_country' => '',
+            'map_destination_city' => '',
+            'map_caption' => '',
+        ]);
+        $directService = collect($this->sectionItems($page, 'postalshopper_destinations'))
+            ->first(fn ($item) => preg_match('/disponible|directo/i', (string) ($item['status'] ?? '')) && filled($item['url'] ?? null));
+        $registrationUrl = ContentSecurity::sanitizeLinkUrl($directService['url'] ?? null)
+            ?? 'https://clientescorreos.sistemaml.net/';
+
+        if (($settings['primary_button_label'] ?? null) === 'Como funciona' || ($settings['primary_button_label'] ?? null) === 'Ver tutorial') {
+            $settings['primary_button_label'] = 'Cómo funciona';
+        }
+
+        if (in_array($settings['secondary_button_url'] ?? null, ['', '/contacto'], true)) {
+            $settings['secondary_button_url'] = $registrationUrl;
+        }
+
+        return $settings;
     }
 
     protected function buildApplicationsSectionsPayload(Request $request, SitePage $page): array
@@ -2599,6 +2655,7 @@ class AdminPageController extends Controller
     protected function buildPostalshopperSectionsPayload(Request $request, SitePage $page): array
     {
         $form = $request->all();
+        $heroSettings = $this->sectionSettings($page, 'postalshopper_hero');
 
         return array_values(array_filter([
             $this->preserveExistingSectionPayload($page, 'header', 0),
@@ -2617,31 +2674,32 @@ class AdminPageController extends Controller
                 'secondary_button_label' => $request->input('postalshopper_hero.secondary_button_label'),
                 'secondary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('postalshopper_hero.secondary_button_url')) ?? '',
                 'background_image' => $this->storeUploadedImage($request, 'postalshopper_hero.background_image_file', $request->input('postalshopper_hero.background_image'), 'cms/postalshopper/hero'),
-                'map_origin_country' => $request->input('postalshopper_hero.map_origin_country'),
-                'map_origin_city' => $request->input('postalshopper_hero.map_origin_city'),
-                'map_destination_country' => $request->input('postalshopper_hero.map_destination_country'),
-                'map_destination_city' => $request->input('postalshopper_hero.map_destination_city'),
-                'map_caption' => $request->input('postalshopper_hero.map_caption'),
+                'map_origin_country' => $heroSettings['map_origin_country'] ?? '',
+                'map_origin_city' => $heroSettings['map_origin_city'] ?? '',
+                'map_destination_country' => $heroSettings['map_destination_country'] ?? '',
+                'map_destination_city' => $heroSettings['map_destination_city'] ?? '',
+                'map_caption' => $heroSettings['map_caption'] ?? '',
             ], $this->mapRepeaterItems(data_get($form, 'postalshopper_hero.items', []), 'postalshopper_hero_stat', function ($item) {
                 return [
                     'value' => $item['value'] ?? '',
                     'label' => $item['label'] ?? '',
                 ];
-            })),
+            }), $request->boolean('postalshopper_hero.section_active')),
 
-            $this->makeSectionPayload($page, 'postalshopper_destinations', 'Postal Shopper Destinos', 'postalshopper_destinations', 2, [
+            $this->makeSectionPayload($page, 'postalshopper_destinations', 'Postal Shopper Envíos Directos', 'postalshopper_destinations', 2, [
                 'upcoming_label' => $request->input('postalshopper_destinations.upcoming_label'),
                 'upcoming_status' => $request->input('postalshopper_destinations.upcoming_status'),
+                'upcoming_enabled' => $request->boolean('postalshopper_destinations.upcoming_enabled'),
             ], $this->mapRepeaterItems(data_get($form, 'postalshopper_destinations.items', []), 'postalshopper_destination', function ($item) {
                 return [
                     'label' => $item['label'] ?? '',
-                    'flag' => $item['flag'] ?? '',
+                    'flag' => $this->sanitizePostalshopperFlag($item['flag'] ?? ''),
                     'status' => $item['status'] ?? '',
                     'url' => ContentSecurity::sanitizeLinkUrl($item['url'] ?? '') ?? '',
                 ];
-            }, true)),
+            }, true), $request->boolean('postalshopper_destinations.section_active')),
 
-            $this->makeSectionPayload($page, 'postalshopper_intro', 'Postal Shopper Intro', 'postalshopper_intro', 3, [
+            $this->makeSectionPayload($page, 'postalshopper_intro', 'Postal Shopper Intro', 'postalshopper_intro', 5, [
                 'eyebrow' => $request->input('postalshopper_intro.eyebrow'),
                 'title' => $request->input('postalshopper_intro.title'),
                 'paragraph_one' => $request->input('postalshopper_intro.paragraph_one'),
@@ -2651,11 +2709,15 @@ class AdminPageController extends Controller
                     'label' => $item['label'] ?? '',
                     'logo' => $this->storeRepeaterImage($item, 'logo_file', 'logo', 'cms/postalshopper/logos'),
                 ];
-            })),
+            }), $request->boolean('postalshopper_intro.section_active')),
 
-            $this->makeSectionPayload($page, 'postalshopper_steps', 'Postal Shopper Pasos', 'postalshopper_steps', 4, [
+            $this->makeSectionPayload($page, 'postalshopper_steps', 'Postal Shopper Pasos', 'postalshopper_steps', 3, [
                 'title' => $request->input('postalshopper_steps.title'),
                 'subtitle' => $request->input('postalshopper_steps.subtitle'),
+                'tutorial_url' => ContentSecurity::sanitizeLinkUrl($request->input('postalshopper_steps.tutorial_url')) ?? '',
+                'tutorial_image' => $this->storeUploadedImage($request, 'postalshopper_steps.tutorial_image_file', $request->input('postalshopper_steps.tutorial_image'), 'cms/postalshopper/tutorial'),
+                'tutorial_label' => $request->input('postalshopper_steps.tutorial_label'),
+                'tutorial_duration' => $request->input('postalshopper_steps.tutorial_duration'),
             ], $this->mapRepeaterItems(data_get($form, 'postalshopper_steps.items', []), 'postalshopper_step_card', function ($item) {
                 return [
                     'step' => $item['step'] ?? '',
@@ -2663,9 +2725,31 @@ class AdminPageController extends Controller
                     'title' => $item['title'] ?? '',
                     'text' => $item['text'] ?? '',
                 ];
-            })),
+            }), $request->boolean('postalshopper_steps.section_active')),
 
-            $this->makeSectionPayload($page, 'postalshopper_benefits', 'Postal Shopper Beneficios', 'postalshopper_benefits', 5, [
+            $this->makeSectionPayload($page, 'postalshopper_calculator', 'Postal Shopper Calculadora', 'postalshopper_calculator', 4, [
+                'eyebrow' => $request->input('postalshopper_calculator.eyebrow'),
+                'title' => $request->input('postalshopper_calculator.title'),
+                'title_accent' => $request->input('postalshopper_calculator.title_accent'),
+                'description' => $request->input('postalshopper_calculator.description'),
+                'weight_title' => $request->input('postalshopper_calculator.weight_title'),
+                'weight_help' => $request->input('postalshopper_calculator.weight_help'),
+                'weight_unit_singular' => $request->input('postalshopper_calculator.weight_unit_singular'),
+                'weight_unit_plural' => $request->input('postalshopper_calculator.weight_unit_plural'),
+                'currency_label' => $request->input('postalshopper_calculator.currency_label'),
+                'total_label' => $request->input('postalshopper_calculator.total_label'),
+                'image' => $this->storeUploadedImage($request, 'postalshopper_calculator.image_file', $request->input('postalshopper_calculator.image'), 'cms/postalshopper/calculator'),
+                'image_alt' => $request->input('postalshopper_calculator.image_alt'),
+                'caption_label' => $request->input('postalshopper_calculator.caption_label'),
+                'caption_text' => $request->input('postalshopper_calculator.caption_text'),
+            ], $this->mapRepeaterItems(data_get($form, 'postalshopper_calculator.items', []), 'postalshopper_rate', function ($item) {
+                return [
+                    'weight' => (int) ($item['weight'] ?? 0),
+                    'price' => (float) ($item['price'] ?? 0),
+                ];
+            }), $request->boolean('postalshopper_calculator.section_active')),
+
+            $this->makeSectionPayload($page, 'postalshopper_benefits', 'Postal Shopper Beneficios', 'postalshopper_benefits', 6, [
                 'title' => $request->input('postalshopper_benefits.title'),
                 'subtitle' => $request->input('postalshopper_benefits.subtitle'),
                 'banner_title' => $request->input('postalshopper_benefits.banner_title'),
@@ -2678,9 +2762,9 @@ class AdminPageController extends Controller
                     'title' => $item['title'] ?? '',
                     'text' => $item['text'] ?? '',
                 ];
-            })),
+            }), $request->boolean('postalshopper_benefits.section_active')),
 
-            $this->preserveExistingSectionPayload($page, 'footer', 6),
+            $this->preserveExistingSectionPayload($page, 'footer', 7),
         ]));
     }
 
@@ -2895,7 +2979,8 @@ class AdminPageController extends Controller
         string $type,
         int $sortOrder,
         array $settings,
-        array $items = []
+        array $items = [],
+        bool $isActive = true
     ): array {
         $section = $page->sections->firstWhere('key', $key);
 
@@ -2906,7 +2991,7 @@ class AdminPageController extends Controller
             'type' => $type,
             'settings' => $settings,
             'sort_order' => $sortOrder,
-            'is_active' => true,
+            'is_active' => $isActive,
             'items' => $items,
         ];
     }
@@ -2921,6 +3006,8 @@ class AdminPageController extends Controller
                     || filled($item['poster_image'] ?? null)
                     || filled($item['media_url'] ?? null)
                     || filled($item['src'] ?? null)
+                    || filled($item['weight'] ?? null)
+                    || filled($item['price'] ?? null)
                     || (($item['media_file'] ?? null) instanceof \Illuminate\Http\UploadedFile)
                     || (($item['image_file'] ?? null) instanceof \Illuminate\Http\UploadedFile)
                     || (($item['poster_file'] ?? null) instanceof \Illuminate\Http\UploadedFile)
@@ -3090,6 +3177,106 @@ class AdminPageController extends Controller
         return $this->normalizeAssetFields(array_merge($defaults, $settings));
     }
 
+    protected function sectionIsActive(SitePage $page, string $key): bool
+    {
+        return (bool) ($page->sections->firstWhere('key', $key)?->is_active ?? true);
+    }
+
+    protected function postalshopperStepItems(SitePage $page): array
+    {
+        $items = $this->sectionItems($page, 'postalshopper_steps');
+
+        if ($items === []) {
+            return [
+                ['id' => null, 'step' => '1', 'icon' => 'user-plus', 'title' => 'Regístrate gratis', 'text' => ''],
+                ['id' => null, 'step' => '2', 'icon' => 'cart', 'title' => 'Compra y envía a tu casilla', 'text' => ''],
+                ['id' => null, 'step' => '3', 'icon' => 'package', 'title' => 'Recibe tu paquete en Bolivia', 'text' => ''],
+            ];
+        }
+
+        $legacyTitles = [
+            'Tu Direccion Americana',
+            'Compra sin Limites',
+            'Consolidacion y Ahorro',
+            'El Vuelo a Casa',
+        ];
+
+        if (array_column($items, 'title') !== $legacyTitles) {
+            return $items;
+        }
+
+        return [
+            array_merge($items[0], ['step' => '1', 'icon' => 'user-plus', 'title' => 'Regístrate gratis', 'text' => '']),
+            array_merge($items[1], ['step' => '2', 'icon' => 'cart', 'title' => 'Compra y envía a tu casilla', 'text' => '']),
+            array_merge($items[3], ['step' => '3', 'icon' => 'package', 'title' => 'Recibe tu paquete en Bolivia', 'text' => '']),
+        ];
+    }
+
+    protected function postalshopperStepSettings(SitePage $page): array
+    {
+        $settings = $this->sectionSettings($page, 'postalshopper_steps', [
+            'title' => '¿Cómo funciona Postal Shopper?',
+            'subtitle' => 'Mira el tutorial y compra desde Estados Unidos en 3 pasos',
+            'tutorial_url' => '',
+            'tutorial_image' => '',
+            'tutorial_label' => 'Ver tutorial completo',
+            'tutorial_duration' => '1:30 min',
+        ]);
+
+        if (($settings['title'] ?? null) === 'Tu puente directo entre Miami y Bolivia.') {
+            $settings['title'] = '¿Cómo funciona Postal Shopper?';
+        }
+
+        if (($settings['subtitle'] ?? null) === 'Hemos simplificado el proceso de importacion para que tu unica preocupacion sea decidir que comprar hoy.') {
+            $settings['subtitle'] = 'Mira el tutorial y compra desde Estados Unidos en 3 pasos';
+        }
+
+        if (blank($settings['tutorial_url'] ?? null)) {
+            $heroUrl = $this->sectionSettings($page, 'postalshopper_hero')['primary_button_url'] ?? '';
+            if (preg_match('/^https?:\/\//i', (string) $heroUrl)) {
+                $settings['tutorial_url'] = $heroUrl;
+            }
+        }
+
+        return $settings;
+    }
+
+    protected function postalshopperCalculatorItems(SitePage $page): array
+    {
+        $items = $this->sectionItems($page, 'postalshopper_calculator');
+
+        if ($items !== []) {
+            return $items;
+        }
+
+        return [
+            ['id' => null, 'weight' => 1, 'price' => 10.59],
+            ['id' => null, 'weight' => 2, 'price' => 13.86],
+            ['id' => null, 'weight' => 3, 'price' => 17.14],
+            ['id' => null, 'weight' => 4, 'price' => 20.41],
+            ['id' => null, 'weight' => 5, 'price' => 23.70],
+        ];
+    }
+
+    protected function sanitizePostalshopperFlag(mixed $value): string
+    {
+        if (! is_string($value)) {
+            return '';
+        }
+
+        $value = trim($value);
+
+        if ($value === '') {
+            return '';
+        }
+
+        if (preg_match('/^(?:https?:\/\/|\/(?!\/))/i', $value)) {
+            return ContentSecurity::sanitizeAssetUrl($value) ?? '';
+        }
+
+        return preg_match('/[^\x00-\x7F]/u', $value) ? $value : '';
+    }
+
     protected function sectionItems(SitePage $page, string $key): array
     {
         $section = $page->sections->firstWhere('key', $key);
@@ -3230,7 +3417,7 @@ class AdminPageController extends Controller
     protected function isPostalshopperPage(SitePage $page): bool
     {
         return $page->slug === 'postalshopper'
-            || $this->pageHasSectionKeys($page, ['postalshopper_hero', 'postalshopper_intro', 'postalshopper_steps', 'postalshopper_benefits']);
+            || $this->pageHasSectionKeys($page, ['postalshopper_hero', 'postalshopper_intro', 'postalshopper_steps', 'postalshopper_benefits', 'postalshopper_calculator']);
     }
 
     protected function isApplicationsPage(SitePage $page): bool

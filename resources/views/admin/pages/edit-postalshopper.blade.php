@@ -5,6 +5,7 @@
     $destinations = $editorData['postalshopper_destinations'];
     $intro = $editorData['postalshopper_intro'];
     $steps = $editorData['postalshopper_steps'];
+    $calculator = $editorData['postalshopper_calculator'];
     $benefits = $editorData['postalshopper_benefits'];
     $theme = $editorData['theme'] ?? [];
 @endphp
@@ -49,7 +50,7 @@
             </section>
 
             <section class="section-card">
-                <div class="section-header"><div><div class="section-eyebrow">Portada</div><h3 class="section-title">Portada principal</h3></div></div>
+                <div class="section-header"><div><div class="section-eyebrow">Portada</div><h3 class="section-title">Portada principal</h3><label class="field-help" style="display:flex;align-items:center;gap:8px;margin-top:8px;"><input type="hidden" name="postalshopper_hero[section_active]" value="0"><input type="checkbox" name="postalshopper_hero[section_active]" value="1" {{ old('postalshopper_hero.section_active', $hero['is_active']) ? 'checked' : '' }}> Mostrar esta sección</label></div></div>
                 <div class="grid grid-2">
                     <div class="field" style="grid-column:1/-1;"><label>Etiqueta destacada</label><input type="text" name="postalshopper_hero[badge]" value="{{ old('postalshopper_hero.badge', $hero['settings']['badge'] ?? '') }}"></div>
                     <div class="field"><label>Titulo linea 1 blanca</label><input type="text" name="postalshopper_hero[title_line_one_white]" value="{{ old('postalshopper_hero.title_line_one_white', $hero['settings']['title_line_one_white'] ?? '') }}"></div>
@@ -59,15 +60,10 @@
                     <div class="field"><label>Titulo linea 3 amarilla</label><input type="text" name="postalshopper_hero[title_line_three_yellow]" value="{{ old('postalshopper_hero.title_line_three_yellow', $hero['settings']['title_line_three_yellow'] ?? '') }}"></div>
                     <div class="field" style="grid-column:1/-1;"><label>Texto destacado</label><input type="text" name="postalshopper_hero[lead_text]" value="{{ old('postalshopper_hero.lead_text', $hero['settings']['lead_text'] ?? '') }}"></div>
                     <div class="field" style="grid-column:1/-1;"><label>Subtitulo</label><textarea class="field-small" name="postalshopper_hero[subtitle]">{{ old('postalshopper_hero.subtitle', $hero['settings']['subtitle'] ?? '') }}</textarea></div>
-                    <div class="field"><label>Boton principal</label><input type="text" name="postalshopper_hero[primary_button_label]" value="{{ old('postalshopper_hero.primary_button_label', $hero['settings']['primary_button_label'] ?? '') }}"></div>
-                    <div class="field"><label>Enlace boton principal</label><input type="text" name="postalshopper_hero[primary_button_url]" value="{{ old('postalshopper_hero.primary_button_url', $hero['settings']['primary_button_url'] ?? '') }}"></div>
+                    <div class="field"><label>Texto botón principal</label><input type="text" name="postalshopper_hero[primary_button_label]" value="{{ old('postalshopper_hero.primary_button_label', $hero['settings']['primary_button_label'] ?? '') }}"></div>
+                    <div class="field"><label>Enlace de respaldo</label><input type="text" name="postalshopper_hero[primary_button_url]" value="{{ old('postalshopper_hero.primary_button_url', $hero['settings']['primary_button_url'] ?? '') }}"><small class="field-help">El botón “Cómo funciona” prioriza el video configurado en Pasos del servicio.</small></div>
                     <div class="field"><label>Boton secundario</label><input type="text" name="postalshopper_hero[secondary_button_label]" value="{{ old('postalshopper_hero.secondary_button_label', $hero['settings']['secondary_button_label'] ?? '') }}"></div>
-                    <div class="field"><label>Enlace boton secundario</label><input type="text" name="postalshopper_hero[secondary_button_url]" value="{{ old('postalshopper_hero.secondary_button_url', $hero['settings']['secondary_button_url'] ?? '') }}"></div>
-                    <div class="field"><label>Pais origen</label><input type="text" name="postalshopper_hero[map_origin_country]" value="{{ old('postalshopper_hero.map_origin_country', $hero['settings']['map_origin_country'] ?? '') }}"></div>
-                    <div class="field"><label>Ciudad origen</label><input type="text" name="postalshopper_hero[map_origin_city]" value="{{ old('postalshopper_hero.map_origin_city', $hero['settings']['map_origin_city'] ?? '') }}"></div>
-                    <div class="field"><label>Pais destino</label><input type="text" name="postalshopper_hero[map_destination_country]" value="{{ old('postalshopper_hero.map_destination_country', $hero['settings']['map_destination_country'] ?? '') }}"></div>
-                    <div class="field"><label>Ciudad destino</label><input type="text" name="postalshopper_hero[map_destination_city]" value="{{ old('postalshopper_hero.map_destination_city', $hero['settings']['map_destination_city'] ?? '') }}"></div>
-                    <div class="field" style="grid-column:1/-1;"><label>Pie del mapa</label><input type="text" name="postalshopper_hero[map_caption]" value="{{ old('postalshopper_hero.map_caption', $hero['settings']['map_caption'] ?? '') }}"></div>
+                    <div class="field"><label>Enlace boton secundario</label><input type="text" name="postalshopper_hero[secondary_button_url]" value="{{ old('postalshopper_hero.secondary_button_url', $hero['settings']['secondary_button_url'] ?? '') }}"><small class="field-help">Por defecto usa el enlace del servicio directo configurado en esta página.</small></div>
                     <div class="field"><label>Imagen de fondo actual</label><input type="text" name="postalshopper_hero[background_image]" value="{{ old('postalshopper_hero.background_image', $hero['settings']['background_image'] ?? '') }}"></div>
                     <div class="field"><label>Subir imagen de fondo</label><input type="file" name="postalshopper_hero[background_image_file]" accept="image/*"></div>
                 </div>
@@ -93,33 +89,35 @@
             <section class="section-card">
                 <div class="section-header">
                     <div>
-                        <div class="section-eyebrow">Cobertura</div>
-                        <h3 class="section-title">Banderas y destinos Postal Shopper</h3>
-                        <p class="section-copy">Agrega destinos, cambia su estado y define a qué página debe llevar cada tarjeta. Puedes usar el emoji, una ruta de imagen o una URL segura.</p>
+                        <div class="section-eyebrow">Disponibilidad</div>
+                        <h3 class="section-title">Envíos directos y cobertura</h3>
+                        <p class="section-copy">Administra el servicio directo desde Estados Unidos y la tarjeta informativa que aparece antes de “Cómo funciona”.</p>
+                        <label class="field-help" style="display:flex;align-items:center;gap:8px;margin-top:8px;"><input type="hidden" name="postalshopper_destinations[section_active]" value="0"><input type="checkbox" name="postalshopper_destinations[section_active]" value="1" {{ old('postalshopper_destinations.section_active', $destinations['is_active']) ? 'checked' : '' }}> Mostrar esta sección</label>
                     </div>
                 </div>
                 <div class="grid grid-2" style="margin-bottom:18px;">
-                    <div class="field"><label>Título de la tarjeta promocional</label><input type="text" name="postalshopper_destinations[upcoming_label]" value="{{ old('postalshopper_destinations.upcoming_label', $destinations['settings']['upcoming_label'] ?? 'Nuevos destinos') }}"></div>
-                    <div class="field"><label>Estado de la tarjeta promocional</label><input type="text" name="postalshopper_destinations[upcoming_status]" value="{{ old('postalshopper_destinations.upcoming_status', $destinations['settings']['upcoming_status'] ?? 'Muy pronto') }}"></div>
+                    <div class="field"><label>Título de la tarjeta informativa</label><input type="text" name="postalshopper_destinations[upcoming_label]" value="{{ old('postalshopper_destinations.upcoming_label', $destinations['settings']['upcoming_label'] ?? 'Nuevos envíos') }}"></div>
+                    <div class="field"><label>Estado de la tarjeta informativa</label><input type="text" name="postalshopper_destinations[upcoming_status]" value="{{ old('postalshopper_destinations.upcoming_status', $destinations['settings']['upcoming_status'] ?? 'Muy pronto') }}"></div>
+                    <label class="field-help" style="display:flex;align-items:center;gap:8px;"><input type="hidden" name="postalshopper_destinations[upcoming_enabled]" value="0"><input type="checkbox" name="postalshopper_destinations[upcoming_enabled]" value="1" {{ old('postalshopper_destinations.upcoming_enabled', $destinations['settings']['upcoming_enabled'] ?? true) ? 'checked' : '' }}> Mostrar la tarjeta informativa</label>
                 </div>
                 <div class="subpanel">
-                    <div class="toolbar"><div><h4>Destinos visibles</h4></div><button type="button" class="button button-secondary" data-add-row>Agregar destino</button></div>
+                    <div class="toolbar"><div><h4>Servicios</h4></div><button type="button" class="button button-secondary" data-add-row>Agregar servicio</button></div>
                     <div class="stack" data-collection data-base="postalshopper_destinations[items]" data-template="postalshopper-destination-template">
                         <div class="stack" data-rows>
                             @foreach (old('postalshopper_destinations.items', $destinations['items'] ?? []) as $item)
                                 <div class="repeater-card" data-row>
                                     <div class="toolbar">
-                                        <div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['label'] ?? 'Destino' }}</strong></div>
+                                        <div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ $item['label'] ?? 'Servicio' }}</strong></div>
                                         <div class="actions">
                                             <div class="field" style="min-width:140px; margin:0;"><label>Estado</label><select data-field="item_active"><option value="1" {{ ($item['item_active'] ?? true) ? 'selected' : '' }}>Visible</option><option value="0" {{ !($item['item_active'] ?? true) ? 'selected' : '' }}>Oculto</option></select></div>
                                             <button type="button" class="button button-danger" data-remove-row>Eliminar</button>
                                         </div>
                                     </div>
                                     <div class="grid grid-2" style="margin-top:12px;">
-                                        <div class="field"><label>País / nombre</label><input type="text" data-field="label" value="{{ $item['label'] ?? '' }}" placeholder="Estados Unidos"></div>
+                                        <div class="field"><label>Servicio / país</label><input type="text" data-field="label" value="{{ $item['label'] ?? '' }}" placeholder="Estados Unidos"></div>
                                         <div class="field"><label>Bandera (emoji o imagen)</label><input type="text" data-field="flag" value="{{ $item['flag'] ?? '' }}" placeholder="🇺🇸 o /flags/us.svg"></div>
-                                        <div class="field"><label>Estado mostrado</label><input type="text" data-field="status" value="{{ $item['status'] ?? '' }}" placeholder="Disponible / Muy pronto"></div>
-                                        <div class="field"><label>Enlace de redirección</label><input type="text" data-field="url" value="{{ $item['url'] ?? '' }}" placeholder="/contacto o https://... "></div>
+                                        <div class="field"><label>Estado mostrado</label><input type="text" data-field="status" value="{{ $item['status'] ?? '' }}" placeholder="Envío directo / Muy pronto"></div>
+                                        <div class="field"><label>Enlace del servicio</label><input type="text" data-field="url" value="{{ $item['url'] ?? '' }}" placeholder="/contacto o https://... "></div>
                                     </div>
                                     <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                 </div>
@@ -130,7 +128,7 @@
             </section>
 
             <section class="section-card">
-                <div class="section-header"><div><div class="section-eyebrow">Intro</div><h3 class="section-title">Narrativa y marketplaces</h3></div></div>
+                <div class="section-header"><div><div class="section-eyebrow">Intro</div><h3 class="section-title">Narrativa y marketplaces</h3><label class="field-help" style="display:flex;align-items:center;gap:8px;margin-top:8px;"><input type="hidden" name="postalshopper_intro[section_active]" value="0"><input type="checkbox" name="postalshopper_intro[section_active]" value="1" {{ old('postalshopper_intro.section_active', $intro['is_active']) ? 'checked' : '' }}> Mostrar esta sección</label></div></div>
                 <div class="grid grid-2">
                     <div class="field"><label>Eyebrow</label><input type="text" name="postalshopper_intro[eyebrow]" value="{{ old('postalshopper_intro.eyebrow', $intro['settings']['eyebrow'] ?? '') }}"></div>
                     <div class="field"><label>Titulo</label><input type="text" name="postalshopper_intro[title]" value="{{ old('postalshopper_intro.title', $intro['settings']['title'] ?? '') }}"></div>
@@ -158,10 +156,15 @@
             </section>
 
             <section class="section-card">
-                <div class="section-header"><div><div class="section-eyebrow">Proceso</div><h3 class="section-title">Pasos del servicio</h3></div></div>
+                <div class="section-header"><div><div class="section-eyebrow">Proceso</div><h3 class="section-title">Pasos del servicio</h3><label class="field-help" style="display:flex;align-items:center;gap:8px;margin-top:8px;"><input type="hidden" name="postalshopper_steps[section_active]" value="0"><input type="checkbox" name="postalshopper_steps[section_active]" value="1" {{ old('postalshopper_steps.section_active', $steps['is_active']) ? 'checked' : '' }}> Mostrar esta sección</label></div></div>
                 <div class="grid grid-2">
                     <div class="field"><label>Titulo</label><input type="text" name="postalshopper_steps[title]" value="{{ old('postalshopper_steps.title', $steps['settings']['title'] ?? '') }}"></div>
                     <div class="field"><label>Subtitulo</label><input type="text" name="postalshopper_steps[subtitle]" value="{{ old('postalshopper_steps.subtitle', $steps['settings']['subtitle'] ?? '') }}"></div>
+                    <div class="field"><label>Enlace del tutorial (video)</label><input type="text" name="postalshopper_steps[tutorial_url]" value="{{ old('postalshopper_steps.tutorial_url', $steps['settings']['tutorial_url'] ?? '') }}" placeholder="URL del video"><small class="field-help">El botón “Cómo funciona” abre este video. Si está vacío, usa el enlace principal de la portada.</small></div>
+                    <div class="field"><label>Texto del tutorial</label><input type="text" name="postalshopper_steps[tutorial_label]" value="{{ old('postalshopper_steps.tutorial_label', $steps['settings']['tutorial_label'] ?? 'Ver tutorial completo') }}"></div>
+                    <div class="field"><label>Duración del tutorial</label><input type="text" name="postalshopper_steps[tutorial_duration]" value="{{ old('postalshopper_steps.tutorial_duration', $steps['settings']['tutorial_duration'] ?? '1:30 min') }}"></div>
+                    <div class="field"><label>Imagen actual del tutorial</label><input type="text" name="postalshopper_steps[tutorial_image]" value="{{ old('postalshopper_steps.tutorial_image', $steps['settings']['tutorial_image'] ?? '') }}"></div>
+                    <div class="field"><label>Subir miniatura del tutorial</label><input type="file" name="postalshopper_steps[tutorial_image_file]" accept="image/*"></div>
                 </div>
                 <div class="subpanel">
                     <div class="toolbar"><div><h4>Tarjetas de pasos</h4></div><button type="button" class="button button-secondary" data-add-row>Agregar paso</button></div>
@@ -185,7 +188,55 @@
             </section>
 
             <section class="section-card">
-                <div class="section-header"><div><div class="section-eyebrow">Beneficios</div><h3 class="section-title">Tarjetas y banner final</h3></div></div>
+                <div class="section-header">
+                    <div>
+                        <div class="section-eyebrow">Tarifas</div>
+                        <h3 class="section-title">Calculadora de paquetería</h3>
+                        <p class="section-copy">Edita los textos, la imagen y cada tarifa que aparece en el cotizador.</p>
+                        <label class="field-help" style="display:flex;align-items:center;gap:8px;margin-top:8px;"><input type="hidden" name="postalshopper_calculator[section_active]" value="0"><input type="checkbox" name="postalshopper_calculator[section_active]" value="1" {{ old('postalshopper_calculator.section_active', $calculator['is_active']) ? 'checked' : '' }}> Mostrar esta sección</label>
+                    </div>
+                </div>
+                <div class="grid grid-2">
+                    <div class="field"><label>Etiqueta superior</label><input type="text" name="postalshopper_calculator[eyebrow]" value="{{ old('postalshopper_calculator.eyebrow', $calculator['settings']['eyebrow'] ?? '') }}"></div>
+                    <div class="field"><label>Texto del título</label><input type="text" name="postalshopper_calculator[title]" value="{{ old('postalshopper_calculator.title', $calculator['settings']['title'] ?? '') }}"></div>
+                    <div class="field"><label>Texto destacado del título</label><input type="text" name="postalshopper_calculator[title_accent]" value="{{ old('postalshopper_calculator.title_accent', $calculator['settings']['title_accent'] ?? '') }}"></div>
+                    <div class="field"><label>Descripción</label><input type="text" name="postalshopper_calculator[description]" value="{{ old('postalshopper_calculator.description', $calculator['settings']['description'] ?? '') }}"></div>
+                    <div class="field"><label>Texto para elegir el peso</label><input type="text" name="postalshopper_calculator[weight_title]" value="{{ old('postalshopper_calculator.weight_title', $calculator['settings']['weight_title'] ?? '') }}"></div>
+                    <div class="field"><label>Ayuda del peso</label><input type="text" name="postalshopper_calculator[weight_help]" value="{{ old('postalshopper_calculator.weight_help', $calculator['settings']['weight_help'] ?? '') }}"></div>
+                    <div class="field"><label>Unidad singular</label><input type="text" name="postalshopper_calculator[weight_unit_singular]" value="{{ old('postalshopper_calculator.weight_unit_singular', $calculator['settings']['weight_unit_singular'] ?? 'libra') }}"></div>
+                    <div class="field"><label>Unidad plural</label><input type="text" name="postalshopper_calculator[weight_unit_plural]" value="{{ old('postalshopper_calculator.weight_unit_plural', $calculator['settings']['weight_unit_plural'] ?? 'libras') }}"></div>
+                    <div class="field"><label>Moneda</label><input type="text" name="postalshopper_calculator[currency_label]" value="{{ old('postalshopper_calculator.currency_label', $calculator['settings']['currency_label'] ?? '$us') }}" placeholder="$us"></div>
+                    <div class="field"><label>Etiqueta del total</label><input type="text" name="postalshopper_calculator[total_label]" value="{{ old('postalshopper_calculator.total_label', $calculator['settings']['total_label'] ?? '') }}"></div>
+                    <div class="field"><label>Texto pequeño del personaje</label><input type="text" name="postalshopper_calculator[caption_label]" value="{{ old('postalshopper_calculator.caption_label', $calculator['settings']['caption_label'] ?? '') }}"></div>
+                    <div class="field"><label>Texto principal del personaje</label><input type="text" name="postalshopper_calculator[caption_text]" value="{{ old('postalshopper_calculator.caption_text', $calculator['settings']['caption_text'] ?? '') }}"></div>
+                    <div class="field"><label>Imagen actual</label><input type="text" name="postalshopper_calculator[image]" value="{{ old('postalshopper_calculator.image', $calculator['settings']['image'] ?? '') }}"></div>
+                    <div class="field"><label>Subir imagen del cotizador</label><input type="file" name="postalshopper_calculator[image_file]" accept="image/*"></div>
+                    <div class="field" style="grid-column:1/-1;"><label>Texto alternativo de la imagen</label><input type="text" name="postalshopper_calculator[image_alt]" value="{{ old('postalshopper_calculator.image_alt', $calculator['settings']['image_alt'] ?? '') }}"></div>
+                </div>
+                <div class="subpanel">
+                    <div class="toolbar"><div><h4>Tarifas por peso</h4><p class="field-help">Usa punto decimal en el precio, por ejemplo 10.59. Debe quedar al menos una tarifa.</p></div><button type="button" class="button button-secondary" data-add-row>Agregar tarifa</button></div>
+                    <div class="stack" data-collection data-base="postalshopper_calculator[items]" data-template="postalshopper-rate-template">
+                        <div class="stack" data-rows>
+                            @foreach (old('postalshopper_calculator.items', $calculator['items'] ?? []) as $item)
+                                <div class="repeater-card" data-row>
+                                    <div class="toolbar">
+                                        <div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ isset($item['weight']) ? $item['weight'] . ' lb' : 'Tarifa' }}</strong></div>
+                                        <button type="button" class="button button-danger" data-remove-row>Eliminar</button>
+                                    </div>
+                                    <div class="grid grid-2" style="margin-top:12px;">
+                                        <div class="field"><label>Peso (libras)</label><input type="number" min="1" max="1000" step="1" data-field="weight" value="{{ $item['weight'] ?? '' }}"></div>
+                                        <div class="field"><label>Precio</label><input type="number" min="0" max="1000000" step="0.01" data-field="price" value="{{ $item['price'] ?? '' }}"></div>
+                                    </div>
+                                    <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-card">
+                <div class="section-header"><div><div class="section-eyebrow">Beneficios</div><h3 class="section-title">Tarjetas y banner final</h3><label class="field-help" style="display:flex;align-items:center;gap:8px;margin-top:8px;"><input type="hidden" name="postalshopper_benefits[section_active]" value="0"><input type="checkbox" name="postalshopper_benefits[section_active]" value="1" {{ old('postalshopper_benefits.section_active', $benefits['is_active']) ? 'checked' : '' }}> Mostrar esta sección</label></div></div>
                 <div class="grid grid-2">
                     <div class="field"><label>Titulo</label><input type="text" name="postalshopper_benefits[title]" value="{{ old('postalshopper_benefits.title', $benefits['settings']['title'] ?? '') }}"></div>
                     <div class="field"><label>Subtitulo</label><input type="text" name="postalshopper_benefits[subtitle]" value="{{ old('postalshopper_benefits.subtitle', $benefits['settings']['subtitle'] ?? '') }}"></div>
@@ -243,17 +294,17 @@
         <template id="postalshopper-destination-template">
             <div class="repeater-card" data-row>
                 <div class="toolbar">
-                    <div class="actions"><span class="drag-handle" data-drag>::</span><strong>Nuevo destino</strong></div>
+                    <div class="actions"><span class="drag-handle" data-drag>::</span><strong>Nuevo servicio</strong></div>
                     <div class="actions">
                         <div class="field" style="min-width:140px; margin:0;"><label>Estado</label><select data-field="item_active"><option value="1" selected>Visible</option><option value="0">Oculto</option></select></div>
                         <button type="button" class="button button-danger" data-remove-row>Eliminar</button>
                     </div>
                 </div>
                 <div class="grid grid-2" style="margin-top:12px;">
-                    <div class="field"><label>País / nombre</label><input type="text" data-field="label" placeholder="Estados Unidos"></div>
+                    <div class="field"><label>Servicio / país</label><input type="text" data-field="label" placeholder="Estados Unidos"></div>
                     <div class="field"><label>Bandera (emoji o imagen)</label><input type="text" data-field="flag" placeholder="🇺🇸 o /flags/us.svg"></div>
-                    <div class="field"><label>Estado mostrado</label><input type="text" data-field="status" placeholder="Disponible / Muy pronto"></div>
-                    <div class="field"><label>Enlace de redirección</label><input type="text" data-field="url" placeholder="/contacto o https://..."></div>
+                    <div class="field"><label>Estado mostrado</label><input type="text" data-field="status" placeholder="Envío directo / Muy pronto"></div>
+                    <div class="field"><label>Enlace del servicio</label><input type="text" data-field="url" placeholder="/contacto o https://..."></div>
                 </div>
                 <input type="hidden" data-field="id">
             </div>
@@ -279,6 +330,20 @@
                     <div class="field"><label>Ícono</label><input type="text" data-field="icon"></div>
                     <div class="field"><label>Titulo</label><input type="text" data-field="title"></div>
                     <div class="field" style="grid-column:1/-1;"><label>Descripcion</label><textarea class="field-small" data-field="text"></textarea></div>
+                </div>
+                <input type="hidden" data-field="id">
+            </div>
+        </template>
+
+        <template id="postalshopper-rate-template">
+            <div class="repeater-card" data-row>
+                <div class="toolbar">
+                    <div class="actions"><span class="drag-handle" data-drag>::</span><strong>Nueva tarifa</strong></div>
+                    <button type="button" class="button button-danger" data-remove-row>Eliminar</button>
+                </div>
+                <div class="grid grid-2" style="margin-top:12px;">
+                    <div class="field"><label>Peso (libras)</label><input type="number" min="1" max="1000" step="1" data-field="weight"></div>
+                    <div class="field"><label>Precio</label><input type="number" min="0" max="1000000" step="0.01" data-field="price"></div>
                 </div>
                 <input type="hidden" data-field="id">
             </div>
