@@ -371,6 +371,7 @@ class AdminPageController extends Controller
             'max.string' => 'El campo :attribute no debe superar los :max caracteres.',
             'max.numeric' => 'El campo :attribute no puede ser mayor a :max.',
             'max.file' => 'La :attribute es demasiado pesada. Reduce el archivo antes de subirlo.',
+            'postalshopper_hero.paragraphs.*.text.max' => 'Cada párrafo de la portada no debe superar los 1000 caracteres.',
             'min.numeric' => 'El campo :attribute no puede ser menor a :min.',
             'unique' => 'La :attribute ya esta en uso. Usa otro valor.',
             'theme.logo_file.max' => 'El logo del sitio debe pesar como maximo 15 MB.',
@@ -401,6 +402,8 @@ class AdminPageController extends Controller
             'postalshopper_hero.background_image_file.max' => 'La imagen de fondo del hero de Postal Shopper debe pesar como maximo 15 MB.',
             'postalshopper_intro.items.*.logo_file.max' => 'Cada logo de tienda debe pesar como maximo 15 MB.',
             'postalshopper_steps.tutorial_image_file.max' => 'La miniatura del tutorial de Postal Shopper debe pesar como maximo 15 MB.',
+            'postalshopper_steps.tutorial_video_file.max' => 'El video del tutorial de Postal Shopper no debe superar los 200 MB.',
+            'postalshopper_steps.tutorial_video_file.mimetypes' => 'El video del tutorial debe estar en formato MP4 o WebM.',
             'postalshopper_calculator.image_file.max' => 'La imagen de la calculadora de Postal Shopper debe pesar como maximo 15 MB.',
             'postalshopper_calculator.items.*.weight.distinct' => 'Cada peso de la calculadora debe ser único.',
             'postalshopper_calculator.items.*.price.numeric' => 'Cada tarifa debe ser un número válido.',
@@ -464,8 +467,10 @@ class AdminPageController extends Controller
             'correspondencia_cta.qr_image_file' => 'imagen QR de Correspondencia Agrupada',
             'casillas_hero.background_image_file' => 'imagen de fondo del hero de Casillas',
             'postalshopper_hero.background_image_file' => 'imagen de fondo del hero de Postal Shopper',
+            'postalshopper_hero.paragraphs.*.text' => 'párrafo de la portada de Postal Shopper',
             'postalshopper_intro.items.*.logo_file' => 'logo de tienda de Postal Shopper',
             'postalshopper_steps.tutorial_image_file' => 'miniatura del tutorial de Postal Shopper',
+            'postalshopper_steps.tutorial_video_file' => 'video del tutorial de Postal Shopper',
             'postalshopper_calculator.image_file' => 'imagen de la calculadora de Postal Shopper',
             'postalshopper_calculator.items.*.weight' => 'peso de la tarifa',
             'postalshopper_calculator.items.*.price' => 'precio de la tarifa',
@@ -530,8 +535,12 @@ class AdminPageController extends Controller
             'correspondencia_cta.qr_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'casillas_hero.background_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'postalshopper_hero.background_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'postalshopper_hero.paragraphs' => ['nullable', 'array'],
+            'postalshopper_hero.paragraphs.*.text' => ['nullable', 'string', 'max:1000'],
+            'postalshopper_hero.paragraphs.*.style' => ['nullable', 'in:lead,body'],
             'postalshopper_intro.items.*.logo_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'postalshopper_steps.tutorial_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'postalshopper_steps.tutorial_video_file' => ['nullable', 'file', 'mimetypes:video/mp4,video/webm', 'max:204800'],
             'postalshopper_calculator.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'postalshopper_destinations.items' => ['nullable', 'array'],
             'postalshopper_destinations.items.*.label' => ['nullable', 'string', 'max:100'],
@@ -542,9 +551,70 @@ class AdminPageController extends Controller
             'postalshopper_destinations.upcoming_label' => ['nullable', 'string', 'max:60'],
             'postalshopper_destinations.upcoming_status' => ['nullable', 'string', 'max:40'],
             'postalshopper_destinations.upcoming_enabled' => ['nullable', 'boolean'],
-            'postalshopper_calculator.items' => ['required', 'array', 'min:1'],
-            'postalshopper_calculator.items.*.weight' => ['required', 'integer', 'min:1', 'max:1000', 'distinct'],
+            'postalshopper_calculator.items' => ['required', 'array', 'size:20'],
+            'postalshopper_calculator.items.*.weight' => ['required', 'integer', 'min:1', 'max:20', 'distinct'],
             'postalshopper_calculator.items.*.price' => ['required', 'numeric', 'min:0', 'max:1000000'],
+            'postalshopper_calculator.excess_weight_price_per_lb' => ['required', 'numeric', 'min:0', 'max:1000000'],
+            'postalshopper_calculator.products_title' => ['nullable', 'string', 'max:180'],
+            'postalshopper_calculator.products_help' => ['nullable', 'string', 'max:500'],
+            'postalshopper_calculator.unclassified_notice' => ['nullable', 'string', 'max:1000'],
+            'postalshopper_calculator.caption_notice' => ['nullable', 'string', 'max:240'],
+            'postalshopper_calculator.progress_label' => ['nullable', 'string', 'max:120'],
+            'postalshopper_calculator.step_products_label' => ['nullable', 'string', 'max:60'],
+            'postalshopper_calculator.step_weight_label' => ['nullable', 'string', 'max:60'],
+            'postalshopper_calculator.step_quote_label' => ['nullable', 'string', 'max:60'],
+            'postalshopper_calculator.category_picker_label' => ['nullable', 'string', 'max:180'],
+            'postalshopper_calculator.selected_products_label' => ['nullable', 'string', 'max:120'],
+            'postalshopper_calculator.category_reference_label' => ['nullable', 'string', 'max:60'],
+            'postalshopper_calculator.category_confirmed_label' => ['nullable', 'string', 'max:60'],
+            'postalshopper_calculator.category_pending_label' => ['nullable', 'string', 'max:60'],
+            'postalshopper_calculator.empty_selection_label' => ['nullable', 'string', 'max:240'],
+            'postalshopper_calculator.empty_categories_label' => ['nullable', 'string', 'max:240'],
+            'postalshopper_calculator.missing_category_label' => ['nullable', 'string', 'max:180'],
+            'postalshopper_calculator.remove_product_label' => ['nullable', 'string', 'max:60'],
+            'postalshopper_calculator.weight_input_label' => ['nullable', 'string', 'max:60'],
+            'postalshopper_calculator.weight_positive_help' => ['nullable', 'string', 'max:500'],
+            'postalshopper_calculator.weight_total_label' => ['nullable', 'string', 'max:120'],
+            'postalshopper_calculator.quote_weight_total_label' => ['nullable', 'string', 'max:120'],
+            'postalshopper_calculator.button_continue_weight' => ['nullable', 'string', 'max:80'],
+            'postalshopper_calculator.button_continue_quote' => ['nullable', 'string', 'max:80'],
+            'postalshopper_calculator.button_edit_products' => ['nullable', 'string', 'max:80'],
+            'postalshopper_calculator.button_edit_weight' => ['nullable', 'string', 'max:80'],
+            'postalshopper_calculator.button_create_account' => ['nullable', 'string', 'max:80'],
+            'postalshopper_calculator.quote_rule_label' => ['nullable', 'string', 'max:120'],
+            'postalshopper_calculator.quote_source_link_label' => ['nullable', 'string', 'max:80'],
+            'postalshopper_calculator.calculator_aria_label' => ['nullable', 'string', 'max:160'],
+            'postalshopper_calculator.quote_applied_label' => ['nullable', 'string', 'max:120'],
+            'postalshopper_calculator.quote_base_label' => ['nullable', 'string', 'max:120'],
+            'postalshopper_calculator.quote_excess_label' => ['nullable', 'string', 'max:120'],
+            'postalshopper_calculator.quote_title' => ['nullable', 'string', 'max:180'],
+            'postalshopper_calculator.quote_help' => ['nullable', 'string', 'max:500'],
+            'postalshopper_calculator.shipping_label' => ['nullable', 'string', 'max:120'],
+            'postalshopper_calculator.pending_quote_title' => ['nullable', 'string', 'max:180'],
+            'postalshopper_calculator.pending_quote_message' => ['nullable', 'string', 'max:1000'],
+            'postalshopper_calculator.estimate_disclaimer' => ['nullable', 'string', 'max:1200'],
+            'postalshopper_calculator.categories' => ['nullable', 'array'],
+            'postalshopper_calculator.categories.*.key' => ['nullable', 'string', 'max:80', 'distinct'],
+            'postalshopper_calculator.categories.*.icon' => ['nullable', 'in:package,clothing,technology,beauty,home'],
+            'postalshopper_calculator.categories.*.image' => ['nullable', 'string', 'max:2048'],
+            'postalshopper_calculator.categories.*.image_file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
+            'postalshopper_calculator.categories.*.label' => ['nullable', 'string', 'max:120'],
+            'postalshopper_calculator.categories.*.description' => ['nullable', 'string', 'max:500'],
+            'postalshopper_calculator.categories.*.restrictions' => ['nullable', 'string', 'max:1000'],
+            'postalshopper_calculator.categories.*.source_label' => ['nullable', 'string', 'max:160'],
+            'postalshopper_calculator.categories.*.source_url' => ['nullable', 'string', 'max:2048'],
+            'postalshopper_calculator.categories.*.confirmed' => ['nullable', 'boolean'],
+            'postalshopper_calculator.categories.*.is_reference' => ['nullable', 'boolean'],
+            'postalshopper_calculator.categories_configured' => ['nullable', 'boolean'],
+            'postalshopper_calculator.tariff_rules' => ['nullable', 'array'],
+            'postalshopper_calculator.tariff_rules.*.category_keys' => ['nullable', 'string', 'max:255'],
+            'postalshopper_calculator.tariff_rules.*.weight_min' => ['nullable', 'numeric', 'min:0.01', 'max:1000'],
+            'postalshopper_calculator.tariff_rules.*.weight_max' => ['nullable', 'numeric', 'min:0.01', 'max:1000'],
+            'postalshopper_calculator.tariff_rules.*.shipping_price' => ['nullable', 'numeric', 'min:0', 'max:1000000'],
+            'postalshopper_calculator.tariff_rules.*.currency' => ['nullable', 'string', 'max:12'],
+            'postalshopper_calculator.tariff_rules.*.source_label' => ['nullable', 'string', 'max:160'],
+            'postalshopper_calculator.tariff_rules.*.source_url' => ['nullable', 'string', 'max:2048'],
+            'postalshopper_calculator.tariff_rules.*.confirmed' => ['nullable', 'boolean'],
             'encomienda_hero.visual_image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'encomienda_intro.image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
             'footer.seal_logo_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:15360'],
@@ -1563,6 +1633,7 @@ class AdminPageController extends Controller
     protected function buildPostalshopperEditorData(SitePage $page): array
     {
         $theme = $this->sharedTheme($page);
+        $calculatorSettings = $this->postalshopperCalculatorSettings($page);
 
         return [
             'theme' => [
@@ -1605,22 +1676,7 @@ class AdminPageController extends Controller
             ],
             'postalshopper_calculator' => [
                 'is_active' => $this->sectionIsActive($page, 'postalshopper_calculator'),
-                'settings' => $this->sectionSettings($page, 'postalshopper_calculator', [
-                    'eyebrow' => 'COTIZADOR DE ENVÍOS',
-                    'title' => 'Cotiza tu paquete',
-                    'title_accent' => 'en segundos.',
-                    'description' => 'Consulta una tarifa estimada para tu envío.',
-                    'weight_title' => 'Elige el peso del paquete',
-                    'weight_help' => 'Selecciona entre 1 y 5 libras',
-                    'weight_unit_singular' => 'libra',
-                    'weight_unit_plural' => 'libras',
-                    'currency_label' => '$us',
-                    'total_label' => 'Tarifa estimada',
-                    'image' => '',
-                    'image_alt' => 'Cartero con un paquete y una calculadora de envíos',
-                    'caption_label' => 'POSTAL SHOPPER',
-                    'caption_text' => 'Tus compras, de Miami a Bolivia',
-                ]),
+                'settings' => $calculatorSettings,
                 'items' => $this->postalshopperCalculatorItems($page),
             ],
             'postalshopper_benefits' => [
@@ -1634,8 +1690,118 @@ class AdminPageController extends Controller
                     'banner_button_url' => '',
                 ]),
                 'items' => $this->sectionItems($page, 'postalshopper_benefits'),
-            },
+            ],
         ];
+    }
+
+    protected function postalshopperCalculatorSettings(SitePage $page): array
+    {
+        $settings = $this->sectionSettings($page, 'postalshopper_calculator', [
+            'eyebrow' => 'COTIZADOR DE ENVÍOS',
+            'title' => 'Cotiza tu',
+            'title_accent' => 'compra',
+            'description' => '¿Qué productos vas a recibir en tu casilla?',
+            'products_title' => '¿Qué productos vas a recibir en tu casilla?',
+            'products_help' => 'Agrega cada producto por separado. Puedes indicar más de una categoría.',
+            'unclassified_notice' => 'Estas opciones son orientativas y no representan categorías oficiales ni determinan una tarifa. La clasificación, admisión y costo se confirman con el proveedor.',
+            'caption_notice' => 'Acompañamos cada envío hasta Bolivia.',
+            'progress_label' => 'Pasos de la cotización',
+            'step_products_label' => 'Productos',
+            'step_weight_label' => 'Peso',
+            'step_quote_label' => 'Cotización',
+            'category_picker_label' => 'Elige uno o varios tipos de producto',
+            'selected_products_label' => 'Productos seleccionados',
+            'category_reference_label' => 'Orientativa',
+            'category_confirmed_label' => 'Confirmada',
+            'category_pending_label' => 'Por confirmar',
+            'empty_selection_label' => 'Selecciona una o varias categorías para armar tu compra.',
+            'empty_categories_label' => 'No hay categorías disponibles en este momento.',
+            'missing_category_label' => 'Elige una categoría arriba para este producto.',
+            'remove_product_label' => 'Quitar',
+            'weight_input_label' => 'Peso de',
+            'weight_positive_help' => 'Usa un valor positivo. El peso final se verificará cuando llegue el paquete al almacén.',
+            'weight_total_label' => 'Peso estimado total',
+            'quote_weight_total_label' => 'Peso total estimado',
+            'button_continue_weight' => 'Continuar al peso',
+            'button_continue_quote' => 'Ver cotización',
+            'button_edit_products' => 'Editar productos',
+            'button_edit_weight' => 'Editar peso',
+            'button_create_account' => 'Crear mi casilla',
+            'quote_rule_label' => 'Regla confirmada:',
+            'quote_source_link_label' => 'Ver fuente',
+            'calculator_aria_label' => 'Calculadora de tarifa Postal Shopper',
+            'quote_applied_label' => 'Tarifa aplicada hasta',
+            'quote_base_label' => 'Tarifa base para',
+            'quote_excess_label' => 'Peso excedente',
+            'categories_configured' => false,
+            'weight_title' => '¿Cuánto pesa cada producto?',
+            'weight_help' => 'Ingresa el peso estimado de cada producto.',
+            'weight_unit_singular' => 'libra',
+            'weight_unit_plural' => 'libras',
+            'currency_label' => '$us',
+            'excess_weight_price_per_lb' => 4,
+            'total_label' => 'Tarifa estimada',
+            'shipping_label' => 'Envío Postal Shopper',
+            'quote_title' => 'Resumen de tu cotización',
+            'quote_help' => 'Revisa los productos, categorías y peso estimado.',
+            'pending_quote_title' => 'Cotización pendiente de confirmación',
+            'pending_quote_message' => 'No hay una tarifa cargada para el peso indicado ni una regla confirmada para los productos seleccionados.',
+            'estimate_disclaimer' => 'El peso y el costo finales se confirman cuando el paquete llega al almacén y es verificado. Impuestos y otros cargos no se incluyen sin una regla y un valor confirmados.',
+            'categories' => [
+                ['key' => 'reference-clothing-footwear', 'label' => 'Ropa y calzado', 'icon' => 'clothing', 'confirmed' => false, 'is_reference' => true],
+                ['key' => 'reference-technology', 'label' => 'Tecnología', 'icon' => 'technology', 'confirmed' => false, 'is_reference' => true],
+                ['key' => 'reference-beauty', 'label' => 'Belleza y cuidado personal', 'icon' => 'beauty', 'confirmed' => false, 'is_reference' => true],
+                ['key' => 'reference-home', 'label' => 'Hogar', 'icon' => 'home', 'confirmed' => false, 'is_reference' => true],
+            ],
+            'tariff_rules' => [],
+            'image' => '',
+            'image_alt' => 'Cartero con un paquete y una calculadora de envíos',
+            'caption_label' => 'POSTAL SHOPPER',
+            'caption_text' => 'Tus compras, de Miami a Bolivia',
+        ]);
+
+        if (($settings['title'] ?? '') === 'Cotiza tu paquete') {
+            $settings['title'] = 'Cotiza tu';
+        }
+        if (($settings['title_accent'] ?? '') === 'en segundos.') {
+            $settings['title_accent'] = 'compra';
+        }
+        if (($settings['description'] ?? '') === 'Consulta una tarifa estimada para tu envío.') {
+            $settings['description'] = '¿Qué productos vas a recibir en tu casilla?';
+        }
+        if (($settings['weight_title'] ?? '') === 'Elige el peso del paquete') {
+            $settings['weight_title'] = '¿Cuánto pesa cada producto?';
+        }
+        if (($settings['weight_help'] ?? '') === 'Selecciona entre 1 y 5 libras') {
+            $settings['weight_help'] = 'Ingresa el peso estimado de cada producto.';
+        }
+        if (($settings['unclassified_notice'] ?? '') === 'No hay categorías oficiales ni restricciones configuradas en la información disponible. Describe tu compra; su clasificación y admisión deben confirmarse con el proveedor.') {
+            $settings['unclassified_notice'] = 'Estas opciones son orientativas y no representan categorías oficiales ni determinan una tarifa. La clasificación, admisión y costo se confirman con el proveedor.';
+        }
+        if (empty($settings['categories_configured'])) {
+            $settings['categories'] = [
+                ['key' => 'reference-clothing-footwear', 'label' => 'Ropa y calzado', 'icon' => 'clothing', 'confirmed' => false, 'is_reference' => true],
+                ['key' => 'reference-technology', 'label' => 'Tecnología', 'icon' => 'technology', 'confirmed' => false, 'is_reference' => true],
+                ['key' => 'reference-beauty', 'label' => 'Belleza y cuidado personal', 'icon' => 'beauty', 'confirmed' => false, 'is_reference' => true],
+                ['key' => 'reference-home', 'label' => 'Hogar', 'icon' => 'home', 'confirmed' => false, 'is_reference' => true],
+            ];
+        }
+        $settings['categories_configured'] = true;
+        $settings['categories'] = array_map(function ($category) {
+            if (!is_array($category)) {
+                return $category;
+            }
+
+            $key = (string) ($category['key'] ?? '');
+            $category['is_reference'] = filter_var(
+                $category['is_reference'] ?? (strpos($key, 'reference-') === 0),
+                FILTER_VALIDATE_BOOLEAN
+            );
+
+            return $category;
+        }, $settings['categories']);
+
+        return $settings;
     }
 
     protected function postalshopperHeroSettings(SitePage $page): array
@@ -2667,8 +2833,16 @@ class AdminPageController extends Controller
                 'title_line_two_white' => $request->input('postalshopper_hero.title_line_two_white'),
                 'title_line_two_yellow' => $request->input('postalshopper_hero.title_line_two_yellow'),
                 'title_line_three_yellow' => $request->input('postalshopper_hero.title_line_three_yellow'),
-                'lead_text' => $request->input('postalshopper_hero.lead_text'),
-                'subtitle' => $request->input('postalshopper_hero.subtitle'),
+                'lead_text' => '',
+                'subtitle' => '',
+                'paragraphs' => collect($request->input('postalshopper_hero.paragraphs', []))
+                    ->filter(fn ($paragraph) => is_array($paragraph) && filled($paragraph['text'] ?? null))
+                    ->map(fn ($paragraph) => [
+                        'text' => trim((string) $paragraph['text']),
+                        'style' => ($paragraph['style'] ?? '') === 'lead' ? 'lead' : 'body',
+                    ])
+                    ->values()
+                    ->all(),
                 'primary_button_label' => $request->input('postalshopper_hero.primary_button_label'),
                 'primary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('postalshopper_hero.primary_button_url')) ?? '',
                 'secondary_button_label' => $request->input('postalshopper_hero.secondary_button_label'),
@@ -2714,7 +2888,12 @@ class AdminPageController extends Controller
             $this->makeSectionPayload($page, 'postalshopper_steps', 'Postal Shopper Pasos', 'postalshopper_steps', 3, [
                 'title' => $request->input('postalshopper_steps.title'),
                 'subtitle' => $request->input('postalshopper_steps.subtitle'),
-                'tutorial_url' => ContentSecurity::sanitizeLinkUrl($request->input('postalshopper_steps.tutorial_url')) ?? '',
+                'tutorial_url' => $this->storeUploadedVideo(
+                    $request,
+                    'postalshopper_steps.tutorial_video_file',
+                    ContentSecurity::sanitizeLinkUrl($request->input('postalshopper_steps.tutorial_url')) ?? '',
+                    'cms/postalshopper/tutorial'
+                ) ?? '',
                 'tutorial_image' => $this->storeUploadedImage($request, 'postalshopper_steps.tutorial_image_file', $request->input('postalshopper_steps.tutorial_image'), 'cms/postalshopper/tutorial'),
                 'tutorial_label' => $request->input('postalshopper_steps.tutorial_label'),
                 'tutorial_duration' => $request->input('postalshopper_steps.tutorial_duration'),
@@ -2732,12 +2911,54 @@ class AdminPageController extends Controller
                 'title' => $request->input('postalshopper_calculator.title'),
                 'title_accent' => $request->input('postalshopper_calculator.title_accent'),
                 'description' => $request->input('postalshopper_calculator.description'),
+                'products_title' => $request->input('postalshopper_calculator.products_title'),
+                'products_help' => $request->input('postalshopper_calculator.products_help'),
+                'unclassified_notice' => $request->input('postalshopper_calculator.unclassified_notice'),
+                'caption_notice' => $request->input('postalshopper_calculator.caption_notice'),
+                'progress_label' => $request->input('postalshopper_calculator.progress_label'),
+                'step_products_label' => $request->input('postalshopper_calculator.step_products_label'),
+                'step_weight_label' => $request->input('postalshopper_calculator.step_weight_label'),
+                'step_quote_label' => $request->input('postalshopper_calculator.step_quote_label'),
+                'category_picker_label' => $request->input('postalshopper_calculator.category_picker_label'),
+                'selected_products_label' => $request->input('postalshopper_calculator.selected_products_label'),
+                'category_reference_label' => $request->input('postalshopper_calculator.category_reference_label'),
+                'category_confirmed_label' => $request->input('postalshopper_calculator.category_confirmed_label'),
+                'category_pending_label' => $request->input('postalshopper_calculator.category_pending_label'),
+                'empty_selection_label' => $request->input('postalshopper_calculator.empty_selection_label'),
+                'empty_categories_label' => $request->input('postalshopper_calculator.empty_categories_label'),
+                'missing_category_label' => $request->input('postalshopper_calculator.missing_category_label'),
+                'remove_product_label' => $request->input('postalshopper_calculator.remove_product_label'),
+                'weight_input_label' => $request->input('postalshopper_calculator.weight_input_label'),
+                'weight_positive_help' => $request->input('postalshopper_calculator.weight_positive_help'),
+                'weight_total_label' => $request->input('postalshopper_calculator.weight_total_label'),
+                'quote_weight_total_label' => $request->input('postalshopper_calculator.quote_weight_total_label'),
+                'button_continue_weight' => $request->input('postalshopper_calculator.button_continue_weight'),
+                'button_continue_quote' => $request->input('postalshopper_calculator.button_continue_quote'),
+                'button_edit_products' => $request->input('postalshopper_calculator.button_edit_products'),
+                'button_edit_weight' => $request->input('postalshopper_calculator.button_edit_weight'),
+                'button_create_account' => $request->input('postalshopper_calculator.button_create_account'),
+                'quote_rule_label' => $request->input('postalshopper_calculator.quote_rule_label'),
+                'quote_source_link_label' => $request->input('postalshopper_calculator.quote_source_link_label'),
+                'calculator_aria_label' => $request->input('postalshopper_calculator.calculator_aria_label'),
+                'quote_applied_label' => $request->input('postalshopper_calculator.quote_applied_label'),
+                'quote_base_label' => $request->input('postalshopper_calculator.quote_base_label'),
+                'quote_excess_label' => $request->input('postalshopper_calculator.quote_excess_label'),
+                'categories_configured' => $request->boolean('postalshopper_calculator.categories_configured'),
                 'weight_title' => $request->input('postalshopper_calculator.weight_title'),
                 'weight_help' => $request->input('postalshopper_calculator.weight_help'),
                 'weight_unit_singular' => $request->input('postalshopper_calculator.weight_unit_singular'),
                 'weight_unit_plural' => $request->input('postalshopper_calculator.weight_unit_plural'),
                 'currency_label' => $request->input('postalshopper_calculator.currency_label'),
+                'excess_weight_price_per_lb' => $request->input('postalshopper_calculator.excess_weight_price_per_lb'),
                 'total_label' => $request->input('postalshopper_calculator.total_label'),
+                'shipping_label' => $request->input('postalshopper_calculator.shipping_label'),
+                'quote_title' => $request->input('postalshopper_calculator.quote_title'),
+                'quote_help' => $request->input('postalshopper_calculator.quote_help'),
+                'pending_quote_title' => $request->input('postalshopper_calculator.pending_quote_title'),
+                'pending_quote_message' => $request->input('postalshopper_calculator.pending_quote_message'),
+                'estimate_disclaimer' => $request->input('postalshopper_calculator.estimate_disclaimer'),
+                'categories' => $this->normalizePostalshopperCategories(data_get($form, 'postalshopper_calculator.categories', [])),
+                'tariff_rules' => $this->normalizePostalshopperTariffRules(data_get($form, 'postalshopper_calculator.tariff_rules', [])),
                 'image' => $this->storeUploadedImage($request, 'postalshopper_calculator.image_file', $request->input('postalshopper_calculator.image'), 'cms/postalshopper/calculator'),
                 'image_alt' => $request->input('postalshopper_calculator.image_alt'),
                 'caption_label' => $request->input('postalshopper_calculator.caption_label'),
@@ -3086,6 +3307,17 @@ class AdminPageController extends Controller
         return $this->normalizeAssetUrl(Storage::disk('public')->url($path));
     }
 
+    protected function storeUploadedVideo(Request $request, string $fileKey, ?string $fallbackUrl, string $directory): ?string
+    {
+        if (! $request->hasFile($fileKey)) {
+            return $this->normalizeAssetUrl($fallbackUrl);
+        }
+
+        $path = $request->file($fileKey)->store($directory, 'public');
+
+        return $this->normalizeAssetUrl(Storage::disk('public')->url($path));
+    }
+
     protected function storeRepeaterImage(array $item, string $fileField, string $urlField, string $directory): ?string
     {
         if (($item[$fileField] ?? null) instanceof \Illuminate\Http\UploadedFile) {
@@ -3244,18 +3476,86 @@ class AdminPageController extends Controller
     protected function postalshopperCalculatorItems(SitePage $page): array
     {
         $items = $this->sectionItems($page, 'postalshopper_calculator');
-
-        if ($items !== []) {
-            return $items;
-        }
-
-        return [
+        $rates = collect([
             ['id' => null, 'weight' => 1, 'price' => 10.59],
             ['id' => null, 'weight' => 2, 'price' => 13.86],
             ['id' => null, 'weight' => 3, 'price' => 17.14],
             ['id' => null, 'weight' => 4, 'price' => 20.41],
             ['id' => null, 'weight' => 5, 'price' => 23.70],
-        ];
+            ['id' => null, 'weight' => 6, 'price' => 27.70],
+            ['id' => null, 'weight' => 7, 'price' => 31.70],
+            ['id' => null, 'weight' => 8, 'price' => 35.70],
+            ['id' => null, 'weight' => 9, 'price' => 39.70],
+            ['id' => null, 'weight' => 10, 'price' => 43.70],
+            ['id' => null, 'weight' => 11, 'price' => 47.70],
+            ['id' => null, 'weight' => 12, 'price' => 51.70],
+            ['id' => null, 'weight' => 13, 'price' => 55.70],
+            ['id' => null, 'weight' => 14, 'price' => 59.70],
+            ['id' => null, 'weight' => 15, 'price' => 63.70],
+            ['id' => null, 'weight' => 16, 'price' => 67.70],
+            ['id' => null, 'weight' => 17, 'price' => 71.70],
+            ['id' => null, 'weight' => 18, 'price' => 75.70],
+            ['id' => null, 'weight' => 19, 'price' => 79.70],
+            ['id' => null, 'weight' => 20, 'price' => 83.70],
+        ])->keyBy('weight');
+
+        foreach ($items as $item) {
+            $weight = (int) ($item['weight'] ?? 0);
+            if ($weight < 1 || $weight > 20 || ! is_numeric($item['price'] ?? null)) {
+                continue;
+            }
+
+            $rates->put($weight, [
+                'id' => $item['id'] ?? null,
+                'weight' => $weight,
+                'price' => (float) $item['price'],
+            ]);
+        }
+
+        return $rates->sortKeys()->values()->all();
+    }
+
+    protected function normalizePostalshopperCategories(array $items): array
+    {
+        return collect($items)
+            ->filter(fn ($item) => is_array($item) && (filled($item['key'] ?? null) || filled($item['label'] ?? null)))
+            ->map(fn ($item) => [
+                'key' => trim((string) ($item['key'] ?? '')),
+                'label' => trim((string) ($item['label'] ?? '')),
+                'icon' => in_array(($item['icon'] ?? ''), ['package', 'clothing', 'technology', 'beauty', 'home'], true) ? $item['icon'] : 'package',
+                'image' => $this->storeRepeaterImage($item, 'image_file', 'image', 'cms/postalshopper/categories'),
+                'description' => trim((string) ($item['description'] ?? '')),
+                'restrictions' => trim((string) ($item['restrictions'] ?? '')),
+                'source_label' => trim((string) ($item['source_label'] ?? '')),
+                'source_url' => ContentSecurity::sanitizeLinkUrl($item['source_url'] ?? '') ?? '',
+                'confirmed' => filter_var($item['confirmed'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                'is_reference' => filter_var($item['is_reference'] ?? false, FILTER_VALIDATE_BOOLEAN),
+            ])
+            ->values()
+            ->all();
+    }
+
+    protected function normalizePostalshopperTariffRules(array $items): array
+    {
+        return collect($items)
+            ->filter(fn ($item) => is_array($item) && collect([
+                $item['category_keys'] ?? null,
+                $item['weight_min'] ?? null,
+                $item['weight_max'] ?? null,
+                $item['shipping_price'] ?? null,
+            ])->contains(fn ($value) => filled($value)))
+            ->map(fn ($item) => [
+                'category_keys' => trim((string) ($item['category_keys'] ?? '')),
+                'weight_min' => is_numeric($item['weight_min'] ?? null) ? (float) $item['weight_min'] : null,
+                'weight_max' => is_numeric($item['weight_max'] ?? null) ? (float) $item['weight_max'] : null,
+                'shipping_price' => is_numeric($item['shipping_price'] ?? null) ? (float) $item['shipping_price'] : null,
+                'currency' => trim((string) ($item['currency'] ?? '')),
+                'source_label' => trim((string) ($item['source_label'] ?? '')),
+                'source_url' => ContentSecurity::sanitizeLinkUrl($item['source_url'] ?? '') ?? '',
+                'confirmed' => filter_var($item['confirmed'] ?? false, FILTER_VALIDATE_BOOLEAN),
+            ])
+            ->values()
+            ->all();
     }
 
     protected function sanitizePostalshopperFlag(mixed $value): string

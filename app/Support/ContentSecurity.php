@@ -27,6 +27,7 @@ class ContentSecurity
         'secondary_button_url',
         'tutorial_url',
         'banner_button_url',
+        'source_url',
     ];
 
     public const COLOR_KEYS = [
