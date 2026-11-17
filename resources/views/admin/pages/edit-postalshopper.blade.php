@@ -337,7 +337,7 @@
                     </div>
                 </div>
                 <div class="subpanel">
-                    <div class="toolbar"><div><h4>Tarifario vigente por peso (1–20 lb)</h4><p class="field-help">La tabla se aplica al peso total del paquete. Sobre 20 lb se suma el adicional proporcional configurado arriba; las reglas confirmadas por producto tienen prioridad.</p></div></div>
+                    <div class="toolbar"><div><h4>Tarifario vigente por peso (1–44 lb)</h4><p class="field-help">Muestra las tarifas informadas para cada libra entre 1 y 44 lb. El valor adicional es editable en la configuración superior.</p></div></div>
                     <div class="stack" data-collection data-base="postalshopper_calculator[items]" data-template="postalshopper-rate-template">
                         <div class="stack" data-rows>
                             @foreach (old('postalshopper_calculator.items', $calculator['items'] ?? []) as $item)
@@ -346,7 +346,7 @@
                                         <div class="actions"><span class="drag-handle" data-drag>::</span><strong>{{ isset($item['weight']) ? $item['weight'] . ' lb' : 'Tarifa' }}</strong></div>
                                     </div>
                                     <div class="grid grid-2" style="margin-top:12px;">
-                                        <div class="field"><label>Peso (libras)</label><input type="number" min="1" max="20" step="1" data-field="weight" value="{{ $item['weight'] ?? '' }}"></div>
+                                        <div class="field"><label>Peso (libras)</label><input type="number" min="1" max="44" step="1" data-field="weight" value="{{ $item['weight'] ?? '' }}"></div>
                                         <div class="field"><label>Precio</label><input type="number" min="0" max="1000000" step="0.01" data-field="price" value="{{ $item['price'] ?? '' }}"></div>
                                     </div>
                                     <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">

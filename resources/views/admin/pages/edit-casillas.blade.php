@@ -124,12 +124,11 @@
                 <div class="grid grid-2">
                     <div class="field"><label>Titulo</label><input type="text" name="casillas_sizes[title]" value="{{ old('casillas_sizes.title', $sizes['settings']['title'] ?? '') }}"></div>
                     <div class="field"><label>Subtitulo</label><input type="text" name="casillas_sizes[subtitle]" value="{{ old('casillas_sizes.subtitle', $sizes['settings']['subtitle'] ?? '') }}"></div>
-                    <div class="field"><label>Label de planes</label><input type="text" name="casillas_sizes[plan_label]" value="{{ old('casillas_sizes.plan_label', $sizes['settings']['plan_label'] ?? '') }}"></div>
+                    <div class="field"><label>Texto de planes</label><input type="text" name="casillas_sizes[plan_label]" value="{{ old('casillas_sizes.plan_label', $sizes['settings']['plan_label'] ?? '') }}"></div>
                     <div class="field"><label>Titulo del panel</label><input type="text" name="casillas_sizes[panel_title]" value="{{ old('casillas_sizes.panel_title', $sizes['settings']['panel_title'] ?? '') }}"></div>
-                    <div class="field"><label>Plan trimestral</label><input type="text" name="casillas_sizes[quarterly_label]" value="{{ old('casillas_sizes.quarterly_label', $sizes['settings']['quarterly_label'] ?? '') }}"></div>
+                    <div class="field"><label>Plan mensual</label><input type="text" name="casillas_sizes[monthly_label]" value="{{ old('casillas_sizes.monthly_label', $sizes['settings']['monthly_label'] ?? 'Mensual') }}"></div>
                     <div class="field"><label>Plan semestral</label><input type="text" name="casillas_sizes[semiannual_label]" value="{{ old('casillas_sizes.semiannual_label', $sizes['settings']['semiannual_label'] ?? '') }}"></div>
                     <div class="field"><label>Plan anual</label><input type="text" name="casillas_sizes[annual_label]" value="{{ old('casillas_sizes.annual_label', $sizes['settings']['annual_label'] ?? '') }}"></div>
-                    <div class="field"><label>etiqueta del anual</label><input type="text" name="casillas_sizes[annual_badge]" value="{{ old('casillas_sizes.annual_badge', $sizes['settings']['annual_badge'] ?? '') }}"></div>
                 </div>
                 <div class="subpanel">
                     <div class="toolbar"><div><h4>Tamanos disponibles</h4></div><button type="button" class="button button-secondary" data-add-row>Agregar tamano</button></div>
@@ -144,6 +143,9 @@
                                         <div class="field"><label>Etiqueta destacada</label><input type="text" data-field="badge" value="{{ $item['badge'] ?? '' }}"></div>
                                         <div class="field"><label>Categoria</label><input type="text" data-field="category" value="{{ $item['category'] ?? '' }}"></div>
                                         <div class="field"><label>Dimensiones</label><input type="text" data-field="dimensions" value="{{ $item['dimensions'] ?? '' }}"></div>
+                                        <div class="field"><label>Precio mensual (Bs)</label><input type="number" min="0" step="1" data-field="monthly_price" value="{{ $item['monthly_price'] ?? '' }}" required></div>
+                                        <div class="field"><label>Precio semestral (Bs)</label><input type="number" min="0" step="1" data-field="semiannual_price" value="{{ $item['semiannual_price'] ?? '' }}" required></div>
+                                        <div class="field"><label>Precio anual (Bs)</label><input type="number" min="0" step="1" data-field="annual_price" value="{{ $item['annual_price'] ?? '' }}" required></div>
                                         <div class="field" style="grid-column:1/-1;"><label>Descripcion</label><textarea class="field-small" data-field="text">{{ $item['text'] ?? '' }}</textarea></div>
                                     </div>
                                     <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
@@ -223,6 +225,9 @@
                     <div class="field"><label>Etiqueta destacada</label><input type="text" data-field="badge"></div>
                     <div class="field"><label>Categoria</label><input type="text" data-field="category"></div>
                     <div class="field"><label>Dimensiones</label><input type="text" data-field="dimensions"></div>
+                    <div class="field"><label>Precio mensual (Bs)</label><input type="number" min="0" step="1" data-field="monthly_price" required></div>
+                    <div class="field"><label>Precio semestral (Bs)</label><input type="number" min="0" step="1" data-field="semiannual_price" required></div>
+                    <div class="field"><label>Precio anual (Bs)</label><input type="number" min="0" step="1" data-field="annual_price" required></div>
                     <div class="field" style="grid-column:1/-1;"><label>Descripcion</label><textarea class="field-small" data-field="text"></textarea></div>
                 </div>
                 <input type="hidden" data-field="id">

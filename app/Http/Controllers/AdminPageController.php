@@ -474,6 +474,9 @@ class AdminPageController extends Controller
             'postalshopper_calculator.image_file' => 'imagen de la calculadora de Postal Shopper',
             'postalshopper_calculator.items.*.weight' => 'peso de la tarifa',
             'postalshopper_calculator.items.*.price' => 'precio de la tarifa',
+            'casillas_sizes.items.*.monthly_price' => 'precio mensual de la casilla',
+            'casillas_sizes.items.*.semiannual_price' => 'precio semestral de la casilla',
+            'casillas_sizes.items.*.annual_price' => 'precio anual de la casilla',
             'encomienda_hero.visual_image_file' => 'imagen del hero de Encomienda',
             'encomienda_intro.image_file' => 'imagen introductoria de Encomienda',
             'footer.social_links.*.image_file' => 'icono social del footer',
@@ -551,10 +554,14 @@ class AdminPageController extends Controller
             'postalshopper_destinations.upcoming_label' => ['nullable', 'string', 'max:60'],
             'postalshopper_destinations.upcoming_status' => ['nullable', 'string', 'max:40'],
             'postalshopper_destinations.upcoming_enabled' => ['nullable', 'boolean'],
-            'postalshopper_calculator.items' => ['required', 'array', 'size:20'],
-            'postalshopper_calculator.items.*.weight' => ['required', 'integer', 'min:1', 'max:20', 'distinct'],
-            'postalshopper_calculator.items.*.price' => ['required', 'numeric', 'min:0', 'max:1000000'],
-            'postalshopper_calculator.excess_weight_price_per_lb' => ['required', 'numeric', 'min:0', 'max:1000000'],
+            'postalshopper_calculator.items' => ['nullable', 'array'],
+            'postalshopper_calculator.items.*.weight' => ['nullable', 'integer', 'min:1', 'max:44', 'distinct'],
+            'postalshopper_calculator.items.*.price' => ['nullable', 'numeric', 'min:0', 'max:1000000'],
+            'postalshopper_calculator.excess_weight_price_per_lb' => ['nullable', 'numeric', 'min:0', 'max:1000000'],
+            'casillas_sizes.items' => ['nullable', 'array'],
+            'casillas_sizes.items.*.monthly_price' => ['nullable', 'numeric', 'min:0', 'max:1000000'],
+            'casillas_sizes.items.*.semiannual_price' => ['nullable', 'numeric', 'min:0', 'max:1000000'],
+            'casillas_sizes.items.*.annual_price' => ['nullable', 'numeric', 'min:0', 'max:1000000'],
             'postalshopper_calculator.products_title' => ['nullable', 'string', 'max:180'],
             'postalshopper_calculator.products_help' => ['nullable', 'string', 'max:500'],
             'postalshopper_calculator.unclassified_notice' => ['nullable', 'string', 'max:1000'],
@@ -701,6 +708,20 @@ class AdminPageController extends Controller
             $rules['tramites.items.*.file'] = ['nullable', 'file', 'max:15360'];
             $rules['tramites.items.*.files'] = ['nullable', 'array', 'max:20'];
             $rules['tramites.items.*.files.*'] = ['file', 'max:15360'];
+        }
+
+        if ($this->isPostalshopperPage($page)) {
+            $rules['postalshopper_calculator.items'] = ['required', 'array', 'size:44'];
+            $rules['postalshopper_calculator.items.*.weight'] = ['required', 'integer', 'min:1', 'max:44', 'distinct'];
+            $rules['postalshopper_calculator.items.*.price'] = ['required', 'numeric', 'min:0', 'max:1000000'];
+            $rules['postalshopper_calculator.excess_weight_price_per_lb'] = ['required', 'numeric', 'min:0', 'max:1000000'];
+        }
+
+        if ($this->isCasillasPage($page)) {
+            $rules['casillas_sizes.items'] = ['required', 'array', 'min:1', 'max:20'];
+            $rules['casillas_sizes.items.*.monthly_price'] = ['required', 'numeric', 'min:0', 'max:1000000'];
+            $rules['casillas_sizes.items.*.semiannual_price'] = ['required', 'numeric', 'min:0', 'max:1000000'];
+            $rules['casillas_sizes.items.*.annual_price'] = ['required', 'numeric', 'min:0', 'max:1000000'];
         }
 
         $data = $request->validate($rules, $messages, $attributes);
@@ -1608,10 +1629,9 @@ class AdminPageController extends Controller
                     'title' => '',
                     'subtitle' => '',
                     'plan_label' => '',
-                    'quarterly_label' => '',
+                    'monthly_label' => 'Mensual',
                     'semiannual_label' => '',
                     'annual_label' => '',
-                    'annual_badge' => '',
                     'panel_title' => '',
                 ]),
                 'items' => $this->sectionItems($page, 'casillas_sizes'),
@@ -2779,10 +2799,9 @@ class AdminPageController extends Controller
                 'title' => $request->input('casillas_sizes.title'),
                 'subtitle' => $request->input('casillas_sizes.subtitle'),
                 'plan_label' => $request->input('casillas_sizes.plan_label'),
-                'quarterly_label' => $request->input('casillas_sizes.quarterly_label'),
+                'monthly_label' => $request->input('casillas_sizes.monthly_label'),
                 'semiannual_label' => $request->input('casillas_sizes.semiannual_label'),
                 'annual_label' => $request->input('casillas_sizes.annual_label'),
-                'annual_badge' => $request->input('casillas_sizes.annual_badge'),
                 'panel_title' => $request->input('casillas_sizes.panel_title'),
             ], $this->mapRepeaterItems(data_get($form, 'casillas_sizes.items', []), 'casillas_size_card', function ($item) {
                 return [
@@ -2792,6 +2811,9 @@ class AdminPageController extends Controller
                     'category' => $item['category'] ?? '',
                     'text' => $item['text'] ?? '',
                     'dimensions' => $item['dimensions'] ?? '',
+                    'monthly_price' => (float) ($item['monthly_price'] ?? 0),
+                    'semiannual_price' => (float) ($item['semiannual_price'] ?? 0),
+                    'annual_price' => (float) ($item['annual_price'] ?? 0),
                 ];
             })),
 
@@ -3482,26 +3504,19 @@ class AdminPageController extends Controller
             ['id' => null, 'weight' => 3, 'price' => 17.14],
             ['id' => null, 'weight' => 4, 'price' => 20.41],
             ['id' => null, 'weight' => 5, 'price' => 23.70],
-            ['id' => null, 'weight' => 6, 'price' => 27.70],
-            ['id' => null, 'weight' => 7, 'price' => 31.70],
-            ['id' => null, 'weight' => 8, 'price' => 35.70],
-            ['id' => null, 'weight' => 9, 'price' => 39.70],
-            ['id' => null, 'weight' => 10, 'price' => 43.70],
-            ['id' => null, 'weight' => 11, 'price' => 47.70],
-            ['id' => null, 'weight' => 12, 'price' => 51.70],
-            ['id' => null, 'weight' => 13, 'price' => 55.70],
-            ['id' => null, 'weight' => 14, 'price' => 59.70],
-            ['id' => null, 'weight' => 15, 'price' => 63.70],
-            ['id' => null, 'weight' => 16, 'price' => 67.70],
-            ['id' => null, 'weight' => 17, 'price' => 71.70],
-            ['id' => null, 'weight' => 18, 'price' => 75.70],
-            ['id' => null, 'weight' => 19, 'price' => 79.70],
-            ['id' => null, 'weight' => 20, 'price' => 83.70],
         ])->keyBy('weight');
+
+        for ($weight = 6; $weight <= 44; $weight++) {
+            $rates->put($weight, [
+                'id' => null,
+                'weight' => $weight,
+                'price' => round(23.70 + (($weight - 5) * 4), 2),
+            ]);
+        }
 
         foreach ($items as $item) {
             $weight = (int) ($item['weight'] ?? 0);
-            if ($weight < 1 || $weight > 20 || ! is_numeric($item['price'] ?? null)) {
+            if ($weight < 1 || $weight > 44 || ! is_numeric($item['price'] ?? null)) {
                 continue;
             }
 
