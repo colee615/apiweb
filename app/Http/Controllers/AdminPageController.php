@@ -583,6 +583,13 @@ class AdminPageController extends Controller
             'postalshopper_calculator.weight_positive_help' => ['nullable', 'string', 'max:500'],
             'postalshopper_calculator.weight_total_label' => ['nullable', 'string', 'max:120'],
             'postalshopper_calculator.quote_weight_total_label' => ['nullable', 'string', 'max:120'],
+            'postalshopper_calculator.usd_to_bob_rate' => ['nullable', 'numeric', 'gt:0', 'max:100000'],
+            'postalshopper_calculator.usd_to_bob_rate_note' => ['nullable', 'string', 'max:160'],
+            'postalshopper_calculator.postal_modality_label' => ['nullable', 'string', 'max:180'],
+            'postalshopper_calculator.delivery_estimate_notice' => ['nullable', 'string', 'max:300'],
+            'postalshopper_calculator.customs_notice' => ['nullable', 'string', 'max:500'],
+            'postalshopper_calculator.max_shipment_weight_kg' => ['nullable', 'numeric', 'gt:0', 'max:1000'],
+            'postalshopper_calculator.max_shipment_value_usd' => ['nullable', 'numeric', 'gt:0', 'max:10000000'],
             'postalshopper_calculator.button_continue_weight' => ['nullable', 'string', 'max:80'],
             'postalshopper_calculator.button_continue_quote' => ['nullable', 'string', 'max:80'],
             'postalshopper_calculator.button_edit_products' => ['nullable', 'string', 'max:80'],
@@ -599,7 +606,6 @@ class AdminPageController extends Controller
             'postalshopper_calculator.shipping_label' => ['nullable', 'string', 'max:120'],
             'postalshopper_calculator.pending_quote_title' => ['nullable', 'string', 'max:180'],
             'postalshopper_calculator.pending_quote_message' => ['nullable', 'string', 'max:1000'],
-            'postalshopper_calculator.estimate_disclaimer' => ['nullable', 'string', 'max:1200'],
             'postalshopper_calculator.categories' => ['nullable', 'array'],
             'postalshopper_calculator.categories.*.key' => ['nullable', 'string', 'max:80', 'distinct'],
             'postalshopper_calculator.categories.*.icon' => ['nullable', 'in:package,clothing,technology,beauty,home'],
@@ -1755,10 +1761,17 @@ class AdminPageController extends Controller
             'quote_excess_label' => 'Peso excedente',
             'categories_configured' => false,
             'weight_title' => '¿Cuánto pesa cada producto?',
-            'weight_help' => 'Ingresa el peso estimado de cada producto.',
+            'weight_help' => 'Ingresa el peso estimado de cada producto y revisa el peso total del envío.',
             'weight_unit_singular' => 'libra',
             'weight_unit_plural' => 'libras',
             'currency_label' => '$us',
+            'usd_to_bob_rate' => 11.70,
+            'usd_to_bob_rate_note' => 'BCB · TCO vigente al 17/11/2026',
+            'postal_modality_label' => 'Modalidad de envío: Postal a Postal',
+            'delivery_estimate_notice' => 'Tiempo estimado de entrega: 15 días a partir del pago de su envío.',
+            'customs_notice' => 'La tarifa no incluye tributos aduaneros, que se liquidan conforme a normativa vigente.',
+            'max_shipment_weight_kg' => 20,
+            'max_shipment_value_usd' => 999,
             'excess_weight_price_per_lb' => 4,
             'total_label' => 'Tarifa estimada',
             'shipping_label' => 'Envío Postal Shopper',
@@ -1766,7 +1779,6 @@ class AdminPageController extends Controller
             'quote_help' => 'Revisa los productos, categorías y peso estimado.',
             'pending_quote_title' => 'Cotización pendiente de confirmación',
             'pending_quote_message' => 'No hay una tarifa cargada para el peso indicado ni una regla confirmada para los productos seleccionados.',
-            'estimate_disclaimer' => 'El peso y el costo finales se confirman cuando el paquete llega al almacén y es verificado. Impuestos y otros cargos no se incluyen sin una regla y un valor confirmados.',
             'categories' => [
                 ['key' => 'reference-clothing-footwear', 'label' => 'Ropa y calzado', 'icon' => 'clothing', 'confirmed' => false, 'is_reference' => true],
                 ['key' => 'reference-technology', 'label' => 'Tecnología', 'icon' => 'technology', 'confirmed' => false, 'is_reference' => true],
@@ -1780,6 +1792,12 @@ class AdminPageController extends Controller
             'caption_text' => 'Tus compras, de Miami a Bolivia',
         ]);
 
+        if (($settings['weight_total_label'] ?? '') === 'Peso estimado total') {
+            $settings['weight_total_label'] = 'Peso total del envío';
+        }
+        if (($settings['quote_weight_total_label'] ?? '') === 'Peso total estimado') {
+            $settings['quote_weight_total_label'] = 'Peso total del envío';
+        }
         if (($settings['title'] ?? '') === 'Cotiza tu paquete') {
             $settings['title'] = 'Cotiza tu';
         }
@@ -1791,6 +1809,13 @@ class AdminPageController extends Controller
         }
         if (($settings['weight_title'] ?? '') === 'Elige el peso del paquete') {
             $settings['weight_title'] = '¿Cuánto pesa cada producto?';
+        }
+        if (in_array(($settings['weight_help'] ?? ''), [
+            'Ingresa el peso estimado de cada producto.',
+            'Ingresa el peso y el valor de compra en USD de cada producto. Límites por envío: 20 kg y USD 999.',
+            'Ingresa el peso y el valor de compra en USD de cada producto. Máximos por envío: 20 kg y USD 999.',
+        ], true)) {
+            $settings['weight_help'] = 'Ingresa el peso estimado de cada producto y revisa el peso total del envío.';
         }
         if (($settings['weight_help'] ?? '') === 'Selecciona entre 1 y 5 libras') {
             $settings['weight_help'] = 'Ingresa el peso estimado de cada producto.';
@@ -2971,6 +2996,13 @@ class AdminPageController extends Controller
                 'weight_unit_singular' => $request->input('postalshopper_calculator.weight_unit_singular'),
                 'weight_unit_plural' => $request->input('postalshopper_calculator.weight_unit_plural'),
                 'currency_label' => $request->input('postalshopper_calculator.currency_label'),
+                'usd_to_bob_rate' => $request->input('postalshopper_calculator.usd_to_bob_rate'),
+                'usd_to_bob_rate_note' => $request->input('postalshopper_calculator.usd_to_bob_rate_note'),
+                'postal_modality_label' => $request->input('postalshopper_calculator.postal_modality_label'),
+                'delivery_estimate_notice' => $request->input('postalshopper_calculator.delivery_estimate_notice'),
+                'customs_notice' => $request->input('postalshopper_calculator.customs_notice'),
+                'max_shipment_weight_kg' => $request->input('postalshopper_calculator.max_shipment_weight_kg'),
+                'max_shipment_value_usd' => $request->input('postalshopper_calculator.max_shipment_value_usd'),
                 'excess_weight_price_per_lb' => $request->input('postalshopper_calculator.excess_weight_price_per_lb'),
                 'total_label' => $request->input('postalshopper_calculator.total_label'),
                 'shipping_label' => $request->input('postalshopper_calculator.shipping_label'),
@@ -2978,7 +3010,6 @@ class AdminPageController extends Controller
                 'quote_help' => $request->input('postalshopper_calculator.quote_help'),
                 'pending_quote_title' => $request->input('postalshopper_calculator.pending_quote_title'),
                 'pending_quote_message' => $request->input('postalshopper_calculator.pending_quote_message'),
-                'estimate_disclaimer' => $request->input('postalshopper_calculator.estimate_disclaimer'),
                 'categories' => $this->normalizePostalshopperCategories(data_get($form, 'postalshopper_calculator.categories', [])),
                 'tariff_rules' => $this->normalizePostalshopperTariffRules(data_get($form, 'postalshopper_calculator.tariff_rules', [])),
                 'image' => $this->storeUploadedImage($request, 'postalshopper_calculator.image_file', $request->input('postalshopper_calculator.image'), 'cms/postalshopper/calculator'),
