@@ -197,27 +197,7 @@ return new class extends Migration
             ->where('key', 'postalshopper_hero')
             ->first();
 
-        $registrationUrl = null;
-        $destinations = DB::table('site_sections')
-            ->where('site_page_id', $pageId)
-            ->where('key', 'postalshopper_destinations')
-            ->first();
-
-        if ($destinations) {
-            foreach (DB::table('site_section_items')->where('site_section_id', $destinations->id)->orderBy('sort_order')->get() as $item) {
-                $data = is_array($item->data) ? $item->data : json_decode((string) $item->data, true);
-                $data = is_array($data) ? $data : [];
-                $status = (string) ($data['status'] ?? '');
-                $url = trim((string) ($data['url'] ?? ''));
-
-                if ($url !== '' && preg_match('/disponible|directo/i', $status) && preg_match('/^https?:\/\//i', $url)) {
-                    $registrationUrl = $url;
-                    break;
-                }
-            }
-        }
-
-        $registrationUrl ??= 'https://clientescorreos.sistemaml.net/';
+        $registrationUrl = 'https://delivery.correos.gob.bo/';
 
         if ($hero) {
             $settings = is_array($hero->settings) ? $hero->settings : json_decode((string) $hero->settings, true);
@@ -227,9 +207,7 @@ return new class extends Migration
                 $settings['primary_button_label'] = 'Cómo funciona';
             }
 
-            if (in_array($settings['secondary_button_url'] ?? null, ['', '/contacto'], true)) {
-                $settings['secondary_button_url'] = $registrationUrl;
-            }
+            $settings['secondary_button_url'] = $registrationUrl;
 
             DB::table('site_sections')->where('id', $hero->id)->update([
                 'settings' => json_encode($settings, JSON_UNESCAPED_UNICODE),

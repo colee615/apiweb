@@ -17,6 +17,8 @@ use Illuminate\View\View;
 
 class AdminPageController extends Controller
 {
+    private const POSTALSHOPPER_REGISTRATION_URL = 'https://delivery.correos.gob.bo/';
+
     public function __construct(
         protected SitePageEditor $editor
     ) {
@@ -1692,6 +1694,7 @@ class AdminPageController extends Controller
                 ]),
                 'items' => collect($this->sectionItems($page, 'postalshopper_destinations'))
                     ->reject(fn ($item) => mb_strtolower(trim((string) ($item['label'] ?? ''))) === 'nuevos destinos')
+                    ->map(fn ($item) => array_merge($item, ['url' => self::POSTALSHOPPER_REGISTRATION_URL]))
                     ->values()
                     ->all(),
             ],
@@ -1863,7 +1866,7 @@ class AdminPageController extends Controller
             'primary_button_label' => 'Cómo funciona',
             'primary_button_url' => '',
             'secondary_button_label' => 'Registrarme gratis',
-            'secondary_button_url' => '',
+            'secondary_button_url' => self::POSTALSHOPPER_REGISTRATION_URL,
             'background_image' => '',
             'map_origin_country' => '',
             'map_origin_city' => '',
@@ -1871,18 +1874,11 @@ class AdminPageController extends Controller
             'map_destination_city' => '',
             'map_caption' => '',
         ]);
-        $directService = collect($this->sectionItems($page, 'postalshopper_destinations'))
-            ->first(fn ($item) => preg_match('/disponible|directo/i', (string) ($item['status'] ?? '')) && filled($item['url'] ?? null));
-        $registrationUrl = ContentSecurity::sanitizeLinkUrl($directService['url'] ?? null)
-            ?? 'https://clientescorreos.sistemaml.net/';
-
         if (($settings['primary_button_label'] ?? null) === 'Como funciona' || ($settings['primary_button_label'] ?? null) === 'Ver tutorial') {
             $settings['primary_button_label'] = 'Cómo funciona';
         }
 
-        if (in_array($settings['secondary_button_url'] ?? null, ['', '/contacto'], true)) {
-            $settings['secondary_button_url'] = $registrationUrl;
-        }
+        $settings['secondary_button_url'] = self::POSTALSHOPPER_REGISTRATION_URL;
 
         return $settings;
     }
@@ -2893,7 +2889,7 @@ class AdminPageController extends Controller
                 'primary_button_label' => $request->input('postalshopper_hero.primary_button_label'),
                 'primary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('postalshopper_hero.primary_button_url')) ?? '',
                 'secondary_button_label' => $request->input('postalshopper_hero.secondary_button_label'),
-                'secondary_button_url' => ContentSecurity::sanitizeLinkUrl($request->input('postalshopper_hero.secondary_button_url')) ?? '',
+                'secondary_button_url' => self::POSTALSHOPPER_REGISTRATION_URL,
                 'background_image' => $this->storeUploadedImage($request, 'postalshopper_hero.background_image_file', $request->input('postalshopper_hero.background_image'), 'cms/postalshopper/hero'),
                 'map_origin_country' => $heroSettings['map_origin_country'] ?? '',
                 'map_origin_city' => $heroSettings['map_origin_city'] ?? '',
@@ -2916,7 +2912,7 @@ class AdminPageController extends Controller
                     'label' => $item['label'] ?? '',
                     'flag' => $this->sanitizePostalshopperFlag($item['flag'] ?? ''),
                     'status' => $item['status'] ?? '',
-                    'url' => ContentSecurity::sanitizeLinkUrl($item['url'] ?? '') ?? '',
+                    'url' => self::POSTALSHOPPER_REGISTRATION_URL,
                 ];
             }, true), $request->boolean('postalshopper_destinations.section_active')),
 

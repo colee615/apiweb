@@ -71,7 +71,7 @@
                     <div class="field"><label>Texto botón principal</label><input type="text" name="postalshopper_hero[primary_button_label]" value="{{ old('postalshopper_hero.primary_button_label', $hero['settings']['primary_button_label'] ?? '') }}"></div>
                     <div class="field"><label>Enlace de respaldo</label><input type="text" name="postalshopper_hero[primary_button_url]" value="{{ old('postalshopper_hero.primary_button_url', $hero['settings']['primary_button_url'] ?? '') }}"><small class="field-help">El botón “Cómo funciona” prioriza el video configurado en Pasos del servicio.</small></div>
                     <div class="field"><label>Boton secundario</label><input type="text" name="postalshopper_hero[secondary_button_label]" value="{{ old('postalshopper_hero.secondary_button_label', $hero['settings']['secondary_button_label'] ?? '') }}"></div>
-                    <div class="field"><label>Enlace boton secundario</label><input type="text" name="postalshopper_hero[secondary_button_url]" value="{{ old('postalshopper_hero.secondary_button_url', $hero['settings']['secondary_button_url'] ?? '') }}"><small class="field-help">Por defecto usa el enlace del servicio directo configurado en esta página.</small></div>
+                    <div class="field"><label>Enlace de registro y creación de casilla</label><input type="text" value="https://delivery.correos.gob.bo/" readonly><small class="field-help">Este enlace se usa en los botones de registro de Postal Shopper.</small></div>
                     <div class="field"><label>Imagen de fondo actual</label><input type="text" name="postalshopper_hero[background_image]" value="{{ old('postalshopper_hero.background_image', $hero['settings']['background_image'] ?? '') }}"></div>
                     <div class="field"><label>Subir imagen de fondo</label><input type="file" name="postalshopper_hero[background_image_file]" accept="image/*"></div>
                 </div>
@@ -132,7 +132,7 @@
                     <label class="field-help" style="display:flex;align-items:center;gap:8px;"><input type="hidden" name="postalshopper_destinations[upcoming_enabled]" value="0"><input type="checkbox" name="postalshopper_destinations[upcoming_enabled]" value="1" {{ old('postalshopper_destinations.upcoming_enabled', $destinations['settings']['upcoming_enabled'] ?? true) ? 'checked' : '' }}> Mostrar la tarjeta informativa</label>
                 </div>
                 <div class="subpanel">
-                    <div class="toolbar"><div><h4>Servicios</h4></div><button type="button" class="button button-secondary" data-add-row>Agregar servicio</button></div>
+                    <div class="toolbar"><div><h4>Servicios</h4><small class="field-help">Los servicios disponibles dirigen al portal de registro de Postal Shopper.</small></div><button type="button" class="button button-secondary" data-add-row>Agregar servicio</button></div>
                     <div class="stack" data-collection data-base="postalshopper_destinations[items]" data-template="postalshopper-destination-template">
                         <div class="stack" data-rows>
                             @foreach (old('postalshopper_destinations.items', $destinations['items'] ?? []) as $item)
@@ -148,7 +148,7 @@
                                         <div class="field"><label>Servicio / país</label><input type="text" data-field="label" value="{{ $item['label'] ?? '' }}" placeholder="Estados Unidos"></div>
                                         <div class="field"><label>Bandera (emoji o imagen)</label><input type="text" data-field="flag" value="{{ $item['flag'] ?? '' }}" placeholder="🇺🇸 o /flags/us.svg"></div>
                                         <div class="field"><label>Estado mostrado</label><input type="text" data-field="status" value="{{ $item['status'] ?? '' }}" placeholder="Envío directo / Muy pronto"></div>
-                                        <div class="field"><label>Enlace del servicio</label><input type="text" data-field="url" value="{{ $item['url'] ?? '' }}" placeholder="/contacto o https://... "></div>
+                                        <div class="field"><label>Portal de registro</label><input type="text" data-field="url" value="https://delivery.correos.gob.bo/" readonly></div>
                                     </div>
                                     <input type="hidden" data-field="id" value="{{ $item['id'] ?? '' }}">
                                 </div>
@@ -371,7 +371,7 @@
                     <div class="field"><label>Titulo banner</label><input type="text" name="postalshopper_benefits[banner_title]" value="{{ old('postalshopper_benefits.banner_title', $benefits['settings']['banner_title'] ?? '') }}"></div>
                     <div class="field"><label>Texto banner</label><input type="text" name="postalshopper_benefits[banner_text]" value="{{ old('postalshopper_benefits.banner_text', $benefits['settings']['banner_text'] ?? '') }}"></div>
                     <div class="field"><label>Boton banner</label><input type="text" name="postalshopper_benefits[banner_button_label]" value="{{ old('postalshopper_benefits.banner_button_label', $benefits['settings']['banner_button_label'] ?? '') }}"></div>
-                    <div class="field"><label>Enlace boton banner</label><input type="text" name="postalshopper_benefits[banner_button_url]" value="{{ old('postalshopper_benefits.banner_button_url', $benefits['settings']['banner_button_url'] ?? '') }}"></div>
+                    <div class="field"><label>Enlace boton banner</label><input type="text" name="postalshopper_benefits[banner_button_url]" value="{{ old('postalshopper_benefits.banner_button_url', $benefits['settings']['banner_button_url'] ?? '') }}"><small class="field-help">Si el botón invita a registrarse o crear una casilla, abrirá el portal de registro de Postal Shopper.</small></div>
                 </div>
                 <div class="subpanel">
                     <div class="toolbar"><div><h4>Tarjetas de beneficios</h4></div><button type="button" class="button button-secondary" data-add-row>Agregar tarjeta</button></div>
@@ -442,7 +442,7 @@
                     <div class="field"><label>Servicio / país</label><input type="text" data-field="label" placeholder="Estados Unidos"></div>
                     <div class="field"><label>Bandera (emoji o imagen)</label><input type="text" data-field="flag" placeholder="🇺🇸 o /flags/us.svg"></div>
                     <div class="field"><label>Estado mostrado</label><input type="text" data-field="status" placeholder="Envío directo / Muy pronto"></div>
-                    <div class="field"><label>Enlace del servicio</label><input type="text" data-field="url" placeholder="/contacto o https://..."></div>
+                    <div class="field"><label>Portal de registro</label><input type="text" data-field="url" value="https://delivery.correos.gob.bo/" readonly></div>
                 </div>
                 <input type="hidden" data-field="id">
             </div>
